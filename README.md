@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bendita Store — Perfumería Premium
 
-## Getting Started
+Bendita Store es una plataforma de comercio electrónico de alta gama especializada en fragancias de lujo. Construida con tecnologías modernas para ofrecer una experiencia rápida, segura y estéticamente superior.
 
-First, run the development server:
+## Tecnologías
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** [Next.js 15+](https://nextjs.org/) (App Router)
+- **Base de Datos & Auth:** [Supabase](https://supabase.com/)
+- **Estilos:** Vanilla CSS & Tailwind CSS
+- **Animaciones:** Framer Motion & Lucide React
+- **Estado:** Zustand
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuración Local
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <tu-repositorio>
+   cd bendita-store
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Variables de Entorno:**
+   Copia el archivo `.env.example` a `.env.local` y completa las variables con tus credenciales de Supabase:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Ejecutar en desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Despliegue en Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Este proyecto está optimizado para desplegarse en Vercel con la mejor latencia para Colombia (Región São Paulo - `gru1`).
 
-## Deploy on Vercel
+1. Crea un nuevo proyecto en [Vercel](https://vercel.com/).
+2. Conecta tu repositorio de GitHub.
+3. Configura las siguientes variables de entorno en el panel de Vercel:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `NEXT_PUBLIC_SITE_URL` (Ej: https://tu-tienda.vercel.app)
+   - `NEXT_PUBLIC_WHATSAPP_NUMBER` (Formato: 573XXXXXXXXX)
+4. Haz clic en **Deploy**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estructura del Proyecto
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/src/app`: Rutas de la aplicación (Shop, Account, Admin).
+- `/src/components`: Componentes reutilizables organizados por dominio.
+- `/src/lib`: Utilidades, configuración y cliente de Supabase.
+- `/src/hooks`: Custom hooks para auth y estado.
+- `/src/types`: Definiciones de TypeScript.
+
+## Seguridad
+
+La aplicación incluye:
+- Cabeceras de seguridad estrictas (X-Frame, CSP, etc.).
+- Validación de variables de entorno en tiempo de ejecución.
+- Middleware de protección para rutas de Administración y Cuenta.
+- RLS (Row Level Security) configurado en Supabase.
+
+---
+Hecho con pasión por Bendita Store.

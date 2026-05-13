@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================
+   BENDITA STORE — Design Tokens (Tailwind v4)
+   Navy + Gold + Crystal
+============================================ */
+@theme {
+  /* ---------- Colors ---------- */
+  --color-navy-950: #04091f;
+  --color-navy-900: #070d2e;
+  --color-navy-800: #0a1245;
+  --color-navy-700: #0f1a5c;
 
-@theme inline {
+  --color-gold-300: #f5d97e;
+  --color-gold-400: #e8c14a;
+  --color-gold-500: #c9a227;
+  --color-gold-600: #a07d10;
+  --color-gold:     #c9a227;
+
+  --color-crystal:      #e8f4f8;
+  --color-crystal-soft: #f0f8fc;
+
+  /* ---------- Fonts ---------- */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body:    var(--font-inter), Inter, system-ui, sans-serif;
+  --font-script:  var(--font-great-vibes), "Great Vibes", cursive;
+
+  /* ---------- Background / Foreground ---------- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #04091f;   /* navy-950 — dark mode por defecto */
+  --foreground: #e8f4f8;   /* crystal */
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Typography helpers ---------- */
+.font-display { font-family: var(--font-display); }
+.font-script  { font-family: var(--font-script);  }
+
+/* ---------- Gold gradient ---------- */
+.gradient-gold {
+  background: linear-gradient(135deg, var(--color-gold-300) 0%, var(--color-gold-500) 50%, var(--color-gold-600) 100%);
+}
+
+/* ---------- Glassmorphism ---------- */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Scrollbar personalizado ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-950);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-600);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-500);
 }

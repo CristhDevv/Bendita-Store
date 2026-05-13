@@ -1,0 +1,240 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Package,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  X,
+  Loader2,
+  Eye,
+  EyeOff,
+  Star,
+  StarOff,
+  Image as ImageIcon,
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import type { Product, Category, Brand } from "@/types";
+import toast from "react-hot-toast";
+import NextImage from "next/image";
+
+function formatCOP(amount: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
+
+import dynamic from "next/dynamic";
+
+const ProductModal = dynamic(() => import("./ProductModal").then(mod => mod.ProductModal), { ssr: false });
+
+// ─── Products Admin Page ───────────────────────────────────────
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | undefined>();
+  const [showModal, setShowModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    const supabase = createClient();
+    const [{ data: p }, { data: c }, { data: b }] = await Promise.all([
+      supabase
+        .from("products")
+        .select("*, category:categories(name), brand:brands(name)")
+        .order("created_at", { ascending: false }),
+      supabase.from("categories").select("*").order("name"),
+      supabase.from("brands").select("*").order("name"),
+    ]);
+    setProducts((p as Product[]) || []);
+    setCategories((c as Category[]) || []);
+    setBrands((b as Brand[]) || []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleSave = (saved: Product) => {
+    setProducts((prev) => {
+      const idx = prev.findIndex((p) => p.id === saved.id);
+      if (idx >= 0) { const updated = [...prev]; updated[idx] = saved; return updated; }
+      return [saved, ...prev];
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Eliminar este producto permanentemente?")) return;
+    setDeletingId(id);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Producto eliminado");
+    } catch { toast.error("Error al eliminar"); }
+    finally { setDeletingId(null); }
+  };
+
+  const handleToggleActive = async (product: Product) => {
+    const supabase = createClient();
+    const { error } = await supabase.from("products").update({ is_active: !product.is_active }).eq("id", product.id);
+    if (!error) { setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, is_active: !p.is_active } : p)); }
+  };
+
+  const handleToggleFeatured = async (product: Product) => {
+    const supabase = createClient();
+    const { error } = await supabase.from("products").update({ is_featured: !product.is_featured }).eq("id", product.id);
+    if (!error) { setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, is_featured: !p.is_featured } : p)); }
+  };
+
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.brand as Brand | undefined)?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      p.slug.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl text-crystal mb-1">Productos</h1>
+          <p className="font-body text-sm text-crystal/50">{products.length} productos en total</p>
+        </div>
+        <button
+          onClick={() => { setEditingProduct(undefined); setShowModal(true); }}
+          className="flex items-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-400 text-navy-950 rounded-xl font-body font-semibold text-sm transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Nuevo Producto
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-crystal/30" />
+        <input
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/8 focus:border-gold-500/40 text-crystal font-body text-sm outline-none transition-colors placeholder:text-crystal/30"
+          placeholder="Buscar por nombre, marca o slug..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Table */}
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="glass border border-white/5 rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/5">
+                  {["Producto", "Marca", "Precio", "Stock", "Estado", ""].map((h) => (
+                    <th key={h} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-crystal/30 ${h === "" ? "text-right" : "text-left"}`}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((product, i) => (
+                  <motion.tr
+                    key={product.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="border-b border-white/3 hover:bg-white/2 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-navy-800 flex items-center justify-center shrink-0 overflow-hidden relative">
+                          {product.images?.[0] ? (
+                            <NextImage src={product.images[0]} alt={product.name} fill className="object-cover" />
+                          ) : (
+                            <ImageIcon className="w-4 h-4 text-crystal/20" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-body text-sm text-crystal">{product.name}</p>
+                          <p className="font-body text-xs text-crystal/40 uppercase">{product.concentration}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-body text-xs text-crystal/60">
+                      {(product.brand as Brand | undefined)?.name || "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="font-display text-sm text-gold">{formatCOP(product.price)}</p>
+                      {product.compare_price && (
+                        <p className="font-body text-xs text-crystal/30 line-through">{formatCOP(product.compare_price)}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`font-body text-xs px-2 py-0.5 rounded-lg ${product.stock > 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>
+                        {product.stock}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-body ${product.is_active ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5" : "text-crystal/30 border-crystal/10 bg-crystal/3"}`}>
+                          {product.is_active ? "Activo" : "Inactivo"}
+                        </span>
+                        {product.is_featured && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border text-gold border-gold/20 bg-gold/5 font-body">⭐</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleToggleFeatured(product)} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-gold transition-colors" title={product.is_featured ? "Quitar destacado" : "Destacar"}>
+                          {product.is_featured ? <Star className="w-3.5 h-3.5" /> : <StarOff className="w-3.5 h-3.5" />}
+                        </button>
+                        <button onClick={() => handleToggleActive(product)} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-crystal transition-colors" title={product.is_active ? "Desactivar" : "Activar"}>
+                          {product.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </button>
+                        <button onClick={() => { setEditingProduct(product); setShowModal(true); }} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-crystal transition-colors">
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-crystal/30 hover:text-red-400 transition-colors disabled:opacity-40">
+                          {deletingId === product.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+            {filtered.length === 0 && (
+              <div className="py-12 text-center">
+                <Package className="w-8 h-8 text-gold/20 mx-auto mb-2" />
+                <p className="font-body text-sm text-crystal/30">Sin resultados</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <AnimatePresence>
+        {showModal && (
+          <ProductModal
+            product={editingProduct}
+            categories={categories}
+            brands={brands}
+            onClose={() => setShowModal(false)}
+            onSave={handleSave}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
