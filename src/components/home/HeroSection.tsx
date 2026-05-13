@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -61,6 +62,12 @@ const STATS = [
    HeroSection
 ═══════════════════════════════════════════════════════════════ */
 export function HeroSection() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* ── Radial gradient background ── */}
@@ -84,7 +91,7 @@ export function HeroSection() {
 
       {/* ── Animated golden particles ── */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        {PARTICLES.map((p) => (
+        {mounted && PARTICLES.map((p) => (
           <motion.span
             key={p.id}
             className="absolute rounded-full"
