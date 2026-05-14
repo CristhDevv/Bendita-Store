@@ -1,5 +1,4 @@
 import { MetadataRoute } from 'next'
-import { getAllActiveProductSlugs } from '@/lib/supabase/products'
 import { CONFIG } from '@/lib/config'
  
 const BASE_URL = CONFIG.SITE.URL
@@ -20,7 +19,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
  
   // Dynamic product routes
-  const productSlugs = await getAllActiveProductSlugs()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  let productSlugs: { slug: string; updated_at: string }[] = [];
+
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/products?select=slug,created_at&is_active=eq.true`,
+        {
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          cache: 'no-store',
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        productSlugs = data.map((p: any) => ({
+          slug: p.slug,
+          updated_at: p.created_at
+        }));
+      } else {
+        const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
+        productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
+      }
+    } catch {
+      const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
+      productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
+    }
+  } else {
+    const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
+    productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
+  }
+
   const productRoutes = productSlugs.map((p) => ({
     url: `${BASE_URL}/product/${p.slug}`,
     lastModified: new Date(p.updated_at),
