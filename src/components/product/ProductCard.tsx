@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 
 const QuickViewModal = dynamic(() => import("@/components/product/QuickViewModal").then(mod => mod.QuickViewModal), { ssr: false });
 import type { Product } from "@/types";
+import { formatPrice } from "@/lib/utils/format";
 
 const CONC_LABEL: Record<string, string> = {
   parfum: "Parfum", edp: "EDP", edt: "EDT", edc: "EDC", splash: "Splash",
@@ -93,11 +94,11 @@ export function ProductCard({ product }: { product: Product }) {
           </h3>
           <div className="flex items-center gap-2">
             <span className="font-body font-bold text-charcoal text-sm">
-              ${product.price.toLocaleString("es-CO")}
+              ${formatPrice(product.price)}
             </span>
             {product.compare_price && (
               <span className="font-body text-xs text-charcoal-muted line-through">
-                ${product.compare_price.toLocaleString("es-CO")}
+                ${formatPrice(product.compare_price)}
               </span>
             )}
           </div>

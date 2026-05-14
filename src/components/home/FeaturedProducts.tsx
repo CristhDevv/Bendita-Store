@@ -8,6 +8,7 @@ import { Heart, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/types";
+import { formatPrice } from "@/lib/utils/format";
 
 import { MOCK_PRODUCTS } from "@/lib/mock/products";
 
@@ -62,11 +63,11 @@ function ProductCard({ product }: { product: Product }) {
         </Link>
         <div className="flex items-center gap-2 mt-1">
           <span className="font-body font-semibold text-gold text-sm">
-            ${product.price.toLocaleString("es-CO")}
+            ${formatPrice(product.price)}
           </span>
           {product.compare_price && (
             <span className="font-body text-xs text-charcoal-muted line-through">
-              ${product.compare_price.toLocaleString("es-CO")}
+              ${formatPrice(product.compare_price)}
             </span>
           )}
         </div>

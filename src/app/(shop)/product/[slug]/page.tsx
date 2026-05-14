@@ -10,16 +10,18 @@ import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CONFIG } from "@/lib/config";
 import { MOCK_PRODUCTS } from "@/lib/mock/products";
+import { formatPrice } from "@/lib/utils/format";
 
 export const dynamic = 'force-dynamic';
 
 const BASE_URL = CONFIG.SITE.URL;
 const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  let product = await getProductBySlugPublic(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  let product = await getProductBySlugPublic(resolvedParams.slug);
   if (!product) {
-    const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
+    const mock = MOCK_PRODUCTS.find(p => p.slug === resolvedParams.slug);
     if (mock) product = mock as any;
   }
   
@@ -60,12 +62,13 @@ const CONC_LABEL: Record<string, string> = {
   parfum: "Parfum", edp: "EDP", edt: "EDT", edc: "EDC", splash: "Splash",
 };
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  let product = await getProductBySlugPublic(params.slug);
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  let product = await getProductBySlugPublic(resolvedParams.slug);
   
   if (!product) {
     const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-    const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
+    const mock = MOCK_PRODUCTS.find(p => p.slug === resolvedParams.slug);
     if (!mock) notFound();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     product = mock as any;
@@ -165,12 +168,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {/* Price */}
             <div className="flex items-end gap-4 mb-10">
               <span className="font-body font-bold text-4xl text-gold">
-                ${product.price.toLocaleString("es-CO")}
+                ${formatPrice(product.price)}
               </span>
               {product.compare_price && (
                 <div className="flex flex-col gap-1 pb-1">
                   <span className="font-body text-sm text-charcoal-muted/50 line-through">
-                    ${product.compare_price.toLocaleString("es-CO")}
+                    ${formatPrice(product.compare_price)}
                   </span>
                   {discountPct && (
                     <span className="bg-rose-500/10 text-rose-400 text-xs font-bold px-2 py-0.5 rounded border border-rose-500/20">
