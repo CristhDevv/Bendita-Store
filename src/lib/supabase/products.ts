@@ -4,15 +4,27 @@ import type { Product } from "@/types";
 
 export async function getProductBySlugPublic(slug: string): Promise<Product | null> {
   try {
-    const supabase = createBrowserClient();
-    if (!supabase) return null;
-    const { data, error } = await supabase
-      .from("products")
-      .select(`*, brand:brands(*), category:categories(*)`)
-      .eq("slug", slug)
-      .single();
-    if (error || !data) return null;
-    return data as Product;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) return null;
+
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/products?slug=eq.${slug}&select=*,brand:brands(*),category:categories(*)&limit=1`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      }
+    );
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.length === 0) return null;
+    return data[0] as Product;
   } catch {
     return null;
   }
