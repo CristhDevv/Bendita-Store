@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { getProductBySlug, getRelatedProducts, getAllActiveProductSlugs } from "@/lib/supabase/products";
+import { getProductBySlugPublic, getRelatedProducts } from "@/lib/supabase/products";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductActions } from "@/components/product/ProductActions";
 import { ProductAccordions } from "@/components/product/ProductAccordions";
@@ -11,21 +11,13 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { CONFIG } from "@/lib/config";
 import { MOCK_PRODUCTS } from "@/lib/mock/products";
 
-export const revalidate = 3600;
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-  const supabaseSlugs = await getAllActiveProductSlugs().catch(() => []);
-  const mockSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug }));
-  return [...supabaseSlugs, ...mockSlugs];
-}
+export const dynamic = 'force-dynamic';
 
 const BASE_URL = CONFIG.SITE.URL;
 const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  let product = await getProductBySlug(params.slug);
+  let product = await getProductBySlugPublic(params.slug);
   if (!product) {
     const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
     if (mock) product = mock as any;
@@ -69,7 +61,7 @@ const CONC_LABEL: Record<string, string> = {
 };
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
-  let product = await getProductBySlug(params.slug);
+  let product = await getProductBySlugPublic(params.slug);
   
   if (!product) {
     const { MOCK_PRODUCTS } = await import('@/lib/mock/products');

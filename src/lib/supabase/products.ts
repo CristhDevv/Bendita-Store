@@ -1,5 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import type { Product } from "@/types";
+
+export async function getProductBySlugPublic(slug: string): Promise<Product | null> {
+  try {
+    const supabase = createBrowserClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("products")
+      .select(`*, brand:brands(*), category:categories(*)`)
+      .eq("slug", slug)
+      .single();
+    if (error || !data) return null;
+    return data as Product;
+  } catch {
+    return null;
+  }
+}
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
