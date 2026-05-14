@@ -9,17 +9,7 @@ import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/types";
 
-/* ─── Mock data (replaced by Supabase later) ─── */
-const MOCK_PRODUCTS: Product[] = [
-  { id: "1", name: "Oud Royal Noir", slug: "oud-royal-noir", price: 320000, compare_price: 420000, brand: { id: "b1", name: "Dior", slug: "dior" }, concentration: "edp", images: ["/hero-perfume.png"], stock: 12, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "2", name: "Jasmine Lumière", slug: "jasmine-lumiere", price: 280000, brand: { id: "b2", name: "Chanel", slug: "chanel" }, concentration: "parfum", images: ["/hero-perfume.png"], stock: 8, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "3", name: "Cedar & Vetiver", slug: "cedar-vetiver", price: 195000, compare_price: 250000, brand: { id: "b3", name: "Tom Ford", slug: "tom-ford" }, concentration: "edt", images: ["/hero-perfume.png"], stock: 20, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "4", name: "Rose Céleste", slug: "rose-celeste", price: 345000, brand: { id: "b4", name: "Creed", slug: "creed" }, concentration: "parfum", images: ["/hero-perfume.png"], stock: 5, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "5", name: "Santal 33 Intense", slug: "santal-33", price: 410000, brand: { id: "b5", name: "Le Labo", slug: "le-labo" }, concentration: "edp", images: ["/hero-perfume.png"], stock: 15, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "6", name: "Aqua Universalis", slug: "aqua-universalis", price: 215000, compare_price: 260000, brand: { id: "b6", name: "Maison Francis Kurkdjian", slug: "mfk" }, concentration: "edt", images: ["/hero-perfume.png"], stock: 25, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "7", name: "Baccarat Rouge", slug: "baccarat-rouge", price: 580000, brand: { id: "b6", name: "Maison Francis Kurkdjian", slug: "mfk" }, concentration: "edp", images: ["/hero-perfume.png"], stock: 4, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-  { id: "8", name: "Tobacco Vanille", slug: "tobacco-vanille", price: 390000, compare_price: 450000, brand: { id: "b3", name: "Tom Ford", slug: "tom-ford" }, concentration: "edp", images: ["/hero-perfume.png"], stock: 10, is_featured: true, is_active: true, created_at: new Date().toISOString() },
-];
+import { MOCK_PRODUCTS } from "@/lib/mock/products";
 
 const containerVariants = {
   hidden: { opacity: 0 },
