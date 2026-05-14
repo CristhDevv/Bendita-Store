@@ -43,15 +43,15 @@ function AccountSidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-72 shrink-0">
-      <div className="glass border border-gold-500/20 rounded-2xl p-6 sticky top-24">
+      <div className="bg-white border border-border rounded-2xl p-6 sticky top-24 shadow-sm">
         {/* Avatar */}
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gold-500/10">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-navy-950 font-display font-bold text-xl select-none">
+        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
+          <div className="w-14 h-14 rounded-full bg-gold flex items-center justify-center text-white font-display font-bold text-xl select-none">
             {initial}
           </div>
           <div className="min-w-0">
-            <p className="font-body font-medium text-crystal truncate">{displayName}</p>
-            <p className="font-body text-xs text-crystal/50 truncate">{user?.email}</p>
+            <p className="font-body font-medium text-charcoal truncate">{displayName}</p>
+            <p className="font-body text-xs text-charcoal-muted truncate">{user?.email}</p>
           </div>
         </div>
 
@@ -65,13 +65,13 @@ function AccountSidebar() {
                 href={href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-body text-sm transition-all ${
                   isActive
-                    ? "bg-gold-500/15 text-gold border border-gold-500/30"
-                    : "text-crystal/70 hover:text-crystal hover:bg-white/5"
+                    ? "bg-cream text-charcoal border border-border shadow-sm font-medium"
+                    : "text-charcoal-muted hover:text-charcoal hover:bg-cream"
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{label}</span>
-                {isActive && <ChevronRight className="w-3 h-3 ml-auto text-gold/70" />}
+                {isActive && <ChevronRight className="w-3 h-3 ml-auto text-charcoal-muted" />}
               </Link>
             );
           })}
@@ -80,7 +80,7 @@ function AccountSidebar() {
           <button
             onClick={handleSignOut}
             disabled={signingOut}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl font-body text-sm text-crystal/50 hover:text-red-400 hover:bg-red-500/5 transition-all mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl font-body text-sm text-charcoal-muted hover:text-red-600 hover:bg-red-50 transition-all mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {signingOut ? (
               <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -120,7 +120,7 @@ function MobileTabBar() {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass border-t border-gold-500/15 px-2 pb-safe">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border shadow-sm px-2 pb-safe">
       <div className="flex items-center justify-around">
         {ALL_TABS.map(({ href, icon: Icon, label }) => {
           if (href === "__signout__") {
@@ -129,7 +129,7 @@ function MobileTabBar() {
                 key="signout"
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="flex flex-col items-center gap-1 py-3 px-2 text-crystal/40 hover:text-red-400 transition-colors disabled:opacity-50"
+                className="flex flex-col items-center gap-1 py-3 px-2 text-charcoal-muted hover:text-red-600 transition-colors disabled:opacity-50"
               >
                 {signingOut ? (
                   <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -149,7 +149,7 @@ function MobileTabBar() {
               key={href}
               href={href}
               className={`flex flex-col items-center gap-1 py-3 px-2 transition-colors ${
-                isActive ? "text-gold" : "text-crystal/40 hover:text-crystal/70"
+                isActive ? "text-charcoal font-medium" : "text-charcoal-muted hover:text-charcoal"
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -164,7 +164,7 @@ function MobileTabBar() {
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-navy-950 pt-24 pb-24 lg:pb-8">
+    <div className="min-h-screen bg-cream pt-24 pb-24 lg:pb-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex gap-8">
           <AccountSidebar />

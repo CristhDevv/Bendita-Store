@@ -23,20 +23,20 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-navy-950/80 backdrop-blur-xl border-b border-gold-500/20 py-3"
-          : "bg-navy-950 py-5"
+          ? "bg-white shadow-sm border-b border-border py-3"
+          : "bg-white py-5"
       }`}
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Mobile menu button (Izquierda en mobile) */}
-        <button className="md:hidden text-crystal hover:text-gold transition-colors flex-shrink-0">
+        <button className="md:hidden text-charcoal-muted hover:text-gold transition-colors flex-shrink-0">
           <Menu className="w-6 h-6" />
         </button>
 
         {/* Logo (Centro en mobile, Izquierda en desktop) */}
         <Link
           href="/"
-          className="flex items-center justify-center md:justify-start gap-2 text-gold hover:text-gold-400 transition-colors flex-1 md:flex-none"
+          className="flex items-center justify-center md:justify-start gap-2 text-charcoal hover:text-gold transition-colors flex-1 md:flex-none"
         >
           <svg
             viewBox="0 0 24 24"
@@ -54,7 +54,7 @@ export function Header() {
             <Link
               key={item}
               href={item === "Inicio" ? "/" : `/${item.toLowerCase()}`}
-              className="text-sm font-body text-crystal/70 hover:text-gold transition-colors uppercase tracking-wider"
+              className="text-sm font-body text-charcoal-muted hover:text-gold transition-colors uppercase tracking-wider"
             >
               {item}
             </Link>
@@ -62,7 +62,7 @@ export function Header() {
         </nav>
 
         {/* Icons (Derecha) */}
-        <div className="flex items-center justify-end gap-5 text-crystal flex-shrink-0">
+        <div className="flex items-center justify-end gap-5 text-charcoal-muted flex-shrink-0">
           <button className="hover:text-gold transition-colors hidden md:block" aria-label="Buscar">
             <Search className="w-5 h-5" />
           </button>
@@ -79,7 +79,7 @@ export function Header() {
           >
             <ShoppingBag className="w-5 h-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gold text-navy-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-gold text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {totalItems}
               </span>
             )}

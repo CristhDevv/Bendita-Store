@@ -40,11 +40,11 @@ export default function OrdersPage() {
   if (authLoading || loading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-48 bg-white/5 rounded-lg animate-pulse" />
+        <div className="h-8 w-48 bg-cream rounded-lg animate-pulse" />
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-24 bg-white/5 rounded-xl animate-pulse"
+            className="h-24 bg-cream rounded-xl animate-pulse"
           />
         ))}
       </div>
@@ -55,8 +55,8 @@ export default function OrdersPage() {
     <section>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-display text-2xl text-crystal mb-1">Mis Pedidos</h1>
-        <p className="font-body text-sm text-crystal/50">
+        <h1 className="font-display text-2xl text-charcoal mb-1">Mis Pedidos</h1>
+        <p className="font-body text-sm text-charcoal-muted">
           {orders.length === 0
             ? "No tienes pedidos aún"
             : `${orders.length} pedido${orders.length !== 1 ? "s" : ""}`}
@@ -68,18 +68,18 @@ export default function OrdersPage() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass border border-gold-500/10 rounded-2xl p-12 text-center"
+          className="bg-white border border-border rounded-2xl p-12 text-center shadow-sm"
         >
-          <ShoppingBag className="w-12 h-12 text-gold/30 mx-auto mb-4" />
-          <p className="font-display text-lg text-crystal mb-2">
+          <ShoppingBag className="w-12 h-12 text-gold mx-auto mb-4" />
+          <p className="font-display text-lg text-charcoal mb-2">
             Aún no has hecho ningún pedido
           </p>
-          <p className="font-body text-sm text-crystal/50 mb-6">
+          <p className="font-body text-sm text-charcoal-muted mb-6">
             Explora nuestros perfumes y encuentra tu fragancia ideal.
           </p>
           <a
             href="/products"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 text-navy-950 rounded-xl font-body font-semibold text-sm hover:bg-gold-400 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white rounded-xl font-body font-semibold text-sm hover:bg-gold transition-colors shadow-sm"
           >
             Explorar Catálogo
           </a>
@@ -94,18 +94,18 @@ export default function OrdersPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass border border-gold-500/10 rounded-xl p-4 hover:border-gold-500/25 transition-all"
+                className="bg-white border border-border rounded-xl p-4 hover:border-gold transition-all shadow-sm"
               >
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-cream border border-border shadow-sm flex items-center justify-center">
                       <ShoppingBag className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <p className="font-body text-sm font-medium text-crystal">
+                      <p className="font-body text-sm font-medium text-charcoal">
                         #{order.id.slice(0, 8).toUpperCase()}
                       </p>
-                      <p className="font-body text-xs text-crystal/50">
+                      <p className="font-body text-xs text-charcoal-muted">
                         {formatDate(order.created_at)}
                         {order.items
                           ? ` · ${order.items.length} item${order.items.length !== 1 ? "s" : ""}`
@@ -126,7 +126,7 @@ export default function OrdersPage() {
                     </p>
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="px-3 py-1.5 rounded-lg glass border border-gold-500/25 text-gold text-xs font-body hover:bg-gold-500/10 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-white border border-border text-charcoal text-xs font-body hover:text-gold hover:border-gold transition-colors shadow-sm"
                     >
                       Ver detalle
                     </button>

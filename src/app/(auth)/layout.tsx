@@ -15,9 +15,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }));
 
   return (
-    <div className="min-h-screen bg-navy-950 flex">
+    <div className="min-h-screen bg-cream flex">
       {/* Decorative Left Side (Desktop) */}
-      <div className="hidden lg:flex w-1/2 relative bg-navy-900 border-r border-white/5 overflow-hidden items-center justify-center p-12">
+      <div className="hidden lg:flex w-1/2 relative bg-cream-dark border-r border-border overflow-hidden items-center justify-center p-12">
         {/* Logo overlay */}
         <div className="absolute top-8 left-8 z-20">
           <Link href="/" className="flex items-center gap-2 text-gold hover:text-gold-400 transition-colors">
@@ -56,10 +56,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-500/10 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 max-w-lg text-center">
-          <h2 className="font-display text-5xl text-crystal mb-6 leading-tight">
+          <h2 className="font-display text-5xl text-charcoal mb-6 leading-tight">
             Descubre la esencia de la sofisticación.
           </h2>
-          <p className="font-body text-crystal/60 text-lg">
+          <p className="font-body text-charcoal-muted text-lg">
             Accede a nuestra colección premium de fragancias y experimenta un nivel superior de perfumería.
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <div className="w-full max-w-md mx-auto z-10 pt-16 lg:pt-0">
-          <div className="glass bg-navy-900/50 border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative">
+          <div className="bg-white border border-border rounded-3xl p-8 sm:p-10 shadow-xl relative">
             {children}
           </div>
         </div>

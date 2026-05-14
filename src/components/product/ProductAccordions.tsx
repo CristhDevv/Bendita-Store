@@ -15,30 +15,30 @@ export function ProductAccordions({ description }: { description?: string }) {
   const items: AccordionItem[] = [
     {
       title: "Descripción",
-      content: <p className="text-crystal/70 text-sm leading-relaxed">{description || "Una fragancia excepcional diseñada para cautivar los sentidos. Elaborada con los ingredientes más puros y duraderos."}</p>
+      content: <p className="text-charcoal-muted text-sm leading-relaxed">{description || "Una fragancia excepcional diseñada para cautivar los sentidos. Elaborada con los ingredientes más puros y duraderos."}</p>
     },
     {
       title: "Concentración y Duración",
-      content: <p className="text-crystal/70 text-sm leading-relaxed">Esta fragancia ofrece una alta concentración de aceites esenciales, garantizando una duración prolongada en la piel (8-12 horas) y una proyección notable durante las primeras horas.</p>
+      content: <p className="text-charcoal-muted text-sm leading-relaxed">Esta fragancia ofrece una alta concentración de aceites esenciales, garantizando una duración prolongada en la piel (8-12 horas) y una proyección notable durante las primeras horas.</p>
     },
     {
       title: "Política de envío y devoluciones",
-      content: <p className="text-crystal/70 text-sm leading-relaxed">Envíos express a toda Colombia (2-4 días hábiles). Envío gratis por compras superiores a $200.000 COP. Aceptamos devoluciones dentro de los primeros 14 días si el producto no ha sido abierto.</p>
+      content: <p className="text-charcoal-muted text-sm leading-relaxed">Envíos express a toda Colombia (2-4 días hábiles). Envío gratis por compras superiores a $200.000 COP. Aceptamos devoluciones dentro de los primeros 14 días si el producto no ha sido abierto.</p>
     }
   ];
 
   return (
-    <div className="flex flex-col border-t border-white/10 mt-8">
+    <div className="flex flex-col border-t border-border mt-8">
       {items.map((item, idx) => (
-        <div key={idx} className="border-b border-white/10">
+        <div key={idx} className="border-b border-border">
           <button
             onClick={() => setOpenIdx(openIdx === idx ? -1 : idx)}
             className="w-full flex items-center justify-between py-5 text-left focus:outline-none group"
           >
-            <span className={`font-display text-lg transition-colors ${openIdx === idx ? "text-gold" : "text-crystal group-hover:text-gold"}`}>
+            <span className={`font-display text-lg transition-colors ${openIdx === idx ? "text-gold" : "text-charcoal group-hover:text-gold"}`}>
               {item.title}
             </span>
-            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openIdx === idx ? "rotate-180 text-gold" : "text-crystal/50 group-hover:text-gold"}`} />
+            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openIdx === idx ? "rotate-180 text-gold" : "text-charcoal-muted group-hover:text-gold"}`} />
           </button>
           <AnimatePresence initial={false}>
             {openIdx === idx && (

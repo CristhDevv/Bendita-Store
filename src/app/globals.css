@@ -2,23 +2,20 @@
 
 /* ============================================
    BENDITA STORE — Design Tokens (Tailwind v4)
-   Navy + Gold + Crystal
+   White Premium Design
 ============================================ */
 @theme {
   /* ---------- Colors ---------- */
-  --color-navy-950: #04091f;
-  --color-navy-900: #070d2e;
-  --color-navy-800: #0a1245;
-  --color-navy-700: #0f1a5c;
-
-  --color-gold-300: #f5d97e;
-  --color-gold-400: #e8c14a;
-  --color-gold-500: #c9a227;
-  --color-gold-600: #a07d10;
-  --color-gold:     #c9a227;
-
-  --color-crystal:      #e8f4f8;
-  --color-crystal-soft: #f0f8fc;
+  --color-white: #FFFFFF;
+  --color-cream: #FAF9F7;
+  --color-cream-dark: #F2EFE9;
+  --color-charcoal: #1A1A1A;
+  --color-charcoal-soft: #2C2C2C;
+  --color-charcoal-muted: #6B6B6B;
+  --color-gold: #B8960C;
+  --color-gold-light: #D4AF37;
+  --color-gold-pale: #F5ECD7;
+  --color-border: #E8E4DC;
 
   /* ---------- Fonts ---------- */
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
@@ -31,8 +28,8 @@
 }
 
 :root {
-  --background: #04091f;   /* navy-950 — dark mode por defecto */
-  --foreground: #e8f4f8;   /* crystal */
+  --background: #FFFFFF;   /* white — light mode por defecto */
+  --foreground: #1A1A1A;   /* charcoal */
 }
 
 /* ---------- Base ---------- */
@@ -63,15 +60,15 @@ body {
 
 /* ---------- Gold gradient ---------- */
 .gradient-gold {
-  background: linear-gradient(135deg, var(--color-gold-300) 0%, var(--color-gold-500) 50%, var(--color-gold-600) 100%);
+  background: linear-gradient(135deg, var(--color-gold-pale) 0%, var(--color-gold-light) 50%, var(--color-gold) 100%);
 }
 
-/* ---------- Glassmorphism ---------- */
+/* ---------- Premium Glass ---------- */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
 }
 
 /* ---------- Scrollbar personalizado ---------- */
@@ -79,12 +76,12 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-navy-950);
+  background: var(--color-cream);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gold-600);
-  border-radius: 3px;
+  background: var(--color-gold);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-500);
+  background: var(--color-gold-light);
 }

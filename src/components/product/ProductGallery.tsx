@@ -15,7 +15,7 @@ export function ProductGallery({ images }: { images: string[] }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Main image with zoom on hover */}
-      <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-navy-900 border border-white/5 group">
+      <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-white border border-border group">
         <div className="w-full h-full overflow-hidden">
           <Image
             src={safeImages[active]}
@@ -31,13 +31,13 @@ export function ProductGallery({ images }: { images: string[] }) {
           <>
             <button
               onClick={(e) => { e.preventDefault(); prev(); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full glass flex items-center justify-center text-crystal opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream border border-border flex items-center justify-center text-charcoal hover:bg-border opacity-0 group-hover:opacity-100 transition-all"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={(e) => { e.preventDefault(); next(); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full glass flex items-center justify-center text-crystal opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream border border-border flex items-center justify-center text-charcoal hover:bg-border opacity-0 group-hover:opacity-100 transition-all"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -53,7 +53,7 @@ export function ProductGallery({ images }: { images: string[] }) {
               key={idx}
               onClick={() => setActive(idx)}
               className={`relative w-24 aspect-square shrink-0 rounded-2xl overflow-hidden border-2 transition-all ${
-                active === idx ? "border-gold" : "border-transparent hover:border-white/20"
+                active === idx ? "border-gold" : "border-transparent hover:border-gold"
               }`}
             >
               <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="96px" className="object-cover" />

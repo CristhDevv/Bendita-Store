@@ -66,10 +66,10 @@ export default function ProductsPage() {
     <div className="container mx-auto px-4 md:px-8 py-10">
       {/* Page header */}
       <div className="mb-8">
-        <p className="font-body text-xs tracking-[0.25em] uppercase text-gold-400 mb-2">✦ Colección completa</p>
-        <h1 className="font-display text-4xl md:text-5xl font-light text-crystal">
+        <p className="font-body text-[10px] tracking-[0.25em] uppercase text-gold font-semibold mb-2">✦ Colección completa</p>
+        <h1 className="font-display text-4xl md:text-5xl text-charcoal">
           Catálogo de{" "}
-          <span className="font-bold" style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+          <span className="font-bold text-gold">
             Fragancias
           </span>
         </h1>
@@ -79,7 +79,7 @@ export default function ProductsPage() {
       <div className="lg:hidden mb-6">
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gold-500/30 text-gold text-sm font-body hover:bg-gold-500/10 transition-colors"
+          className="flex items-center gap-2 px-5 py-3 rounded-xl border border-border bg-cream text-charcoal text-sm font-body hover:border-gold hover:text-gold transition-colors shadow-sm"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filtros

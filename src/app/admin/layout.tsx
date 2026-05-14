@@ -47,14 +47,14 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center justify-between p-6 border-b border-gold-500/10">
+      <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
-            <Gem className="w-4 h-4 text-navy-950" />
+          <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
+            <Gem className="w-4 h-4 text-white" />
           </div>
           <div>
             <p className="font-script text-gold text-sm leading-none">Bendita</p>
-            <p className="font-body text-[9px] uppercase tracking-widest text-crystal/40">
+            <p className="font-body text-[9px] uppercase tracking-widest text-charcoal-muted">
               Admin Panel
             </p>
           </div>
@@ -62,7 +62,7 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg glass flex items-center justify-center text-crystal/40 hover:text-crystal lg:hidden"
+            className="w-8 h-8 rounded-lg bg-white border border-border flex items-center justify-center text-charcoal-muted hover:text-charcoal lg:hidden"
           >
             <X className="w-4 h-4" />
           </button>
@@ -80,26 +80,26 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
               onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-body text-sm transition-all ${
                 isActive
-                  ? "bg-gold-500/15 text-gold border border-gold-500/30"
-                  : "text-crystal/60 hover:text-crystal hover:bg-white/5"
+                  ? "bg-cream border border-border text-charcoal font-semibold"
+                  : "text-charcoal-muted hover:text-charcoal hover:bg-cream-dark"
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span>{label}</span>
-              {isActive && <ChevronRight className="w-3 h-3 ml-auto text-gold/60" />}
+              {isActive && <ChevronRight className="w-3 h-3 ml-auto text-charcoal" />}
             </Link>
           );
         })}
       </nav>
 
       {/* User + Signout */}
-      <div className="p-4 border-t border-gold-500/10">
-        <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl glass border border-gold-500/10">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-navy-950 font-bold text-sm">
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-white border border-border shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-white font-bold text-sm">
             {(user?.email || "A").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="font-body text-xs text-crystal truncate">
+            <p className="font-body text-xs text-charcoal truncate">
               {user?.user_metadata?.full_name || user?.email}
             </p>
             <div className="flex items-center gap-1">
@@ -112,7 +112,7 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
         <button
           onClick={handleSignOut}
           disabled={signingOut}
-          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl font-body text-sm text-crystal/40 hover:text-red-400 hover:bg-red-500/5 transition-all disabled:opacity-50"
+          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl font-body text-sm text-charcoal-muted hover:text-red-600 hover:bg-red-50 transition-all disabled:opacity-50"
         >
           {signingOut ? (
             <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -158,22 +158,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Show loading while checking admin status
   if (authLoading || !adminChecked) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
+      <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
-            <Gem className="w-6 h-6 text-navy-950" />
+          <div className="w-12 h-12 rounded-xl bg-gold flex items-center justify-center">
+            <Gem className="w-6 h-6 text-white" />
           </div>
           <Loader2 className="w-5 h-5 text-gold animate-spin" />
-          <p className="font-body text-xs text-crystal/40">Verificando acceso...</p>
+          <p className="font-body text-xs text-charcoal-muted">Verificando acceso...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-navy-950 flex">
+    <div className="min-h-screen bg-cream flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-navy-900/50 border-r border-gold-500/10">
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-border">
         <AdminSidebar />
       </aside>
 
@@ -183,9 +183,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           className="lg:hidden fixed inset-0 z-50 flex"
           onClick={() => setSidebarOpen(false)}
         >
-          <div className="absolute inset-0 bg-navy-950/70 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm" />
           <aside
-            className="relative w-72 bg-navy-900 border-r border-gold-500/10 h-full flex flex-col"
+            className="relative w-72 bg-white border-r border-border h-full flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <AdminSidebar onClose={() => setSidebarOpen(false)} />
@@ -196,10 +196,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Top Bar */}
-        <header className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-gold-500/10 glass sticky top-0 z-30">
+        <header className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-border bg-white sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 rounded-lg glass flex items-center justify-center text-crystal/60 hover:text-crystal"
+            className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center text-charcoal-muted hover:text-charcoal"
           >
             <Menu className="w-5 h-5" />
           </button>

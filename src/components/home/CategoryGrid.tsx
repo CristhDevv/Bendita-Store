@@ -5,12 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 const CATEGORIES = [
-  {
     slug: "mujeres",
     label: "Para Ella",
     sub: "Feminidad en cada nota",
     emoji: "🌸",
-    color: "from-rose-900/60 to-navy-950/80",
+    color: "from-rose-100/60 to-black/80",
     accentColor: "#f5d97e",
     size: "large",
   },
@@ -19,7 +18,7 @@ const CATEGORIES = [
     label: "Para Él",
     sub: "Poder y distinción",
     emoji: "🌿",
-    color: "from-teal-900/60 to-navy-950/80",
+    color: "from-teal-100/60 to-black/80",
     accentColor: "#c9a227",
     size: "small",
   },
@@ -28,7 +27,7 @@ const CATEGORIES = [
     label: "Unisex",
     sub: "Sin fronteras",
     emoji: "✨",
-    color: "from-purple-900/60 to-navy-950/80",
+    color: "from-purple-100/60 to-black/80",
     accentColor: "#e8c14a",
     size: "small",
   },
@@ -37,7 +36,7 @@ const CATEGORIES = [
     label: "Nicho",
     sub: "Rareza y exclusividad",
     emoji: "💎",
-    color: "from-amber-900/60 to-navy-950/80",
+    color: "from-amber-100/60 to-black/80",
     accentColor: "#f5d97e",
     size: "large",
   },
@@ -45,7 +44,7 @@ const CATEGORIES = [
 
 export function CategoryGrid() {
   return (
-    <section className="py-24 md:py-32 bg-navy-950">
+    <section className="py-24 md:py-32 bg-cream">
       <div className="container mx-auto px-4 md:px-8">
         {/* Header */}
         <motion.div
@@ -58,7 +57,7 @@ export function CategoryGrid() {
           <p className="font-body text-xs tracking-[0.25em] uppercase text-gold-400 mb-3">
             ✦ Encuentra la tuya
           </p>
-          <h2 className="font-display text-4xl md:text-5xl font-light text-crystal">
+          <h2 className="font-display text-4xl md:text-5xl font-light text-charcoal">
             Explora por{" "}
             <span
               className="font-bold"
@@ -87,7 +86,7 @@ export function CategoryGrid() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.55, delay: i * 0.08 }}
-                className={`relative group overflow-hidden rounded-3xl border border-white/5 cursor-pointer
+                className={`relative group overflow-hidden rounded-3xl border border-border shadow-sm cursor-pointer
                   ${isLargeFirst ? "col-span-1 md:col-span-2 row-span-2" : ""}
                   ${isLargeLast ? "col-span-1 md:col-span-2 row-span-1" : ""}
                   ${!isLargeFirst && !isLargeLast ? "col-span-1 row-span-1" : ""}
@@ -114,10 +113,10 @@ export function CategoryGrid() {
                 {/* Content */}
                 <Link href={`/products?category=${cat.slug}`} className="absolute inset-0 flex flex-col justify-end p-5 md:p-7">
                   <span className="text-3xl mb-2">{cat.emoji}</span>
-                  <h3 className="font-display font-semibold text-xl md:text-2xl text-crystal">
+                  <h3 className="font-display font-semibold text-xl md:text-2xl text-white">
                     {cat.label}
                   </h3>
-                  <p className="font-body text-xs text-crystal/60 mt-1 translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                  <p className="font-body text-xs text-white/80 mt-1 translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                     {cat.sub}
                   </p>
                   <div

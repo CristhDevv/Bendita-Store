@@ -21,11 +21,11 @@ const DOUBLED = [...BRANDS, ...BRANDS];
 
 function BrandPill({ name, country }: { name: string; country: string }) {
   return (
-    <div className="flex-shrink-0 px-8 py-4 rounded-2xl glass border border-white/5 hover:border-gold-500/30 transition-colors cursor-pointer group">
-      <p className="font-display font-semibold text-xl text-crystal/70 group-hover:text-gold transition-colors whitespace-nowrap">
+    <div className="flex-shrink-0 px-8 py-4 rounded-2xl bg-white border border-border hover:border-gold transition-colors cursor-pointer group shadow-sm">
+      <p className="font-display font-semibold text-xl text-charcoal-muted group-hover:text-gold transition-colors whitespace-nowrap">
         {name}
       </p>
-      <p className="font-body text-[10px] text-crystal/30 tracking-widest uppercase mt-0.5 whitespace-nowrap">
+      <p className="font-body text-[10px] text-charcoal-muted/50 tracking-widest uppercase mt-0.5 whitespace-nowrap">
         {country}
       </p>
     </div>
@@ -34,7 +34,7 @@ function BrandPill({ name, country }: { name: string; country: string }) {
 
 export function BrandsMarquee() {
   return (
-    <section className="py-20 bg-navy-900 border-y border-white/5 overflow-hidden">
+    <section className="py-20 bg-cream border-y border-border overflow-hidden">
       <div className="container mx-auto px-4 md:px-8 mb-12">
         <motion.p
           initial={{ opacity: 0 }}
@@ -49,7 +49,7 @@ export function BrandsMarquee() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className="font-display text-3xl md:text-4xl text-center text-crystal font-light mt-3"
+          className="font-display text-3xl md:text-4xl text-center text-charcoal font-light mt-3"
         >
           Las mejores{" "}
           <span
@@ -70,9 +70,9 @@ export function BrandsMarquee() {
       <div className="relative">
         {/* Fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, #070d2e, transparent)" }} />
+          style={{ background: "linear-gradient(to right, var(--color-cream), transparent)" }} />
         <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, #070d2e, transparent)" }} />
+          style={{ background: "linear-gradient(to left, var(--color-cream), transparent)" }} />
 
         <motion.div
           className="flex gap-4"
@@ -88,9 +88,9 @@ export function BrandsMarquee() {
       {/* Marquee track 2 — right (reverse) */}
       <div className="relative mt-4">
         <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, #070d2e, transparent)" }} />
+          style={{ background: "linear-gradient(to right, var(--color-cream), transparent)" }} />
         <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, #070d2e, transparent)" }} />
+          style={{ background: "linear-gradient(to left, var(--color-cream), transparent)" }} />
 
         <motion.div
           className="flex gap-4"

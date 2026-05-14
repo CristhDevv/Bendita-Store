@@ -39,8 +39,8 @@ export default function ForgotPasswordPage() {
   if (isSent) {
     return (
       <div className="text-center">
-        <h1 className="font-display text-3xl text-crystal mb-4">Revisa tu correo</h1>
-        <p className="font-body text-crystal/70 mb-8 leading-relaxed">
+        <h1 className="font-display text-3xl text-charcoal mb-4">Revisa tu correo</h1>
+        <p className="font-body text-charcoal-muted mb-8 leading-relaxed">
           Hemos enviado un enlace de recuperación. Por favor revisa tu bandeja de entrada o la carpeta de spam.
         </p>
         <Link
@@ -56,8 +56,8 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="font-display text-3xl text-crystal mb-2">Recuperar Contraseña</h1>
-        <p className="font-body text-crystal/60 text-sm">
+        <h1 className="font-display text-3xl text-charcoal mb-2">Recuperar Contraseña</h1>
+        <p className="font-body text-charcoal-muted text-sm">
           Ingresa el correo electrónico asociado a tu cuenta y te enviaremos las instrucciones para restablecerla.
         </p>
       </div>
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
             {...register("email")}
             type="email"
             placeholder="Correo electrónico"
-            className="w-full bg-navy-950/50 border border-gold-500/30 focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors"
+            className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm"
           />
           {errors.email && <p className="text-rose-400 text-xs mt-1 px-1">{errors.email.message}</p>}
         </div>
@@ -76,14 +76,13 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3.5 mt-2 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-navy-950 transition-all hover:scale-[1.02] shadow-xl shadow-gold/20 disabled:opacity-70 disabled:hover:scale-100"
-          style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)" }}
+          className="w-full py-3.5 mt-2 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-white transition-all hover:scale-[1.02] shadow-sm disabled:opacity-70 disabled:hover:scale-100 bg-charcoal hover:bg-gold"
         >
           {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Enviar enlace"}
         </button>
       </form>
 
-      <p className="font-body text-sm text-crystal/60 text-center mt-8">
+      <p className="font-body text-sm text-charcoal-muted text-center mt-8">
         <Link href="/login" className="text-gold hover:text-gold-400 font-medium transition-colors">
           Volver a iniciar sesión
         </Link>

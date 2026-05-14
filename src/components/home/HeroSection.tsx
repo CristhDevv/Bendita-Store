@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Zap, Package } from "lucide-react";
 
 /* ─── Particle data generated once ──────────────────────────── */
-const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
@@ -16,7 +16,7 @@ const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   delay: Math.random() * 5,
   dx: (Math.random() - 0.5) * 60,
   dy: (Math.random() - 0.5) * 60,
-  opacity: Math.random() * 0.6 + 0.2,
+  opacity: Math.random() * 0.1 + 0.05,
 }));
 
 /* ─── Animation Variants ─────────────────────────────────────── */
@@ -69,14 +69,10 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* ── Radial gradient background ── */}
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-cream">
+      {/* ── Background ── */}
       <div
         className="absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 80% at 60% 50%, #0a1245 0%, #070d2e 50%, #04091f 100%)",
-        }}
       />
 
       {/* ── Subtle grid overlay ── */}
@@ -100,8 +96,8 @@ export function HeroSection() {
               top: `${p.y}%`,
               width: p.size,
               height: p.size,
-              background: `radial-gradient(circle, #e8c14a, #c9a227)`,
-              boxShadow: `0 0 ${p.size * 2}px rgba(201,162,39,0.6)`,
+              background: `radial-gradient(circle, #D4AF37, #B8960C)`,
+              boxShadow: `0 0 ${p.size * 2}px rgba(184,150,12,0.4)`,
             }}
             animate={{
               x: [0, p.dx, -p.dx * 0.5, 0],
@@ -132,7 +128,7 @@ export function HeroSection() {
           >
             {/* Eyebrow */}
             <motion.div variants={itemVariants}>
-              <span className="inline-flex items-center gap-2 text-xs font-body tracking-[0.25em] uppercase text-gold-400 border border-gold-500/30 rounded-full px-4 py-2 glass">
+              <span className="inline-flex items-center gap-2 text-xs font-body tracking-[0.25em] uppercase text-charcoal-muted border border-border bg-white/50 rounded-full px-4 py-2">
                 ✦ Nueva Colección 2025
               </span>
             </motion.div>
@@ -142,14 +138,14 @@ export function HeroSection() {
               variants={itemVariants}
               className="font-display leading-tight"
             >
-              <span className="block text-5xl md:text-6xl xl:text-7xl font-light text-crystal">
+              <span className="block text-5xl md:text-6xl xl:text-7xl font-light text-charcoal">
                 Descubre tu
               </span>
               <span
                 className="block text-5xl md:text-6xl xl:text-7xl font-bold mt-1"
                 style={{
                   background:
-                    "linear-gradient(135deg, #f5d97e 0%, #c9a227 50%, #a07d10 100%)",
+                    "linear-gradient(135deg, #D4AF37 0%, #B8960C 50%, #8A7009 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -162,7 +158,7 @@ export function HeroSection() {
             {/* Paragraph */}
             <motion.p
               variants={itemVariants}
-              className="font-body text-base md:text-lg text-crystal/70 max-w-md leading-relaxed"
+              className="font-body text-base md:text-lg text-charcoal-muted max-w-md leading-relaxed"
             >
               Perfumes de lujo que cuentan tu historia. Fragancias exclusivas para
               quienes buscan lo extraordinario.
@@ -176,11 +172,7 @@ export function HeroSection() {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-body font-medium text-sm tracking-wide text-navy-950 transition-all duration-300 shadow-lg shadow-gold/20"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #f5d97e 0%, #c9a227 60%, #a07d10 100%)",
-                  }}
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-body font-medium text-sm tracking-wide bg-charcoal text-white hover:bg-gold transition-all duration-300 shadow-lg shadow-gold/10"
                 >
                   Explorar Colección
                   <ArrowRight className="w-4 h-4" />
@@ -190,7 +182,7 @@ export function HeroSection() {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/products?sale=true"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-body font-medium text-sm tracking-wide text-gold-400 border border-gold-500/50 transition-all duration-300 hover:bg-gold-500/10"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-body font-medium text-sm tracking-wide border border-charcoal/30 text-charcoal hover:border-gold hover:text-gold transition-all duration-300"
                 >
                   Ver Ofertas
                 </Link>
@@ -205,18 +197,18 @@ export function HeroSection() {
               {STATS.map((stat, idx) => (
                 <div key={stat.label} className="flex items-center gap-6">
                   <div className="flex flex-col items-center lg:items-start">
-                    <span className="flex items-center gap-1 text-gold-400 text-[10px] mb-1">
+                    <span className="flex items-center gap-1 text-gold text-[10px] mb-1">
                       {stat.icon}
                     </span>
-                    <span className="font-display font-semibold text-xl text-crystal leading-none">
+                    <span className="font-display font-semibold text-xl text-charcoal leading-none">
                       {stat.value}
                     </span>
-                    <span className="font-body text-[11px] text-crystal/50 tracking-wide uppercase mt-0.5">
+                    <span className="font-body text-[11px] text-charcoal-muted tracking-wide uppercase mt-0.5">
                       {stat.label}
                     </span>
                   </div>
                   {idx < STATS.length - 1 && (
-                    <div className="h-10 w-px bg-gold-500/30" />
+                    <div className="h-10 w-px bg-border" />
                   )}
                 </div>
               ))}
@@ -232,21 +224,21 @@ export function HeroSection() {
           >
             {/* Glow behind image */}
             <div
-              className="absolute inset-0 rounded-3xl blur-3xl opacity-20 -z-10"
+              className="absolute inset-0 rounded-3xl blur-3xl opacity-10 -z-10"
               style={{
                 background:
-                  "radial-gradient(ellipse 60% 80% at 50% 50%, #c9a227, transparent)",
+                  "radial-gradient(ellipse 60% 80% at 50% 50%, #B8960C, transparent)",
               }}
             />
 
             {/* Image frame */}
             <div
-              className="relative rounded-3xl overflow-hidden border border-gold-500/20"
+              className="relative rounded-3xl overflow-hidden border border-border"
               style={{
                 aspectRatio: "3/4",
                 width: "min(340px, 80vw)",
                 background:
-                  "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)",
+                  "linear-gradient(160deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)",
                 backdropFilter: "blur(4px)",
               }}
             >
@@ -264,7 +256,7 @@ export function HeroSection() {
                 className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
                 style={{
                   background:
-                    "linear-gradient(to top, rgba(4,9,31,0.7) 0%, transparent 100%)",
+                    "linear-gradient(to top, rgba(250,249,247,0.8) 0%, transparent 100%)",
                 }}
               />
             </div>
@@ -276,20 +268,15 @@ export function HeroSection() {
               className="absolute -top-4 -right-4 md:top-6 md:-right-6 z-10"
             >
               <div
-                className="relative px-4 py-3 rounded-2xl shadow-2xl border border-gold-500/30"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(201,162,39,0.15) 0%, rgba(10,18,69,0.9) 100%)",
-                  backdropFilter: "blur(16px)",
-                }}
+                className="relative px-4 py-3 rounded-2xl shadow-xl border border-border bg-white"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🏆</span>
                   <div>
-                    <p className="font-body font-semibold text-xs text-gold-400 tracking-wide uppercase">
+                    <p className="font-body font-semibold text-xs text-gold tracking-wide uppercase">
                       Top Seller
                     </p>
-                    <p className="font-body text-[10px] text-crystal/60">
+                    <p className="font-body text-[10px] text-charcoal-muted">
                       Esta semana
                     </p>
                   </div>
@@ -297,7 +284,7 @@ export function HeroSection() {
                 {/* Pulsing dot */}
                 <span className="absolute top-2 right-2 w-2 h-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-60" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold-400" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
                 </span>
               </div>
             </motion.div>
@@ -310,20 +297,15 @@ export function HeroSection() {
               className="absolute bottom-12 -left-4 md:-left-8 z-10"
             >
               <div
-                className="px-4 py-3 rounded-2xl border border-gold-500/20 shadow-xl"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(10,18,69,0.95) 0%, rgba(7,13,46,0.9) 100%)",
-                  backdropFilter: "blur(16px)",
-                }}
+                className="px-4 py-3 rounded-2xl border border-border shadow-xl bg-white"
               >
-                <p className="font-body text-[10px] text-gold-400 tracking-widest uppercase mb-2">
+                <p className="font-body text-[10px] text-gold tracking-widest uppercase mb-2">
                   Notas
                 </p>
                 <div className="flex flex-col gap-1">
                   {["🌸 Rosa & Jazmín", "🌿 Sándalo", "🍋 Cítrico fresco"].map(
                     (note) => (
-                      <p key={note} className="font-body text-[11px] text-crystal/80">
+                      <p key={note} className="font-body text-[11px] text-charcoal-muted">
                         {note}
                       </p>
                     )
@@ -343,13 +325,13 @@ export function HeroSection() {
         transition={{ delay: 1.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="font-body text-[10px] tracking-[0.2em] uppercase text-crystal/40">
+        <span className="font-body text-[10px] tracking-[0.2em] uppercase text-charcoal-muted">
           Scroll
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-8 bg-gradient-to-b from-gold-500/60 to-transparent"
+          className="w-px h-8 bg-gradient-to-b from-gold/60 to-transparent"
         />
       </motion.div>
     </section>

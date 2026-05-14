@@ -106,12 +106,12 @@ export default function AdminProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl text-crystal mb-1">Productos</h1>
-          <p className="font-body text-sm text-crystal/50">{products.length} productos en total</p>
+          <h1 className="font-display text-3xl text-charcoal mb-1">Productos</h1>
+          <p className="font-body text-sm text-charcoal-muted">{products.length} productos en total</p>
         </div>
         <button
           onClick={() => { setEditingProduct(undefined); setShowModal(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-400 text-navy-950 rounded-xl font-body font-semibold text-sm transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" /> Nuevo Producto
         </button>
@@ -119,9 +119,9 @@ export default function AdminProductsPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-crystal/30" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-muted" />
         <input
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/8 focus:border-gold-500/40 text-crystal font-body text-sm outline-none transition-colors placeholder:text-crystal/30"
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted shadow-sm"
           placeholder="Buscar por nombre, marca o slug..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -132,17 +132,17 @@ export default function AdminProductsPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
+            <div key={i} className="h-16 bg-border rounded-xl animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="glass border border-white/5 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr className="border-b border-border bg-cream/30">
                   {["Producto", "Marca", "Precio", "Stock", "Estado", ""].map((h) => (
-                    <th key={h} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-crystal/30 ${h === "" ? "text-right" : "text-left"}`}>{h}</th>
+                    <th key={h} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h === "" ? "text-right" : "text-left"}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -153,30 +153,30 @@ export default function AdminProductsPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.03 }}
-                    className="border-b border-white/3 hover:bg-white/2 transition-colors"
+                    className="border-b border-border hover:bg-cream/50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-navy-800 flex items-center justify-center shrink-0 overflow-hidden relative">
+                        <div className="w-8 h-8 rounded-lg bg-cream border border-border flex items-center justify-center shrink-0 overflow-hidden relative">
                           {product.images?.[0] ? (
                             <NextImage src={product.images[0]} alt={product.name} fill className="object-cover" />
                           ) : (
-                            <ImageIcon className="w-4 h-4 text-crystal/20" />
+                            <ImageIcon className="w-4 h-4 text-charcoal-muted" />
                           )}
                         </div>
                         <div>
-                          <p className="font-body text-sm text-crystal">{product.name}</p>
-                          <p className="font-body text-xs text-crystal/40 uppercase">{product.concentration}</p>
+                          <p className="font-body text-sm text-charcoal font-medium">{product.name}</p>
+                          <p className="font-body text-xs text-charcoal-muted uppercase">{product.concentration}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-body text-xs text-crystal/60">
+                    <td className="px-4 py-3 font-body text-xs text-charcoal-muted">
                       {(product.brand as Brand | undefined)?.name || "—"}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-display text-sm text-gold">{formatCOP(product.price)}</p>
+                      <p className="font-display text-sm text-charcoal font-semibold">{formatCOP(product.price)}</p>
                       {product.compare_price && (
-                        <p className="font-body text-xs text-crystal/30 line-through">{formatCOP(product.compare_price)}</p>
+                        <p className="font-body text-xs text-charcoal-muted line-through">{formatCOP(product.compare_price)}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -186,7 +186,7 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-body ${product.is_active ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5" : "text-crystal/30 border-crystal/10 bg-crystal/3"}`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-body ${product.is_active ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" : "text-charcoal-muted border-border bg-cream"}`}>
                           {product.is_active ? "Activo" : "Inactivo"}
                         </span>
                         {product.is_featured && (
@@ -196,16 +196,16 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => handleToggleFeatured(product)} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-gold transition-colors" title={product.is_featured ? "Quitar destacado" : "Destacar"}>
+                        <button onClick={() => handleToggleFeatured(product)} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-gold transition-colors" title={product.is_featured ? "Quitar destacado" : "Destacar"}>
                           {product.is_featured ? <Star className="w-3.5 h-3.5" /> : <StarOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button onClick={() => handleToggleActive(product)} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-crystal transition-colors" title={product.is_active ? "Desactivar" : "Activar"}>
+                        <button onClick={() => handleToggleActive(product)} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors" title={product.is_active ? "Desactivar" : "Activar"}>
                           {product.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button onClick={() => { setEditingProduct(product); setShowModal(true); }} className="w-7 h-7 rounded-lg hover:bg-white/8 flex items-center justify-center text-crystal/30 hover:text-crystal transition-colors">
+                        <button onClick={() => { setEditingProduct(product); setShowModal(true); }} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-crystal/30 hover:text-red-400 transition-colors disabled:opacity-40">
+                        <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors disabled:opacity-40">
                           {deletingId === product.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                         </button>
                       </div>
@@ -217,7 +217,7 @@ export default function AdminProductsPage() {
             {filtered.length === 0 && (
               <div className="py-12 text-center">
                 <Package className="w-8 h-8 text-gold/20 mx-auto mb-2" />
-                <p className="font-body text-sm text-crystal/30">Sin resultados</p>
+                <p className="font-body text-sm text-charcoal-muted">Sin resultados</p>
               </div>
             )}
           </div>

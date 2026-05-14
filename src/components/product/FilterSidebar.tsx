@@ -47,7 +47,7 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-gold" />
-          <span className="font-display text-lg font-semibold text-crystal">Filtros</span>
+          <span className="font-display text-lg font-semibold text-charcoal">Filtros</span>
         </div>
         {hasActiveFilters && (
           <button onClick={clearFilters} className="font-body text-xs text-gold hover:text-gold-400 transition-colors">
@@ -58,7 +58,7 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Género */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-crystal/50 mb-3">Género</p>
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Género</p>
         <div className="flex flex-wrap gap-2">
           {GENDERS.map(g => (
             <button
@@ -66,8 +66,8 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
               onClick={() => setGender(g.value)}
               className={`px-4 py-2 rounded-full text-xs font-body transition-all ${
                 filters.gender === g.value
-                  ? "bg-gold text-navy-950 font-semibold"
-                  : "border border-gold-500/30 text-crystal/70 hover:border-gold-500/60"
+                  ? "bg-charcoal text-white font-semibold"
+                  : "border border-border text-charcoal-muted hover:border-charcoal"
               }`}
             >
               {g.label}
@@ -78,23 +78,23 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Concentración */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-crystal/50 mb-3">Concentración</p>
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Concentración</p>
         <div className="flex flex-col gap-2.5">
           {CONCENTRATIONS.map(c => (
             <label key={c.value} className="flex items-center gap-3 cursor-pointer group">
               <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${
                 filters.concentrations.includes(c.value)
                   ? "bg-gold border-gold"
-                  : "border-white/20 group-hover:border-gold-500/50"
+                  : "border-border group-hover:border-charcoal"
               }`}>
                 {filters.concentrations.includes(c.value) && (
                   <svg viewBox="0 0 12 9" fill="none" className="w-2.5 h-2.5">
-                    <path d="M1 4L4.5 7.5L11 1" stroke="#04091f" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 )}
               </div>
               <input type="checkbox" className="sr-only" checked={filters.concentrations.includes(c.value)} onChange={() => toggleConcentration(c.value)} />
-              <span className="font-body text-sm text-crystal/80 group-hover:text-crystal transition-colors">{c.label}</span>
+              <span className="font-body text-sm text-charcoal-muted group-hover:text-charcoal transition-colors">{c.label}</span>
             </label>
           ))}
         </div>
@@ -102,12 +102,12 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Precio */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-crystal/50 mb-1">Precio</p>
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-1">Precio</p>
         <p className="font-body text-xs text-gold mb-4">
           COP ${filters.priceMin.toLocaleString("es-CO")} – COP ${filters.priceMax.toLocaleString("es-CO")}
         </p>
         <div className="relative h-5 flex items-center">
-          <div className="absolute left-0 right-0 h-1 bg-white/10 rounded-full" />
+          <div className="absolute left-0 right-0 h-1 bg-border rounded-full" />
           <div
             className="absolute h-1 bg-gold rounded-full pointer-events-none"
             style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
@@ -133,21 +133,21 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Marcas */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-crystal/50 mb-3">Marcas</p>
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Marcas</p>
         <div className="flex flex-col gap-2.5">
           {visibleBrands.map(b => (
             <label key={b} className="flex items-center gap-3 cursor-pointer group">
               <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${
-                filters.brands.includes(b) ? "bg-gold border-gold" : "border-white/20 group-hover:border-gold-500/50"
+                filters.brands.includes(b) ? "bg-gold border-gold" : "border-border group-hover:border-charcoal"
               }`}>
                 {filters.brands.includes(b) && (
                   <svg viewBox="0 0 12 9" fill="none" className="w-2.5 h-2.5">
-                    <path d="M1 4L4.5 7.5L11 1" stroke="#04091f" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 )}
               </div>
               <input type="checkbox" className="sr-only" checked={filters.brands.includes(b)} onChange={() => toggleBrand(b)} />
-              <span className="font-body text-sm text-crystal/80 group-hover:text-crystal transition-colors">{b}</span>
+              <span className="font-body text-sm text-charcoal-muted group-hover:text-charcoal transition-colors">{b}</span>
             </label>
           ))}
         </div>
@@ -160,7 +160,7 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Notas */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-crystal/50 mb-3">Notas Olfativas</p>
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Notas Olfativas</p>
         <div className="flex flex-wrap gap-2">
           {NOTES.map(n => (
             <button
@@ -168,8 +168,8 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
               onClick={() => toggleNote(n)}
               className={`px-3 py-1.5 rounded-full text-xs font-body transition-all ${
                 filters.notes.includes(n)
-                  ? "bg-gold text-navy-950 font-semibold"
-                  : "border border-gold-500/30 text-crystal/70 hover:border-gold-500/60"
+                  ? "bg-charcoal text-white font-semibold"
+                  : "border border-border text-charcoal-muted hover:border-charcoal"
               }`}
             >
               {n}
@@ -189,7 +189,7 @@ export function FilterSidebar(props: Props) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-72 shrink-0">
-        <div className="sticky top-28 rounded-2xl border border-white/5 bg-navy-900 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        <div className="sticky top-28 rounded-2xl border border-border bg-white overflow-y-auto max-h-[calc(100vh-8rem)]">
           <FilterContent {...props} isMobile={false} />
         </div>
       </aside>
@@ -200,20 +200,20 @@ export function FilterSidebar(props: Props) {
           <>
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 bg-charcoal/80 backdrop-blur-sm z-40 lg:hidden"
               onClick={props.onClose}
             />
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed inset-x-0 bottom-0 z-50 bg-navy-950 rounded-t-3xl max-h-[85vh] overflow-y-auto lg:hidden border-t border-white/5"
+              className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto lg:hidden border-t border-border"
             >
               {/* Handle bar */}
-              <div className="sticky top-0 bg-navy-950 pt-4 pb-3 flex flex-col items-center gap-3 border-b border-white/5 z-10">
-                <div className="w-12 h-1 rounded-full bg-white/20" />
+              <div className="sticky top-0 bg-white pt-4 pb-3 flex flex-col items-center gap-3 border-b border-border z-10">
+                <div className="w-12 h-1 rounded-full bg-border" />
                 <div className="flex items-center justify-between w-full px-6">
-                  <span className="font-display text-lg text-crystal">Filtros</span>
-                  <button onClick={props.onClose} className="text-crystal/50 hover:text-crystal transition-colors">
+                  <span className="font-display text-lg text-charcoal">Filtros</span>
+                  <button onClick={props.onClose} className="text-charcoal-muted hover:text-charcoal transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -222,11 +222,10 @@ export function FilterSidebar(props: Props) {
               <FilterContent {...props} isMobile={true} />
 
               {/* Sticky apply button */}
-              <div className="sticky bottom-0 px-6 py-4 bg-navy-950/95 backdrop-blur-xl border-t border-white/5">
+              <div className="sticky bottom-0 px-6 py-4 bg-white/95 backdrop-blur-xl border-t border-border">
                 <button
                   onClick={props.onClose}
-                  className="w-full py-4 rounded-2xl font-body font-semibold text-navy-950 text-sm"
-                  style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)" }}
+                  className="w-full py-4 rounded-2xl font-body font-semibold bg-charcoal text-white hover:bg-gold transition-colors text-sm"
                 >
                   Aplicar filtros
                 </button>

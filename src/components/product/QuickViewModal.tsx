@@ -42,7 +42,7 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Modal */}
@@ -51,19 +51,19 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-x-4 top-[5%] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 z-50 w-full max-w-4xl max-h-[90vh] bg-navy-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+            className="fixed inset-x-4 top-[5%] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 z-50 w-full max-w-4xl max-h-[90vh] bg-white border border-border rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
             style={/* For centered fallback if translate fails */ { margin: "auto" }}
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full glass border border-white/10 flex items-center justify-center text-crystal/60 hover:text-crystal hover:bg-white/5 transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-cream border border-border flex items-center justify-center text-charcoal-muted hover:text-charcoal hover:bg-border transition-colors shadow-sm"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Left: Images */}
-            <div className="w-full md:w-1/2 bg-navy-950 p-6 flex flex-col gap-4">
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/5 bg-navy-900">
+            <div className="w-full md:w-1/2 bg-cream p-6 flex flex-col gap-4">
+              <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-border bg-white shadow-sm">
                 <Image
                   src={images[activeImage]}
                   alt={product.name}
@@ -86,7 +86,7 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
                       key={idx}
                       onClick={() => setActiveImage(idx)}
                       className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
-                        activeImage === idx ? "border-gold" : "border-white/10 hover:border-white/30"
+                        activeImage === idx ? "border-gold" : "border-border hover:border-gold"
                       }`}
                     >
                       <Image src={img} alt="" fill sizes="80px" className="object-cover" />
@@ -101,7 +101,7 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
               <span className="font-body text-xs tracking-[0.2em] uppercase text-gold-400 mb-2">
                 {product.brand?.name}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl text-crystal mb-3">
+              <h2 className="font-display text-3xl md:text-4xl text-charcoal mb-3">
                 {product.name}
               </h2>
               
@@ -110,7 +110,7 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
                 {[1, 2, 3, 4, 5].map(i => (
                   <Star key={i} className="w-4 h-4 fill-gold text-gold" />
                 ))}
-                <span className="font-body text-xs text-crystal/50 ml-2">(4.9/5)</span>
+                <span className="font-body text-xs text-charcoal-muted ml-2">(4.9/5)</span>
               </div>
 
               {/* Price */}
@@ -119,21 +119,21 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
                   ${product.price.toLocaleString("es-CO")}
                 </span>
                 {product.compare_price && (
-                  <span className="font-body text-sm text-crystal/40 line-through mb-1">
+                  <span className="font-body text-sm text-charcoal-muted line-through mb-1">
                     ${product.compare_price.toLocaleString("es-CO")}
                   </span>
                 )}
               </div>
 
               {/* Description */}
-              <p className="font-body text-sm text-crystal/70 mb-8 leading-relaxed line-clamp-3">
+              <p className="font-body text-sm text-charcoal-muted mb-8 leading-relaxed line-clamp-3">
                 {product.description || "Una fragancia excepcional diseñada para cautivar los sentidos. Elaborada con los ingredientes más puros y duraderos."}
               </p>
 
               {/* ML Selector */}
               {product.ml_options && product.ml_options.length > 0 && (
                 <div className="mb-8">
-                  <p className="font-body text-xs uppercase tracking-widest text-crystal/50 mb-3">Tamaño</p>
+                  <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-3">Tamaño</p>
                   <div className="flex gap-3">
                     {product.ml_options.map(opt => (
                       <button
@@ -141,8 +141,8 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
                         onClick={() => setSelectedMl(opt.ml)}
                         className={`px-4 py-2 rounded-xl text-sm font-body transition-all ${
                           selectedMl === opt.ml
-                            ? "bg-gold text-navy-950 font-semibold"
-                            : "border border-white/20 text-crystal hover:border-gold-500/50"
+                            ? "bg-charcoal text-white font-semibold shadow-sm"
+                            : "bg-white border border-border text-charcoal hover:border-gold hover:text-gold shadow-sm"
                         }`}
                       >
                         {opt.ml} ml
@@ -155,29 +155,29 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
               {/* Olfactive Notes */}
               {(product.notes_top || product.notes_heart || product.notes_base) && (
                 <div className="mb-8 flex flex-col gap-3">
-                  <p className="font-body text-xs uppercase tracking-widest text-crystal/50 mb-1">Notas Olfativas</p>
+                  <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-1">Notas Olfativas</p>
                   
                   {product.notes_top && product.notes_top.length > 0 && (
                     <div className="flex items-center gap-3">
-                      <span className="font-body text-[10px] text-crystal/40 uppercase w-14">Salida</span>
+                      <span className="font-body text-[10px] text-charcoal-muted uppercase w-14">Salida</span>
                       <div className="flex flex-wrap gap-2">
-                        {product.notes_top.map(n => <span key={n} className="px-2 py-1 rounded bg-navy-800 text-crystal text-xs border border-white/5">{n}</span>)}
+                        {product.notes_top.map(n => <span key={n} className="px-2 py-1 rounded bg-white text-charcoal text-xs border border-border shadow-sm">{n}</span>)}
                       </div>
                     </div>
                   )}
                   {product.notes_heart && product.notes_heart.length > 0 && (
                     <div className="flex items-center gap-3">
-                      <span className="font-body text-[10px] text-crystal/40 uppercase w-14">Corazón</span>
+                      <span className="font-body text-[10px] text-charcoal-muted uppercase w-14">Corazón</span>
                       <div className="flex flex-wrap gap-2">
-                        {product.notes_heart.map(n => <span key={n} className="px-2 py-1 rounded bg-navy-800 text-crystal text-xs border border-white/5">{n}</span>)}
+                        {product.notes_heart.map(n => <span key={n} className="px-2 py-1 rounded bg-white text-charcoal text-xs border border-border shadow-sm">{n}</span>)}
                       </div>
                     </div>
                   )}
                   {product.notes_base && product.notes_base.length > 0 && (
                     <div className="flex items-center gap-3">
-                      <span className="font-body text-[10px] text-crystal/40 uppercase w-14">Fondo</span>
+                      <span className="font-body text-[10px] text-charcoal-muted uppercase w-14">Fondo</span>
                       <div className="flex flex-wrap gap-2">
-                        {product.notes_base.map(n => <span key={n} className="px-2 py-1 rounded bg-navy-800 text-crystal text-xs border border-white/5">{n}</span>)}
+                        {product.notes_base.map(n => <span key={n} className="px-2 py-1 rounded bg-white text-charcoal text-xs border border-border shadow-sm">{n}</span>)}
                       </div>
                     </div>
                   )}
@@ -187,15 +187,14 @@ export function QuickViewModal({ product, isOpen, onClose }: Props) {
               <div className="mt-auto pt-6 flex flex-col gap-3">
                 <button
                   onClick={handleAdd}
-                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-body font-semibold text-navy-950 transition-transform hover:scale-[1.02]"
-                  style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)" }}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-body font-semibold text-white transition-all hover:scale-[1.02] bg-charcoal hover:bg-gold shadow-sm"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   Agregar al carrito
                 </button>
                 <Link
                   href={`/product/${product.slug}`}
-                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-gold-500/30 text-gold font-body hover:bg-gold-500/10 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-cream border border-border text-charcoal font-body hover:bg-gold hover:text-white hover:border-gold transition-colors shadow-sm"
                 >
                   Ver producto completo
                   <ArrowRight className="w-4 h-4" />

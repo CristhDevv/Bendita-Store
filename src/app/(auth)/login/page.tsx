@@ -46,8 +46,8 @@ export default function LoginPage() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="font-display text-4xl text-crystal mb-2">Bienvenida de nuevo</h1>
-        <p className="font-body text-crystal/60">Ingresa a tu cuenta para continuar</p>
+        <h1 className="font-display text-4xl text-charcoal mb-2">Bienvenida de nuevo</h1>
+        <p className="font-body text-charcoal-muted">Ingresa a tu cuenta para continuar</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -56,7 +56,7 @@ export default function LoginPage() {
             {...register("email")}
             type="email"
             placeholder="Correo electrónico"
-            className="w-full bg-navy-950/50 border border-gold-500/30 focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors"
+            className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm"
           />
           {errors.email && <p className="text-rose-400 text-xs mt-1 px-1">{errors.email.message}</p>}
         </div>
@@ -66,20 +66,20 @@ export default function LoginPage() {
             {...register("password")}
             type="password"
             placeholder="Contraseña"
-            className="w-full bg-navy-950/50 border border-gold-500/30 focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors"
+            className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm"
           />
           {errors.password && <p className="text-rose-400 text-xs mt-1 px-1">{errors.password.message}</p>}
         </div>
 
         <div className="flex items-center justify-between mt-1">
           <label className="flex items-center gap-2 cursor-pointer group">
-            <div className="relative flex items-center justify-center w-5 h-5 border border-gold-500/30 rounded bg-navy-950 group-hover:border-gold transition-colors">
+            <div className="relative flex items-center justify-center w-5 h-5 border border-border rounded bg-white group-hover:border-gold transition-colors">
               <input type="checkbox" className="peer sr-only" />
               <svg className="w-3 h-3 text-gold opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="font-body text-sm text-crystal/70 group-hover:text-crystal transition-colors">Recordarme</span>
+            <span className="font-body text-sm text-charcoal-muted group-hover:text-charcoal transition-colors">Recordarme</span>
           </label>
           <Link href="/forgot-password" className="font-body text-sm text-gold hover:text-gold-400 transition-colors">
             ¿Olvidaste tu contraseña?
@@ -89,21 +89,20 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3.5 mt-2 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-navy-950 transition-all hover:scale-[1.02] shadow-xl shadow-gold/20 disabled:opacity-70 disabled:hover:scale-100"
-          style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)" }}
+          className="w-full py-3.5 mt-2 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-white transition-all hover:scale-[1.02] shadow-sm disabled:opacity-70 disabled:hover:scale-100 bg-charcoal hover:bg-gold"
         >
           {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Ingresar"}
         </button>
       </form>
 
       <div className="relative flex items-center justify-center my-8">
-        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
-        <span className="relative bg-navy-900 px-4 font-body text-xs text-crystal/40 uppercase tracking-widest">o continúa con</span>
+        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+        <span className="relative bg-white px-4 font-body text-xs text-charcoal-muted uppercase tracking-widest">o continúa con</span>
       </div>
 
       <button
         onClick={handleGoogle}
-        className="w-full py-3.5 rounded-xl border border-white/10 flex items-center justify-center gap-3 font-body text-crystal hover:bg-white/5 transition-colors"
+        className="w-full py-3.5 rounded-xl border border-border bg-white shadow-sm flex items-center justify-center gap-3 font-body text-charcoal hover:bg-cream transition-colors"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -114,7 +113,7 @@ export default function LoginPage() {
         Google
       </button>
 
-      <p className="font-body text-sm text-crystal/60 text-center mt-8">
+      <p className="font-body text-sm text-charcoal-muted text-center mt-8">
         ¿No tienes cuenta?{" "}
         <Link href="/register" className="text-gold hover:text-gold-400 font-medium transition-colors">
           Regístrate aquí

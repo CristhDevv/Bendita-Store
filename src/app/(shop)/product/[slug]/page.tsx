@@ -106,32 +106,32 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <div className="w-full lg:w-1/2 flex flex-col">
             
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 font-body text-xs text-crystal/50 mb-6 uppercase tracking-widest">
+            <div className="flex items-center gap-2 font-body text-[10px] text-charcoal-muted mb-6 uppercase tracking-widest">
               <Link href="/" className="hover:text-gold transition-colors">Inicio</Link>
               <span>/</span>
               <Link href="/products" className="hover:text-gold transition-colors">Catálogo</Link>
               <span>/</span>
               <Link href={`/products?brand=${product.brand?.name}`} className="hover:text-gold transition-colors">{product.brand?.name}</Link>
               <span>/</span>
-              <span className="text-crystal/80 line-clamp-1">{product.name}</span>
+              <span className="text-charcoal-muted/80 line-clamp-1">{product.name}</span>
             </div>
 
             {/* Badges */}
             <div className="flex gap-2 mb-4">
               {product.gender && (
-                <span className="px-3 py-1 bg-navy-900 border border-white/10 rounded-full text-[10px] text-crystal uppercase tracking-widest">
+                <span className="px-3 py-1 bg-cream border border-border rounded-full text-[10px] text-charcoal uppercase tracking-widest">
                   {product.gender === 'women' ? 'Mujer' : product.gender === 'men' ? 'Hombre' : 'Unisex'}
                 </span>
               )}
               {product.concentration && (
-                <span className="px-3 py-1 bg-gold text-navy-950 font-bold rounded-full text-[10px] uppercase tracking-widest">
+                <span className="px-3 py-1 bg-charcoal text-white font-bold rounded-full text-[10px] uppercase tracking-widest shadow-sm">
                   {CONC_LABEL[product.concentration]}
                 </span>
               )}
             </div>
 
             {/* Title & Brand */}
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-crystal leading-tight mb-2">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-charcoal leading-tight mb-2">
               {product.name}
             </h1>
             <p className="font-body text-lg text-gold-400 tracking-[0.2em] uppercase mb-6">
@@ -143,7 +143,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
               </div>
-              <span className="font-body text-sm text-crystal/50 group-hover:text-gold transition-colors underline underline-offset-4 decoration-white/20">
+              <span className="font-body text-sm text-charcoal-muted group-hover:text-gold transition-colors underline underline-offset-4 decoration-border">
                 (Leer reseñas)
               </span>
             </a>
@@ -155,7 +155,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </span>
               {product.compare_price && (
                 <div className="flex flex-col gap-1 pb-1">
-                  <span className="font-body text-sm text-crystal/40 line-through">
+                  <span className="font-body text-sm text-charcoal-muted/50 line-through">
                     ${product.compare_price.toLocaleString("es-CO")}
                   </span>
                   {discountPct && (
@@ -185,9 +185,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
       {/* Related Products */}
       {related.length > 0 && (
-        <section className="py-20 bg-navy-950 border-t border-white/5">
+        <section className="py-20 bg-cream border-t border-border">
           <div className="container mx-auto px-4 md:px-8">
-            <h2 className="font-display text-3xl text-crystal mb-12 text-center">También te puede gustar</h2>
+            <h2 className="font-display text-3xl text-charcoal mb-12 text-center">También te puede gustar</h2>
             <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden">
               {related.map(p => (
                 <div key={p.id} className="snap-start shrink-0 w-[280px] md:w-[320px]">

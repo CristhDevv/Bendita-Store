@@ -7,8 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getUserProfile, updateProfile, updatePassword } from "@/lib/supabase/account";
 import type { Profile } from "@/types";
 
-const inputClass =
-  "w-full px-4 py-3 rounded-xl bg-navy-900/60 border border-gold-500/20 focus:border-gold-500/60 text-crystal font-body text-sm outline-none transition-colors placeholder:text-crystal/30";
+  "w-full px-4 py-3 rounded-xl bg-white border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted shadow-sm";
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -81,9 +80,9 @@ export default function ProfilePage() {
   if (authLoading || loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-white/5 rounded-lg animate-pulse" />
-        <div className="h-64 bg-white/5 rounded-xl animate-pulse" />
-        <div className="h-48 bg-white/5 rounded-xl animate-pulse" />
+        <div className="h-8 w-48 bg-cream rounded-lg animate-pulse" />
+        <div className="h-64 bg-cream rounded-xl animate-pulse" />
+        <div className="h-48 bg-cream rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -93,40 +92,40 @@ export default function ProfilePage() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl text-crystal mb-1">Datos Personales</h1>
-        <p className="font-body text-sm text-crystal/50">
+        <h1 className="font-display text-2xl text-charcoal mb-1">Datos Personales</h1>
+        <p className="font-body text-sm text-charcoal-muted">
           Actualiza tu información personal y contraseña.
         </p>
       </div>
 
       {/* Avatar */}
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-navy-950 font-display font-bold text-2xl select-none">
+        <div className="w-16 h-16 rounded-full bg-gold flex items-center justify-center text-white font-display font-bold text-2xl select-none">
           {displayInitial}
         </div>
         <div>
-          <p className="font-body text-sm font-medium text-crystal">
+          <p className="font-body text-sm font-medium text-charcoal">
             {fullName || user?.email}
           </p>
-          <p className="font-body text-xs text-crystal/50">{user?.email}</p>
+          <p className="font-body text-xs text-charcoal-muted">{user?.email}</p>
         </div>
       </div>
 
       {/* Profile Form */}
       <form
         onSubmit={handleSaveProfile}
-        className="glass border border-gold-500/10 rounded-2xl p-6 space-y-4"
+        className="bg-white border border-border rounded-2xl p-6 space-y-4 shadow-sm"
       >
         <div className="flex items-center gap-2 mb-4">
           <User className="w-4 h-4 text-gold" />
-          <h2 className="font-body text-sm font-medium text-crystal uppercase tracking-widest">
+          <h2 className="font-body text-sm font-medium text-charcoal uppercase tracking-widest">
             Información Personal
           </h2>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">
               Nombre completo
             </label>
             <input
@@ -137,7 +136,7 @@ export default function ProfilePage() {
             />
           </div>
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">
               Teléfono
             </label>
             <input
@@ -151,7 +150,7 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <label className="block font-body text-xs text-crystal/50 mb-1.5">
+          <label className="block font-body text-xs text-charcoal-muted mb-1.5">
             Correo electrónico
           </label>
           <input
@@ -159,7 +158,7 @@ export default function ProfilePage() {
             value={user?.email || ""}
             readOnly
           />
-          <p className="font-body text-[11px] text-crystal/30 mt-1">
+          <p className="font-body text-[11px] text-charcoal-muted mt-1">
             El email no puede cambiarse desde aquí.
           </p>
         </div>
@@ -167,7 +166,7 @@ export default function ProfilePage() {
         <button
           type="submit"
           disabled={savingProfile}
-          className="flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-400 text-navy-950 rounded-xl font-body font-semibold text-sm transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 px-6 py-3 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors disabled:opacity-60"
         >
           {savingProfile ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -181,18 +180,18 @@ export default function ProfilePage() {
       {/* Password Form */}
       <form
         onSubmit={handleChangePassword}
-        className="glass border border-gold-500/10 rounded-2xl p-6 space-y-4"
+        className="bg-white border border-border rounded-2xl p-6 space-y-4 shadow-sm"
       >
         <div className="flex items-center gap-2 mb-4">
           <Lock className="w-4 h-4 text-gold" />
-          <h2 className="font-body text-sm font-medium text-crystal uppercase tracking-widest">
+          <h2 className="font-body text-sm font-medium text-charcoal uppercase tracking-widest">
             Cambiar Contraseña
           </h2>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">
               Nueva contraseña
             </label>
             <input
@@ -205,7 +204,7 @@ export default function ProfilePage() {
             />
           </div>
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">
               Confirmar contraseña
             </label>
             <input
@@ -221,7 +220,7 @@ export default function ProfilePage() {
         <button
           type="submit"
           disabled={savingPassword || !newPassword}
-          className="flex items-center gap-2 px-6 py-3 bg-gold-500/15 border border-gold-500/30 text-gold rounded-xl font-body font-semibold text-sm hover:bg-gold-500/25 transition-colors disabled:opacity-40"
+          className="flex items-center gap-2 px-6 py-3 bg-cream border border-border text-charcoal rounded-xl font-body font-semibold text-sm hover:bg-gold hover:text-white hover:border-gold transition-colors disabled:opacity-40"
         >
           {savingPassword ? (
             <Loader2 className="w-4 h-4 animate-spin" />

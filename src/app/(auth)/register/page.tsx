@@ -54,8 +54,8 @@ export default function RegisterPage() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="font-display text-4xl text-crystal mb-2">Únete a Bendita Store</h1>
-        <p className="font-body text-crystal/60">Crea tu cuenta para acceder a experiencias exclusivas</p>
+        <h1 className="font-display text-4xl text-charcoal mb-2">Únete a Bendita Store</h1>
+        <p className="font-body text-charcoal-muted">Crea tu cuenta para acceder a experiencias exclusivas</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -64,7 +64,7 @@ export default function RegisterPage() {
             {...register("fullName")}
             type="text"
             placeholder="Nombre completo"
-            className={`w-full bg-navy-950/50 border ${errors.fullName ? 'border-rose-500' : 'border-gold-500/30'} focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors`}
+            className={`w-full bg-white border ${errors.fullName ? 'border-rose-500' : 'border-border'} focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm`}
           />
           {errors.fullName && <p className="text-rose-400 text-xs mt-1 px-1">{errors.fullName.message}</p>}
         </div>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
             {...register("email")}
             type="email"
             placeholder="Correo electrónico"
-            className={`w-full bg-navy-950/50 border ${errors.email ? 'border-rose-500' : 'border-gold-500/30'} focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors`}
+            className={`w-full bg-white border ${errors.email ? 'border-rose-500' : 'border-border'} focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm`}
           />
           {errors.email && <p className="text-rose-400 text-xs mt-1 px-1">{errors.email.message}</p>}
         </div>
@@ -84,7 +84,7 @@ export default function RegisterPage() {
             {...register("phone")}
             type="tel"
             placeholder="Teléfono"
-            className={`w-full bg-navy-950/50 border ${errors.phone ? 'border-rose-500' : 'border-gold-500/30'} focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors`}
+            className={`w-full bg-white border ${errors.phone ? 'border-rose-500' : 'border-border'} focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm`}
           />
           {errors.phone && <p className="text-rose-400 text-xs mt-1 px-1">{errors.phone.message}</p>}
         </div>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
             {...register("password")}
             type="password"
             placeholder="Contraseña"
-            className={`w-full bg-navy-950/50 border ${errors.password ? 'border-rose-500' : 'border-gold-500/30'} focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors`}
+            className={`w-full bg-white border ${errors.password ? 'border-rose-500' : 'border-border'} focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm`}
           />
           {errors.password && <p className="text-rose-400 text-xs mt-1 px-1">{errors.password.message}</p>}
         </div>
@@ -104,20 +104,20 @@ export default function RegisterPage() {
             {...register("confirmPassword")}
             type="password"
             placeholder="Confirmar contraseña"
-            className={`w-full bg-navy-950/50 border ${errors.confirmPassword ? 'border-rose-500' : 'border-gold-500/30'} focus:border-gold rounded-xl px-4 py-3 font-body text-crystal outline-none transition-colors`}
+            className={`w-full bg-white border ${errors.confirmPassword ? 'border-rose-500' : 'border-border'} focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm`}
           />
           {errors.confirmPassword && <p className="text-rose-400 text-xs mt-1 px-1">{errors.confirmPassword.message}</p>}
         </div>
 
         <div className="flex items-start gap-2 mt-2">
-          <div className="relative flex items-center justify-center w-5 h-5 border border-gold-500/30 rounded bg-navy-950 shrink-0 mt-0.5">
+          <div className="relative flex items-center justify-center w-5 h-5 border border-border rounded bg-white shrink-0 mt-0.5">
             <input {...register("terms")} type="checkbox" className="peer w-5 h-5 opacity-0 absolute inset-0 cursor-pointer" />
             <svg className="w-3 h-3 text-gold opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <div className="flex flex-col">
-            <span className="font-body text-sm text-crystal/70">
+            <span className="font-body text-sm text-charcoal-muted">
               Acepto los <Link href="/terms" className="text-gold hover:underline">términos y condiciones</Link> y la política de privacidad.
             </span>
             {errors.terms && <p className="text-rose-400 text-xs mt-1">{errors.terms.message}</p>}
@@ -127,14 +127,13 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3.5 mt-4 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-navy-950 transition-all hover:scale-[1.02] shadow-xl shadow-gold/20 disabled:opacity-70 disabled:hover:scale-100"
-          style={{ background: "linear-gradient(135deg,#f5d97e,#c9a227)" }}
+          className="w-full py-3.5 mt-4 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-white transition-all hover:scale-[1.02] shadow-sm disabled:opacity-70 disabled:hover:scale-100 bg-charcoal hover:bg-gold"
         >
           {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Crear cuenta"}
         </button>
       </form>
 
-      <p className="font-body text-sm text-crystal/60 text-center mt-8">
+      <p className="font-body text-sm text-charcoal-muted text-center mt-8">
         ¿Ya tienes cuenta?{" "}
         <Link href="/login" className="text-gold hover:text-gold-400 font-medium transition-colors">
           Inicia sesión

@@ -13,9 +13,9 @@ const CATEGORIES = [
 
 export function CategoryBanner() {
   return (
-    <section className="py-20 bg-navy-950">
+    <section className="py-20 bg-cream">
       <div className="container mx-auto px-4 md:px-8">
-        <h2 className="font-display text-3xl md:text-4xl text-crystal text-center mb-12">
+        <h2 className="font-display text-3xl md:text-4xl text-charcoal text-center mb-12">
           Explora por Familia
         </h2>
         
@@ -27,13 +27,12 @@ export function CategoryBanner() {
               whileHover={{ scale: 1.05 }}
               className="snap-center shrink-0 w-[140px] md:w-auto flex flex-col items-center group cursor-pointer"
             >
-              <div className="w-28 h-28 rounded-full flex items-center justify-center bg-gradient-to-br from-gold/80 to-navy-800 shadow-lg group-hover:shadow-[0_0_20px_rgba(201,162,39,0.3)] transition-shadow duration-300 relative">
-                <div className="absolute inset-0 rounded-full bg-navy-950/20 group-hover:bg-transparent transition-colors duration-300" />
-                <div className="text-white z-10">
+              <div className="w-28 h-28 rounded-full flex items-center justify-center bg-white border border-gold/40 shadow-sm group-hover:shadow-[0_8px_20px_rgba(184,150,12,0.2)] transition-shadow duration-300 relative">
+                <div className="text-gold z-10">
                   {cat.icon}
                 </div>
               </div>
-              <span className="mt-5 font-body text-sm font-medium text-crystal/80 group-hover:text-gold transition-colors tracking-wide">
+              <span className="mt-5 font-body text-sm font-medium text-charcoal-muted group-hover:text-gold transition-colors tracking-wide">
                 {cat.name}
               </span>
             </motion.div>

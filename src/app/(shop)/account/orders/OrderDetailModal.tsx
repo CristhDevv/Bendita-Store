@@ -87,22 +87,22 @@ export function OrderDetailModal({
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
-        <div className="absolute inset-0 bg-navy-950/80 backdrop-blur-md" />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 16 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 16 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass border border-gold-500/20 rounded-2xl p-6"
+          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-border rounded-2xl p-6 shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="font-body text-xs text-crystal/40 uppercase tracking-widest mb-1">
+              <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest mb-1">
                 Pedido #{order.id.slice(0, 8).toUpperCase()}
               </p>
-              <p className="font-body text-sm text-crystal/60">
+              <p className="font-body text-sm text-charcoal-muted">
                 {formatDate(order.created_at)}
               </p>
             </div>
@@ -115,7 +115,7 @@ export function OrderDetailModal({
               </span>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-lg glass flex items-center justify-center text-crystal/50 hover:text-crystal transition-colors"
+                className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -136,15 +136,15 @@ export function OrderDetailModal({
                         <div
                           className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
                             done
-                              ? "bg-gold-500 border-gold-500 text-navy-950"
-                              : "border-crystal/20 text-crystal/20"
+                              ? "bg-gold border-gold text-white"
+                              : "border-border text-border"
                           }`}
                         >
                           <stepCfg.Icon className="w-3 h-3" />
                         </div>
                         <span
                           className={`text-[9px] font-body whitespace-nowrap ${
-                            done ? "text-gold" : "text-crystal/30"
+                            done ? "text-gold" : "text-charcoal-muted"
                           }`}
                         >
                           {stepCfg.label}
@@ -153,7 +153,7 @@ export function OrderDetailModal({
                       {!isLast && (
                         <div
                           className={`flex-1 h-0.5 mx-1 mb-4 ${
-                            i < currentStep ? "bg-gold-500" : "bg-crystal/10"
+                            i < currentStep ? "bg-gold" : "bg-border"
                           }`}
                         />
                       )}
@@ -167,23 +167,23 @@ export function OrderDetailModal({
           {/* Order Items */}
           {order.items && order.items.length > 0 && (
             <div className="mb-6">
-              <p className="font-body text-xs uppercase tracking-widest text-crystal/40 mb-3">
+              <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-3">
                 Productos
               </p>
               <div className="flex flex-col gap-3">
                 {order.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-cream border border-border"
                   >
-                    <div className="w-12 h-12 rounded-lg bg-navy-800 flex items-center justify-center shrink-0">
-                      <Package className="w-5 h-5 text-gold/40" />
+                    <div className="w-12 h-12 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                      <Package className="w-5 h-5 text-gold/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-body text-sm text-crystal truncate">
+                      <p className="font-body text-sm text-charcoal truncate">
                         {item.product?.name || "Producto"}
                       </p>
-                      <p className="font-body text-xs text-crystal/50">
+                      <p className="font-body text-xs text-charcoal-muted">
                         {item.quantity}x
                         {item.ml ? ` · ${item.ml}ml` : ""}
                       </p>
@@ -199,14 +199,14 @@ export function OrderDetailModal({
 
           {/* Address */}
           {order.address && (
-            <div className="mb-6 p-4 rounded-xl bg-white/3 border border-white/5">
+            <div className="mb-6 p-4 rounded-xl bg-cream border border-border">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-body text-xs uppercase tracking-widest text-crystal/40 mb-1">
+                  <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-1">
                     Dirección de envío
                   </p>
-                  <p className="font-body text-sm text-crystal">
+                  <p className="font-body text-sm text-charcoal">
                     {[
                       order.address.street,
                       order.address.city,
@@ -221,15 +221,15 @@ export function OrderDetailModal({
           )}
 
           {/* Payment + Total */}
-          <div className="flex items-center justify-between pt-4 border-t border-gold-500/10">
-            <div className="flex items-center gap-2 text-crystal/50">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <div className="flex items-center gap-2 text-charcoal-muted">
               <CreditCard className="w-4 h-4" />
               <span className="font-body text-sm capitalize">
                 {order.payment_method || "—"}
               </span>
             </div>
             <div className="text-right">
-              <p className="font-body text-xs text-crystal/40">Total</p>
+              <p className="font-body text-xs text-charcoal-muted">Total</p>
               <p className="font-display text-xl text-gold">
                 {formatCOP(order.total)}
               </p>

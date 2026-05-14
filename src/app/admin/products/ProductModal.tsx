@@ -27,12 +27,12 @@ function NotesSelector({
 
   return (
     <div>
-      <label className="block font-body text-xs text-crystal/50 mb-1.5">{label}</label>
+      <label className="block font-body text-xs text-charcoal-muted mb-1.5">{label}</label>
       <div className="flex flex-wrap gap-1.5 mb-2 min-h-[28px]">
         {notes.map((n) => (
           <span
             key={n}
-            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body border ${color}`}
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body border shadow-sm ${color}`}
           >
             {n}
             <button
@@ -47,7 +47,7 @@ function NotesSelector({
       </div>
       <div className="flex gap-2">
         <input
-          className="flex-1 px-3 py-2 rounded-xl bg-navy-900/60 border border-gold-500/15 focus:border-gold-500/50 text-crystal font-body text-xs outline-none transition-colors placeholder:text-crystal/25"
+          className="flex-1 px-3 py-2 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-xs outline-none transition-colors placeholder:text-charcoal-muted/40"
           placeholder={`Agregar nota y presionar Enter`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -56,7 +56,7 @@ function NotesSelector({
         <button
           type="button"
           onClick={add}
-          className="px-3 py-2 rounded-xl bg-gold-500/15 border border-gold-500/25 text-gold text-xs font-body hover:bg-gold-500/25 transition-colors"
+          className="px-3 py-2 rounded-xl bg-white border border-border text-charcoal text-xs font-body hover:border-gold hover:text-gold transition-colors shadow-sm"
         >
           + Agregar
         </button>
@@ -101,7 +101,7 @@ export function ProductModal({
   });
 
   const inputClass =
-    "w-full px-3 py-2.5 rounded-xl bg-navy-900/60 border border-gold-500/15 focus:border-gold-500/50 text-crystal font-body text-sm outline-none transition-colors placeholder:text-crystal/25";
+    "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
   const selectClass = `${inputClass} cursor-pointer`;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,22 +162,22 @@ export function ProductModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-navy-950/85 backdrop-blur-md" />
+      <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" />
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto glass border border-gold-500/20 rounded-2xl p-6"
+        className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white border border-border rounded-3xl p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl text-crystal">
+          <h2 className="font-display text-xl text-charcoal">
             {product ? "Editar Producto" : "Nuevo Producto"}
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg glass flex items-center justify-center text-crystal/40 hover:text-crystal"
+            className="w-8 h-8 rounded-lg bg-cream border border-border flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -186,36 +186,36 @@ export function ProductModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Nombre *</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Nombre *</label>
               <input className={inputClass} required value={form.name}
                 onChange={(e) => { setForm((f) => ({ ...f, name: e.target.value, slug: f.slug || e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") })); }} placeholder="Nombre del producto" />
             </div>
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Slug *</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Slug *</label>
               <input className={inputClass} required value={form.slug}
                 onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="url-del-producto" />
             </div>
           </div>
 
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">Descripción</label>
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Descripción</label>
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Descripción del producto..." />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Precio COP *</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label>
               <input className={inputClass} type="number" required min={0} value={form.price}
                 onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
             </div>
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Precio comparar</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label>
               <input className={inputClass} type="number" min={0} value={form.compare_price}
                 onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} />
             </div>
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Stock</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label>
               <input className={inputClass} type="number" min={0} value={form.stock}
                 onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
             </div>
@@ -223,7 +223,7 @@ export function ProductModal({
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Categoría</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label>
               <select className={selectClass} value={form.category_id}
                 onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}>
                 <option value="">Sin categoría</option>
@@ -231,7 +231,7 @@ export function ProductModal({
               </select>
             </div>
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Marca</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label>
               <select className={selectClass} value={form.brand_id}
                 onChange={(e) => setForm((f) => ({ ...f, brand_id: e.target.value }))}>
                 <option value="">Sin marca</option>
@@ -242,7 +242,7 @@ export function ProductModal({
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Género</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label>
               <select className={selectClass} value={form.gender}
                 onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as "women" | "men" | "unisex" }))}>
                 <option value="women">Mujer</option>
@@ -251,7 +251,7 @@ export function ProductModal({
               </select>
             </div>
             <div>
-              <label className="block font-body text-xs text-crystal/50 mb-1.5">Concentración</label>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label>
               <select className={selectClass} value={form.concentration}
                 onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value as "parfum" | "edp" | "edt" | "edc" | "splash" }))}>
                 <option value="parfum">Parfum</option>
@@ -264,7 +264,7 @@ export function ProductModal({
           </div>
 
           <div>
-            <label className="block font-body text-xs text-crystal/50 mb-1.5">URLs de Imágenes (una por línea)</label>
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.images}
               onChange={(e) => setForm((f) => ({ ...f, images: e.target.value }))}
               placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg" />
@@ -272,7 +272,7 @@ export function ProductModal({
 
           {/* Olfactive Notes */}
           <div className="space-y-3 pt-1">
-            <p className="font-body text-xs text-crystal/40 uppercase tracking-widest">Pirámide Olfativa</p>
+            <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest">Pirámide Olfativa</p>
             <NotesSelector
               label="🌿 Notas de Salida (Top)"
               color="text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
@@ -295,28 +295,28 @@ export function ProductModal({
 
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_active ? "bg-gold-500 border-gold-500" : "border-crystal/20"}`}
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_active ? "bg-charcoal border-charcoal" : "border-border"}`}
                 onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}>
-                {form.is_active && <svg viewBox="0 0 12 9" className="w-3 h-3 text-navy-950" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
+                {form.is_active && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
               </div>
-              <span className="font-body text-sm text-crystal/70">Activo</span>
+              <span className="font-body text-sm text-charcoal-muted">Activo</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_featured ? "bg-gold-500 border-gold-500" : "border-crystal/20"}`}
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_featured ? "bg-gold border-gold" : "border-border"}`}
                 onClick={() => setForm((f) => ({ ...f, is_featured: !f.is_featured }))}>
-                {form.is_featured && <svg viewBox="0 0 12 9" className="w-3 h-3 text-navy-950" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
+                {form.is_featured && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
               </div>
-              <span className="font-body text-sm text-crystal/70">Destacado</span>
+              <span className="font-body text-sm text-charcoal-muted">Destacado</span>
             </label>
           </div>
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-3 rounded-xl glass border border-white/10 font-body text-sm text-crystal/60 hover:text-crystal transition-colors">
+              className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm">
               Cancelar
             </button>
             <button type="submit" disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-body font-semibold text-sm transition-colors disabled:opacity-60">
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-charcoal hover:bg-gold text-white font-body font-semibold text-sm transition-all shadow-sm disabled:opacity-60">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? "Guardando..." : "Guardar Producto"}
             </button>
