@@ -106,8 +106,7 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Add to cart — always visible mobile, hover-only desktop */}
         <button
           onClick={handleAdd}
-          className="flex items-center justify-center gap-2 w-full mt-3 py-3 rounded-xl font-body text-sm font-medium bg-charcoal text-white hover:bg-gold transition-all
-            md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-all md:duration-300"
+          className="flex items-center justify-center gap-2 w-full mt-3 py-3 rounded-xl font-body text-sm font-medium bg-charcoal text-white hover:bg-gold transition-all"
         >
           <ShoppingBag className="w-4 h-4" />
           Agregar al carrito
