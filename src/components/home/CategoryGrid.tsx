@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const CATEGORIES = [
+  {
     slug: "mujeres",
     label: "Para Ella",
     sub: "Feminidad en cada nota",

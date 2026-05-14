@@ -46,6 +46,7 @@ export function AddressModal({
     }
   };
 
+  const inputClass =
     "w-full px-4 py-3 rounded-xl bg-white border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted shadow-sm";
 
   return (
