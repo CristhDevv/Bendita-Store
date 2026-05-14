@@ -8,8 +8,8 @@ import { useCartStore } from "@/lib/store/cart";
 const NAV_LINKS = [
   { label: "Inicio", href: "/" },
   { label: "Catálogo", href: "/products" },
-  { label: "Marcas", href: "/marcas" },
-  { label: "Ofertas", href: "/ofertas" },
+  { label: "Marcas", href: "/products?gender=all" }, // temporal hasta crear página de marcas
+  { label: "Ofertas", href: "/products?sort=price_asc" },
 ];
 
 export function Header() {
