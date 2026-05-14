@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { getProductBySlug, getRelatedProducts } from "@/lib/supabase/products";
+import { getProductBySlug, getRelatedProducts, getAllActiveProductSlugs } from "@/lib/supabase/products";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductActions } from "@/components/product/ProductActions";
 import { ProductAccordions } from "@/components/product/ProductAccordions";
@@ -14,11 +14,23 @@ import { MOCK_PRODUCTS } from "@/lib/mock/products";
 export const revalidate = 3600;
 export const dynamicParams = true;
 
+export async function generateStaticParams() {
+  const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
+  const supabaseSlugs = await getAllActiveProductSlugs().catch(() => []);
+  const mockSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug }));
+  return [...supabaseSlugs, ...mockSlugs];
+}
+
 const BASE_URL = CONFIG.SITE.URL;
 const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const product = await getProductBySlug(params.slug);
+  let product = await getProductBySlug(params.slug);
+  if (!product) {
+    const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
+    if (mock) product = mock as any;
+  }
+  
   if (!product) return { title: "Producto no encontrado | Bendita Store" };
 
   const fullTitle = `${product.name} - ${product.brand?.name} | Bendita Store`;
@@ -58,12 +70,15 @@ const CONC_LABEL: Record<string, string> = {
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   let product = await getProductBySlug(params.slug);
+  
   if (!product) {
+    const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
     const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
     if (!mock) notFound();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     product = mock as any;
   }
+
   if (!product) notFound(); // TypeScript narrowing guard
 
   const related = await getRelatedProducts(product.category_id, product.id);
