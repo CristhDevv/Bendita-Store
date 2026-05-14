@@ -3,11 +3,18 @@ import { cookies } from "next/headers";
 
 export async function createClient(customOptions?: any) {
   const cookieStore = await cookies();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  if (!supabaseUrl || !supabaseUrl.startsWith("http")) {
+    throw new Error(`NEXT_PUBLIC_SUPABASE_URL inválida: "${supabaseUrl}"`);
+  }
+
+  if (!supabaseKey) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY es requerida");
+  }
+
+  return createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return cookieStore.getAll();
