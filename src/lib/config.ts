@@ -12,7 +12,7 @@ const getEnv = (key: string, required = true) => {
   const isBuild = process.env.NEXT_PHASE === 'phase-production-build' || process.env.BUILD_ID;
   
   if (required && !value && isProd && !isBuild) {
-    throw new Error(`CRITICAL CONFIG ERROR: Missing environment variable ${key}. Application cannot start in production.`);
+    console.warn(`CRITICAL CONFIG ERROR: Missing environment variable ${key}. Application may fail at runtime.`);
   }
   return value || '';
 };

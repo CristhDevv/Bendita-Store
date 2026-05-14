@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: Request) {
+  const req = request as any;
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -14,14 +15,14 @@ export async function proxy(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
+            req.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
-            request,
+            request: req,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -35,27 +36,28 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const url = new URL(request.url);
   const isProtectedRoute = 
-    request.nextUrl.pathname.startsWith("/account") ||
-    request.nextUrl.pathname.startsWith("/admin");
+    url.pathname.startsWith("/account") ||
+    url.pathname.startsWith("/admin");
 
   // Redirigir a login si intenta acceder a una ruta protegida sin sesión
   if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const redirectUrl = new URL(url.href);
+    redirectUrl.pathname = "/login";
+    return NextResponse.redirect(redirectUrl);
   }
 
   // Redirigir a account si intenta acceder a auth con sesión
   const isAuthRoute = 
-    request.nextUrl.pathname.startsWith("/login") || 
-    request.nextUrl.pathname.startsWith("/register") ||
-    request.nextUrl.pathname.startsWith("/forgot-password");
+    url.pathname.startsWith("/login") || 
+    url.pathname.startsWith("/register") ||
+    url.pathname.startsWith("/forgot-password");
 
   if (user && isAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/account";
-    return NextResponse.redirect(url);
+    const redirectUrl = new URL(url.href);
+    redirectUrl.pathname = "/account";
+    return NextResponse.redirect(redirectUrl);
   }
 
   return supabaseResponse;
