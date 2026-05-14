@@ -9,6 +9,7 @@ import { OlfactivePyramid } from "@/components/product/OlfactivePyramid";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CONFIG } from "@/lib/config";
+import { MOCK_PRODUCTS } from "@/lib/mock/products";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -56,8 +57,14 @@ const CONC_LABEL: Record<string, string> = {
 };
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const product = await getProductBySlug(params.slug);
-  if (!product) notFound();
+  let product = await getProductBySlug(params.slug);
+  if (!product) {
+    const mock = MOCK_PRODUCTS.find(p => p.slug === params.slug);
+    if (!mock) notFound();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    product = mock as any;
+  }
+  if (!product) notFound(); // TypeScript narrowing guard
 
   const related = await getRelatedProducts(product.category_id, product.id);
   const discountPct = product.compare_price
