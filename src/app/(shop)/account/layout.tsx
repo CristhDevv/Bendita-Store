@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShoppingBag,
   Heart,
@@ -163,6 +163,24 @@ function MobileTabBar() {
 }
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-cream pt-24 pb-24 lg:pb-8">
       <div className="container mx-auto px-4 max-w-6xl">
