@@ -166,14 +166,26 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
+  // Verificar si Supabase está configurado
+  const isSupabaseConfigured = 
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith("http");
+
   useEffect(() => {
     if (authLoading) return;
+    
+    if (!isSupabaseConfigured) {
+      console.warn("Supabase no está configurado. Redirigiendo a inicio...");
+      router.replace("/");
+      return;
+    }
+
     if (!user) {
       router.replace("/login");
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, isSupabaseConfigured]);
 
-  if (authLoading || !user) {
+  if (authLoading || !user || !isSupabaseConfigured) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>

@@ -17,28 +17,38 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
+      
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
 
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user || null);
-      setLoading(false);
-    };
-
-    getSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      const getSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user || null);
         setLoading(false);
-      }
-    );
+      };
 
-    return () => {
-      subscription.unsubscribe();
-    };
+      getSession();
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (_event: any, session: any) => {
+          setSession(session);
+          setUser(session?.user || null);
+          setLoading(false);
+        }
+      );
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    } catch (e) {
+      console.warn("Auth unavailable:", e);
+      setLoading(false);
+    }
   }, []);
 
   return {

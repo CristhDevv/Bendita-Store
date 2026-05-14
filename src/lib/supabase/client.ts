@@ -1,15 +1,12 @@
 import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
-  if (!supabaseUrl || !supabaseUrl.startsWith("http")) {
-    throw new Error(`NEXT_PUBLIC_SUPABASE_URL inválida: "${supabaseUrl}"`);
-  }
-
-  if (!supabaseKey) {
-    throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY es requerida");
+  if (!supabaseUrl.startsWith("http") || !supabaseKey) {
+    console.warn("Supabase env vars missing");
+    return null as any;
   }
 
   return createBrowserClient(supabaseUrl, supabaseKey);

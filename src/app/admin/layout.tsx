@@ -146,7 +146,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .select("is_admin")
       .eq("id", user.id)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: any }) => {
         if (!data?.is_admin) {
           router.replace("/");
         } else {
