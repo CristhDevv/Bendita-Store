@@ -6,6 +6,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     const supabase = await createClient({
       global: { fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, next: { revalidate: 3600 } }) }
     });
+    if (!supabase) return null;
     const { data, error } = await supabase
       .from("products")
       .select(`
@@ -77,15 +78,22 @@ export async function getProducts(filters?: any): Promise<Product[]> {
 }
 
 export async function getAllActiveProductSlugs(): Promise<{ slug: string; updated_at: string }[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("slug, created_at") // Using created_at since updated_at might not exist yet, I'll check schema later if needed
-    .eq("is_active", true);
-  
-  if (error) return [];
-  return data.map(p => ({
-    slug: p.slug,
-    updated_at: p.created_at
-  }));
+  try {
+    const supabase = await createClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("products")
+      .select("slug, created_at")
+      .eq("is_active", true);
+
+    if (error || !data) return [];
+    return data.map(p => ({
+      slug: p.slug,
+      updated_at: p.created_at
+    }));
+  } catch (err) {
+    console.error("Failed in getAllActiveProductSlugs:", err);
+    return [];
+  }
 }
+

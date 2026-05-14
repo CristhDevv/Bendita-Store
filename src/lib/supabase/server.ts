@@ -2,17 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient(customOptions?: any) {
-  const cookieStore = await cookies();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseUrl.startsWith("http")) {
-    throw new Error(`NEXT_PUBLIC_SUPABASE_URL inválida: "${supabaseUrl}"`);
+  if (!supabaseUrl || !supabaseUrl.startsWith("http") || !supabaseKey) {
+    console.warn("[supabase/server] env vars missing or invalid — returning null client");
+    return null as any;
   }
 
-  if (!supabaseKey) {
-    throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY es requerida");
-  }
+  const cookieStore = await cookies();
 
   return createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
