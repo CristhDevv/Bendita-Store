@@ -87,7 +87,7 @@ export async function getAllActiveProductSlugs(): Promise<{ slug: string; update
       .eq("is_active", true);
 
     if (error || !data) return [];
-    return data.map(p => ({
+    return data.map((p: { slug: string; created_at: string }) => ({
       slug: p.slug,
       updated_at: p.created_at
     }));
