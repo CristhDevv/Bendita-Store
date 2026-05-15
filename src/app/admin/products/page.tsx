@@ -119,8 +119,15 @@ export default function AdminProductsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-cream/30">
-                  {["Producto", "Marca", "Precio", "Stock", "Estado", ""].map((h) => (
-                    <th key={h} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h === "" ? "text-right" : "text-left"}`}>{h}</th>
+                  {[
+                    { label: "Producto", cls: "text-left w-auto" },
+                    { label: "Marca", cls: "text-left w-28" },
+                    { label: "Precio", cls: "text-left w-28 whitespace-nowrap" },
+                    { label: "Stock", cls: "text-left w-16" },
+                    { label: "Estado", cls: "text-left w-24" },
+                    { label: "", cls: "text-right w-24" },
+                  ].map((h) => (
+                    <th key={h.label} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h.cls}`}>{h.label}</th>
                   ))}
                 </tr>
               </thead>
@@ -142,13 +149,13 @@ export default function AdminProductsPage() {
                             <ImageIcon className="w-4 h-4 text-charcoal-muted" />
                           )}
                         </div>
-                        <div>
-                          <p className="font-body text-sm text-charcoal font-medium">{product.name}</p>
+                        <div className="min-w-0">
+                          <p className="font-body text-sm text-charcoal font-medium truncate max-w-[180px]">{product.name}</p>
                           <p className="font-body text-xs text-charcoal-muted uppercase">{product.concentration}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-body text-xs text-charcoal-muted">
+                    <td className="px-4 py-3 font-body text-xs text-charcoal-muted truncate max-w-[100px]">
                       {(product.brand as Brand | undefined)?.name || "—"}
                     </td>
                     <td className="px-4 py-3">
