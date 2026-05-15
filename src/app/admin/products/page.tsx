@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Package,
   Plus,
   Pencil,
   Trash2,
   Search,
-  X,
   Loader2,
   Eye,
   EyeOff,
@@ -16,6 +15,7 @@ import {
   StarOff,
   Image as ImageIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Product, Category, Brand } from "@/types";
 import toast from "react-hot-toast";
@@ -29,46 +29,24 @@ function formatCOP(amount: number) {
   }).format(amount);
 }
 
-import dynamic from "next/dynamic";
-
-const ProductModal = dynamic(() => import("./ProductModal").then(mod => mod.ProductModal), { ssr: false });
-
 // ─── Products Admin Page ───────────────────────────────────────
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [editingProduct, setEditingProduct] = useState<Product | undefined>();
-  const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
-    const [{ data: p }, { data: c }, { data: b }] = await Promise.all([
-      supabase
-        .from("products")
-        .select("*, category:categories(name), brand:brands(name)")
-        .order("created_at", { ascending: false }),
-      supabase.from("categories").select("*").order("name"),
-      supabase.from("brands").select("*").order("name"),
-    ]);
+    const { data: p } = await supabase
+      .from("products")
+      .select("*, category:categories(name), brand:brands(name)")
+      .order("created_at", { ascending: false });
     setProducts((p as Product[]) || []);
-    setCategories((c as Category[]) || []);
-    setBrands((b as Brand[]) || []);
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-
-  const handleSave = (saved: Product) => {
-    setProducts((prev) => {
-      const idx = prev.findIndex((p) => p.id === saved.id);
-      if (idx >= 0) { const updated = [...prev]; updated[idx] = saved; return updated; }
-      return [saved, ...prev];
-    });
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Eliminar este producto permanentemente?")) return;
@@ -109,12 +87,12 @@ export default function AdminProductsPage() {
           <h1 className="font-display text-3xl text-charcoal mb-1">Productos</h1>
           <p className="font-body text-sm text-charcoal-muted">{products.length} productos en total</p>
         </div>
-        <button
-          onClick={() => { setEditingProduct(undefined); setShowModal(true); }}
+        <Link
+          href="/admin/products/new"
           className="flex items-center gap-2 px-4 py-2.5 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" /> Nuevo Producto
-        </button>
+        </Link>
       </div>
 
       {/* Search */}
@@ -202,9 +180,9 @@ export default function AdminProductsPage() {
                         <button onClick={() => handleToggleActive(product)} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors" title={product.is_active ? "Desactivar" : "Activar"}>
                           {product.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button onClick={() => { setEditingProduct(product); setShowModal(true); }} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors">
+                        <Link href={`/admin/products/${product.id}/edit`} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors">
                           <Pencil className="w-3.5 h-3.5" />
-                        </button>
+                        </Link>
                         <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors disabled:opacity-40">
                           {deletingId === product.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                         </button>
@@ -223,18 +201,6 @@ export default function AdminProductsPage() {
           </div>
         </div>
       )}
-
-      <AnimatePresence>
-        {showModal && (
-          <ProductModal
-            product={editingProduct}
-            categories={categories}
-            brands={brands}
-            onClose={() => setShowModal(false)}
-            onSave={handleSave}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

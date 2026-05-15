@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
-import dynamic from "next/dynamic";
-
-const QuickViewModal = dynamic(() => import("@/components/product/QuickViewModal").then(mod => mod.QuickViewModal), { ssr: false });
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -18,7 +14,6 @@ const CONC_LABEL: Record<string, string> = {
 };
 
 export function ProductCard({ product }: { product: Product }) {
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const addItem = useCartStore(s => s.addItem);
 
   const discountPct = product.compare_price
@@ -61,19 +56,13 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          {/* Hover overlay with actions */}
+          {/* Hover overlay — wishlist heart only */}
           <motion.div
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3 md:pointer-events-auto pointer-events-none"
+            className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center md:pointer-events-auto pointer-events-none"
           >
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); setIsQuickViewOpen(true); }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white shadow-sm border border-border text-charcoal text-sm font-body hover:border-gold hover:text-gold transition-colors"
-            >
-              <Eye className="w-4 h-4" /> Vista Rápida
-            </button>
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); }}
               className="w-10 h-10 rounded-full bg-white shadow-sm border border-border flex items-center justify-center text-charcoal hover:text-gold hover:border-gold transition-colors"
@@ -113,13 +102,6 @@ export function ProductCard({ product }: { product: Product }) {
           Agregar al carrito
         </button>
       </article>
-
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={product}
-        isOpen={isQuickViewOpen}
-        onClose={() => setIsQuickViewOpen(false)}
-      />
     </Link>
   );
 }

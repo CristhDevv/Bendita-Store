@@ -1,29 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Plus, Pencil, Trash2, Star, X, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, Plus, Pencil, Trash2, Star, Loader2 } from "lucide-react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 import {
   getUserAddresses,
-  upsertAddress,
   deleteAddress,
   setDefaultAddress,
 } from "@/lib/supabase/account";
 import type { Address } from "@/types";
-
-import dynamic from "next/dynamic";
-
-const AddressModal = dynamic(() => import("./AddressModal").then((mod) => mod.AddressModal), { ssr: false });
 
 // ─── Addresses Page ────────────────────────────────────────────
 export default function AddressesPage() {
   const { user, loading: authLoading } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingAddress, setEditingAddress] = useState<Address | undefined>();
-  const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,18 +27,6 @@ export default function AddressesPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [user]);
-
-  const handleSave = (saved: Address) => {
-    setAddresses((prev) => {
-      const idx = prev.findIndex((a) => a.id === saved.id);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = saved;
-        return updated;
-      }
-      return [saved, ...prev];
-    });
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Eliminar esta dirección?")) return;
@@ -97,16 +79,13 @@ export default function AddressesPage() {
               : `${addresses.length} dirección${addresses.length !== 1 ? "es" : ""}`}
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditingAddress(undefined);
-            setShowModal(true);
-          }}
+        <Link
+          href="/account/addresses/new"
           className="flex items-center gap-2 px-4 py-2.5 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nueva
-        </button>
+        </Link>
       </div>
 
       {addresses.length === 0 ? (
@@ -116,21 +95,16 @@ export default function AddressesPage() {
           className="bg-white border border-border rounded-2xl p-12 text-center shadow-sm"
         >
           <MapPin className="w-12 h-12 text-gold mx-auto mb-4" />
-          <p className="font-display text-lg text-charcoal mb-2">
-            Sin direcciones guardadas
-          </p>
+          <p className="font-display text-lg text-charcoal mb-2">Sin direcciones guardadas</p>
           <p className="font-body text-sm text-charcoal-muted mb-6">
             Agrega una dirección para agilizar tus compras futuras.
           </p>
-          <button
-            onClick={() => {
-              setEditingAddress(undefined);
-              setShowModal(true);
-            }}
+          <Link
+            href="/account/addresses/new"
             className="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white rounded-xl font-body font-semibold text-sm hover:bg-gold transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" /> Agregar Dirección
-          </button>
+          </Link>
         </motion.div>
       ) : (
         <div className="grid gap-4">
@@ -141,9 +115,7 @@ export default function AddressesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               className={`bg-white border rounded-xl p-4 transition-all shadow-sm ${
-                addr.is_default
-                  ? "border-gold shadow-md"
-                  : "border-border hover:border-gold"
+                addr.is_default ? "border-gold shadow-md" : "border-border hover:border-gold"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -154,9 +126,7 @@ export default function AddressesPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       {addr.label && (
-                        <span className="font-body text-sm font-medium text-charcoal">
-                          {addr.label}
-                        </span>
+                        <span className="font-body text-sm font-medium text-charcoal">{addr.label}</span>
                       )}
                       {addr.is_default && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cream border border-border text-charcoal text-[10px] font-body rounded-full">
@@ -164,13 +134,9 @@ export default function AddressesPage() {
                         </span>
                       )}
                     </div>
-                    <p className="font-body text-sm text-charcoal">
-                      {addr.street}
-                    </p>
+                    <p className="font-body text-sm text-charcoal">{addr.street}</p>
                     <p className="font-body text-xs text-charcoal-muted">
-                      {[addr.city, addr.state, addr.country]
-                        .filter(Boolean)
-                        .join(", ")}
+                      {[addr.city, addr.state, addr.country].filter(Boolean).join(", ")}
                       {addr.postal_code ? ` · ${addr.postal_code}` : ""}
                     </p>
                   </div>
@@ -186,15 +152,12 @@ export default function AddressesPage() {
                       <Star className="w-4 h-4" />
                     </button>
                   )}
-                  <button
-                    onClick={() => {
-                      setEditingAddress(addr);
-                      setShowModal(true);
-                    }}
+                  <Link
+                    href={`/account/addresses/${addr.id}/edit`}
                     className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-charcoal border border-border transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" />
-                  </button>
+                  </Link>
                   <button
                     onClick={() => handleDelete(addr.id)}
                     disabled={deletingId === addr.id}
@@ -212,16 +175,6 @@ export default function AddressesPage() {
           ))}
         </div>
       )}
-
-      <AnimatePresence>
-        {showModal && (
-          <AddressModal
-            address={editingAddress}
-            onClose={() => setShowModal(false)}
-            onSave={handleSave}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 }
