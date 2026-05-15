@@ -63,7 +63,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((acc, item) => acc + item.selectedPrice * item.quantity, 0);
-  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 10000;
+  const shippingCost = 0;
   const total = subtotal + shippingCost;
 
   const handleNextStep = async () => {
@@ -293,10 +293,10 @@ export default function CheckoutPage() {
                   <div className="p-4 rounded-xl border border-gold bg-cream flex justify-between items-center shadow-sm">
                     <div>
                       <p className="font-medium text-charcoal">Envío Estándar (3-5 días)</p>
-                      <p className="text-sm text-charcoal-muted">Servientrega o Inter Rapidísimo</p>
+                      <p className="text-sm text-charcoal-muted">Gratis a todo Colombia</p>
                     </div>
                     <span className="text-gold font-semibold">
-                      {subtotal >= FREE_SHIPPING_THRESHOLD ? "Gratis" : "$10.000"}
+                      Gratis
                     </span>
                   </div>
                 </div>
@@ -407,11 +407,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-charcoal-muted">
                   <span>Envío</span>
-                  {shippingCost === 0 ? (
-                    <span className="text-gold">Gratis</span>
-                  ) : (
-                    <span>${shippingCost.toLocaleString("es-CO")}</span>
-                  )}
+                  <span className="text-gold">Gratis</span>
                 </div>
                 {step === 3 && (
                   <div className="flex justify-between text-charcoal-muted">
