@@ -44,10 +44,13 @@ export default function NewProductPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
   const [form, setForm] = useState({
-    name: "", slug: "", description: "", price: 0, compare_price: 0,
+    name: "", slug: "", description: "", 
+    price: "" as number | "", 
+    compare_price: "" as number | "",
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
-    stock: 0, is_featured: false, is_active: true, images: "",
+    stock: "" as number | "", 
+    is_featured: false, is_active: true, images: "",
   });
 
   useEffect(() => {
@@ -111,9 +114,9 @@ export default function NewProductPage() {
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Descripción del producto..." />
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><select className={selectClass} value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}><option value="">Sin categoría</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
