@@ -32,7 +32,7 @@ function ProductCard({ product }: { product: Product }) {
 
   return (
     <motion.div variants={itemVariants} className="group flex flex-col gap-3">
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white border border-border shadow-sm">
+      <Link href={`/product/${product.slug}`} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white border border-border shadow-sm">
         <Image src={product.images?.[0] ?? "/hero-perfume.png"} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 640px) 50vw, 25vw" />
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
@@ -54,7 +54,7 @@ function ProductCard({ product }: { product: Product }) {
         <button onClick={handleAdd} aria-label="Agregar" className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-charcoal text-white flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:scale-110 hover:bg-gold shadow-sm">
           <Plus className="w-5 h-5" />
         </button>
-      </div>
+      </Link>
 
       <div className="flex flex-col px-1">
         <span className="text-[10px] tracking-widest text-charcoal-muted uppercase">{product.brand?.name}</span>

@@ -66,7 +66,7 @@ export function ProductCard({ product }: { product: Product }) {
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3"
+            className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3 md:pointer-events-auto pointer-events-none"
           >
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); setIsQuickViewOpen(true); }}
