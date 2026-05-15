@@ -17,7 +17,7 @@ export function Footer() {
               "Tu esencia, nuestra pasión"
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-gold hover:border-gold transition-all">
+              <a href="https://www.instagram.com/bendita_store_perfumes" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-gold hover:border-gold transition-all">
                 {/* Instagram SVG */}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -25,16 +25,10 @@ export function Footer() {
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
               </a>
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-gold hover:border-gold transition-all">
+              <a href="https://www.facebook.com/share/1HzH2iTptU/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-gold hover:border-gold transition-all">
                 {/* Facebook SVG */}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                </svg>
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-gold hover:border-gold transition-all">
-                {/* TikTok SVG */}
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 15.68a6.34 6.34 0 0012.67-1.39V8.67a8.31 8.31 0 004.77 1.52v-3.4a4.85 4.85 0 01-2.85-.1z" />
                 </svg>
               </a>
             </div>
@@ -67,13 +61,13 @@ export function Footer() {
             <ul className="space-y-4 text-center md:text-left text-sm font-body text-white/70">
               <li className="flex items-center justify-center md:justify-start gap-3">
                 <Phone className="w-4 h-4 text-gold" />
-                <a href={`https://wa.me/${CONFIG.SITE.WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors">
-                  +{CONFIG.SITE.WHATSAPP.slice(0, 2)} {CONFIG.SITE.WHATSAPP.slice(2, 5)} {CONFIG.SITE.WHATSAPP.slice(5, 8)} {CONFIG.SITE.WHATSAPP.slice(8)} (WhatsApp)
+                <a href="https://wa.me/573203567144" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors">
+                  +57 320 356 7144 (WhatsApp)
                 </a>
               </li>
               <li className="flex items-center justify-center md:justify-start gap-3">
                 <Mail className="w-4 h-4 text-gold" />
-                <span>hola@benditastore.com</span>
+                <span>benditastoreperfum@gmail.com</span>
               </li>
               <li className="flex flex-col md:flex-row items-center md:items-start gap-3">
                 <MapPin className="w-4 h-4 text-gold shrink-0 mt-1" />

@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawerDynamic";
 import { Toaster } from "react-hot-toast";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export default function ShopLayout({
   children,
@@ -17,6 +18,7 @@ export default function ShopLayout({
         {children}
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }
