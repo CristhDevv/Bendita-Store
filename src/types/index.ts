@@ -20,6 +20,13 @@ export interface Brand {
   description?: string;
 }
 
+export interface OlfactiveFamily {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -40,7 +47,7 @@ export interface Product {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
-  olfactive_family?: string;
+  olfactive_family?: string[];
   // Joins
   category?: Category;
   brand?: Brand;

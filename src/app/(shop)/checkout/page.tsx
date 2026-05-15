@@ -12,6 +12,19 @@ import toast from "react-hot-toast";
 
 const FREE_SHIPPING_THRESHOLD = 200000;
 
+function buildWhatsAppMessage(orderId: string, items: any[], address: { street?: string; city?: string; state?: string }, total: number) {
+  let msg = `Hola! Aquí los detalles de mi pedido:\n\n`;
+  msg += `🛍️ Pedido: #${orderId}\n\n`;
+  msg += `📦 Productos:\n`;
+  items.forEach((item) => {
+    msg += `- ${item.product.name} (${item.selectedMl}ml) x${item.quantity} — $${(item.selectedPrice * item.quantity).toLocaleString("es-CO")} COP\n`;
+  });
+  msg += `\n📍 Dirección de entrega:\n${address.street}, ${address.city}, ${address.state}\n\n`;
+  msg += `💰 Total a pagar: $${total.toLocaleString("es-CO")} COP\n\n`;
+  msg += `Deseo coordinar el pago por transferencia bancaria. ¿A qué cuenta puedo consignar?`;
+  return encodeURIComponent(msg);
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -90,6 +103,16 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
+    if (isNewAddress) {
+      if (!newAddress.street.trim() || !newAddress.city.trim() || !newAddress.state.trim()) {
+        toast.error("Por favor completa todos los campos de la dirección (calle, ciudad, departamento).");
+        return;
+      }
+    } else if (!selectedAddressId) {
+      toast.error("Por favor selecciona una dirección de envío.");
+      return;
+    }
+
     setIsPlacingOrder(true);
     let finalAddressId = selectedAddressId;
 
@@ -136,10 +159,13 @@ export default function CheckoutPage() {
     if (orderId) {
       clearCart();
       if (paymentMethod === "transfer") {
-        const msg = encodeURIComponent(
-          `Hola! Acabo de realizar el pedido #${orderId} por un total de $${total.toLocaleString("es-CO")} COP y deseo pagar por transferencia bancaria. ¿A qué cuenta puedo consignar?`
-        );
-        window.open(`https://wa.me/573203567144?text=${msg}`, "_blank");
+        const currentAddress = isNewAddress 
+          ? newAddress 
+          : addresses.find(a => a.id === selectedAddressId) || newAddress;
+          
+        const msg = buildWhatsAppMessage(orderId.toString(), items, currentAddress, total);
+        const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "573203567144";
+        window.open(`https://wa.me/${waNumber}?text=${msg}`, "_blank");
       }
       router.push(`/order-confirmation/${orderId}`);
     } else {
@@ -332,7 +358,7 @@ export default function CheckoutPage() {
                   >
                     <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
                       <p className="text-xs text-charcoal-muted mb-3">Al confirmar el pedido serás redirigido a WhatsApp para coordinar el pago.</p>
-                      <p><strong>Nequi / Bancolombia:</strong> 320 356 7144</p>
+                      <p><strong>Nequi / Bancolombia:</strong> {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "320 356 7144"}</p>
                       <p><strong>Titular:</strong> Bendita Store</p>
                       <p className="mt-2 text-xs text-charcoal-muted">Envía el comprobante por WhatsApp y tu pedido será procesado en menos de 24 horas.</p>
                     </div>

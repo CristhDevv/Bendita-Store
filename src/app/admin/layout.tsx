@@ -17,6 +17,7 @@ import {
   Loader2,
   Tag,
   Layers,
+  Droplets,
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/admin/products", icon: Package, label: "Productos" },
   { href: "/admin/brands", icon: Tag, label: "Marcas" },
   { href: "/admin/categories", icon: Layers, label: "Categorías" },
+  { href: "/admin/olfactive-families", icon: Droplets, label: "Fam. Olfativas" },
   { href: "/admin/orders", icon: ShoppingBag, label: "Órdenes" },
   { href: "/admin/users", icon: Users, label: "Usuarios" },
 ];

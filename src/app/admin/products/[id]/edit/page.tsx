@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Product, Category, Brand } from "@/types";
+import type { Product, Category, Brand, OlfactiveFamily } from "@/types";
 import toast from "react-hot-toast";
 
 const inputClass =
@@ -35,6 +35,33 @@ function NotesSelector({ label, color, notes, onChange }: { label: string; color
   );
 }
 
+function FamilySelector({ options, selected, onChange }: { options: OlfactiveFamily[]; selected: string[]; onChange: (v: string[]) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-1">
+      {options.map((f) => {
+        const isSelected = selected.includes(f.name);
+        return (
+          <button
+            key={f.id}
+            type="button"
+            onClick={() => {
+              if (isSelected) onChange(selected.filter(s => s !== f.name));
+              else onChange([...selected, f.name]);
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-body transition-colors border ${
+              isSelected 
+                ? "bg-charcoal text-white border-charcoal" 
+                : "bg-cream text-charcoal-muted border-border hover:border-charcoal hover:text-charcoal"
+            }`}
+          >
+            {f.name}
+          </button>
+        )
+      })}
+    </div>
+  );
+}
+
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -42,12 +69,13 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
   const [form, setForm] = useState({
     name: "", slug: "", description: "", price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
-    stock: 0, olfactive_family: "", is_featured: false, is_active: true, images: "",
+    stock: 0, olfactive_family: [] as string[], is_featured: false, is_active: true, images: "",
   });
 
   useEffect(() => {
@@ -56,7 +84,8 @@ export default function EditProductPage() {
       supabase.from("products").select("*, category:categories(*), brand:brands(*)").eq("id", id).single(),
       supabase.from("categories").select("*").order("name"),
       supabase.from("brands").select("*").order("name"),
-    ]).then(([{ data: p }, { data: c }, { data: b }]) => {
+      supabase.from("olfactive_families").select("*").order("name"),
+    ]).then(([{ data: p }, { data: c }, { data: b }, { data: f }]) => {
       if (p) {
         const product = p as Product;
         setForm({
@@ -70,7 +99,7 @@ export default function EditProductPage() {
           gender: product.gender || "unisex",
           concentration: product.concentration || "edp",
           stock: product.stock || 0,
-          olfactive_family: product.olfactive_family || "",
+          olfactive_family: product.olfactive_family || [],
           is_featured: product.is_featured || false,
           is_active: product.is_active !== false,
           images: (product.images || []).join("\n"),
@@ -79,6 +108,7 @@ export default function EditProductPage() {
       }
       setCategories((c as Category[]) || []);
       setBrands((b as Brand[]) || []);
+      setFamilies((f as OlfactiveFamily[]) || []);
       setLoading(false);
     });
   }, [id]);
@@ -94,7 +124,7 @@ export default function EditProductPage() {
       stock: Number(form.stock),
       category_id: form.category_id || null,
       brand_id: form.brand_id || null,
-      olfactive_family: form.olfactive_family || null,
+      olfactive_family: form.olfactive_family.length > 0 ? form.olfactive_family : null,
       images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
       notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
     };
@@ -147,21 +177,13 @@ export default function EditProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
           </div>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><select className={selectClass} value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}><option value="">Sin categoría</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label><select className={selectClass} value={form.brand_id} onChange={(e) => setForm((f) => ({ ...f, brand_id: e.target.value }))}><option value="">Sin marca</option>{brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
-            <div>
-              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Familia Olfativa</label>
-              <select className={selectClass} value={form.olfactive_family} onChange={(e) => setForm((f) => ({ ...f, olfactive_family: e.target.value }))}>
-                <option value="">Sin familia</option>
-                <option value="Floral">Floral</option>
-                <option value="Amaderado">Amaderado</option>
-                <option value="Oriental">Oriental</option>
-                <option value="Cítrico">Cítrico</option>
-                <option value="Acuático">Acuático</option>
-                <option value="Gourmand">Gourmand</option>
-              </select>
-            </div>
+          </div>
+          <div>
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Familias Olfativas</label>
+            <FamilySelector options={families} selected={form.olfactive_family} onChange={(v) => setForm(f => ({ ...f, olfactive_family: v }))} />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><select className={selectClass} value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as "women" | "men" | "unisex" }))}><option value="women">Mujer</option><option value="men">Hombre</option><option value="unisex">Unisex</option></select></div>

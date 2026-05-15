@@ -66,7 +66,7 @@ function ProductsContent() {
         const allNotes = [...(p.notes_top ?? []), ...(p.notes_heart ?? []), ...(p.notes_base ?? [])];
         if (!filters.notes.some(n => allNotes.includes(n))) return false;
       }
-      if (familyFilter && p.olfactive_family !== familyFilter) return false;
+      if (familyFilter && (!p.olfactive_family || !p.olfactive_family.includes(familyFilter))) return false;
       return true;
     });
 
