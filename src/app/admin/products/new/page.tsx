@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, X } from "lucide-react";
+import { ArrowLeft, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Brand } from "@/types";
 import toast from "react-hot-toast";
@@ -43,6 +43,10 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
+  
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState({
     name: "", slug: "", description: "", 
     price: "" as number | "", 
@@ -50,7 +54,7 @@ export default function NewProductPage() {
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
     stock: "" as number | "", 
-    is_featured: false, is_active: true, images: "",
+    is_featured: false, is_active: true,
   });
 
   useEffect(() => {
@@ -64,21 +68,64 @@ export default function NewProductPage() {
     });
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const moveFile = (index: number, direction: 'left' | 'right') => {
+    if ((direction === 'left' && index === 0) || (direction === 'right' && index === selectedFiles.length - 1)) return;
+    setSelectedFiles(prev => {
+      const next = [...prev];
+      const targetIndex = direction === 'left' ? index - 1 : index + 1;
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     const supabase = createClient();
-    const payload = {
-      ...form,
-      price: Number(form.price),
-      compare_price: Number(form.compare_price) || null,
-      stock: Number(form.stock),
-      category_id: form.category_id || null,
-      brand_id: form.brand_id || null,
-      images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
-      notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
-    };
+    
     try {
+      const uploadedImageUrls: string[] = [];
+      
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { error: uploadError, data } = await supabase.storage
+          .from('products')
+          .upload(fileName, file);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('products')
+          .getPublicUrl(data.path);
+          
+        uploadedImageUrls.push(publicUrl);
+      }
+
+      const payload = {
+        ...form,
+        price: Number(form.price),
+        compare_price: Number(form.compare_price) || null,
+        stock: Number(form.stock),
+        category_id: form.category_id || null,
+        brand_id: form.brand_id || null,
+        images: uploadedImageUrls,
+        notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
+      };
+
       const { error } = await supabase.from("products").insert(payload);
       if (error) throw error;
       toast.success("Producto creado");
@@ -126,17 +173,79 @@ export default function NewProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><select className={selectClass} value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as "women" | "men" | "unisex" }))}><option value="women">Mujer</option><option value="men">Hombre</option><option value="unisex">Unisex</option></select></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><select className={selectClass} value={form.concentration} onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value as "parfum" | "edp" | "edt" | "edc" | "splash" }))}><option value="parfum">Parfum</option><option value="edp">EDP</option><option value="edt">EDT</option><option value="edc">EDC</option><option value="splash">Splash</option></select></div>
           </div>
-          <div>
-            <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>
-            <textarea className={`${inputClass} resize-none`} rows={3} value={form.images} onChange={(e) => setForm((f) => ({ ...f, images: e.target.value }))} placeholder={"https://ejemplo.com/imagen1.jpg\nhttps://ejemplo.com/imagen2.jpg"} />
+
+          {/* Image Upload Component */}
+          <div className="pt-2">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Imágenes del Producto</label>
+            <div className="space-y-4">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2.5 rounded-xl bg-white border border-border hover:border-gold hover:text-gold text-charcoal font-body text-sm transition-colors shadow-sm inline-flex items-center gap-2"
+              >
+                Seleccionar imágenes
+              </button>
+
+              {selectedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {selectedFiles.map((file, idx) => (
+                    <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-border bg-cream">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveFile(idx, 'left')}
+                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                        )}
+                        {idx < selectedFiles.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveFile(idx, 'right')}
+                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-charcoal/60 text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-3 pt-1">
+
+          <div className="space-y-3 pt-4">
             <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest">Pirámide Olfativa</p>
             <NotesSelector label="🌿 Notas de Salida (Top)" color="text-emerald-400 border-emerald-400/20 bg-emerald-400/5" notes={notes.top} onChange={(v) => setNotes((n) => ({ ...n, top: v }))} />
             <NotesSelector label="🌸 Notas de Corazón (Heart)" color="text-rose-400 border-rose-400/20 bg-rose-400/5" notes={notes.heart} onChange={(v) => setNotes((n) => ({ ...n, heart: v }))} />
             <NotesSelector label="🪵 Notas de Fondo (Base)" color="text-amber-400 border-amber-400/20 bg-amber-400/5" notes={notes.base} onChange={(v) => setNotes((n) => ({ ...n, base: v }))} />
           </div>
-          <div className="flex items-center gap-6">
+          
+          <div className="flex items-center gap-6 pt-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_active ? "bg-charcoal border-charcoal" : "border-border"}`} onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}>
                 {form.is_active && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
@@ -150,11 +259,12 @@ export default function NewProductPage() {
               <span className="font-body text-sm text-charcoal-muted">Destacado</span>
             </label>
           </div>
-          <div className="flex gap-3 pt-2">
-            <Link href="/admin/products" className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm text-center">Cancelar</Link>
+          
+          <div className="flex gap-3 pt-4">
+            <Link href="/admin/products" className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm text-center flex items-center justify-center">Cancelar</Link>
             <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-charcoal hover:bg-gold text-white font-body font-semibold text-sm transition-all shadow-sm disabled:opacity-60">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? "Guardando..." : "Crear Producto"}
+              {saving ? "Subiendo imágenes..." : "Crear Producto"}
             </button>
           </div>
         </form>
