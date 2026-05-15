@@ -19,8 +19,6 @@ const CONCENTRATIONS: { label: string; value: Concentration }[] = [
   { label: "EDT", value: "edt" },
   { label: "EDC", value: "edc" },
 ];
-const MIN_PRICE = 0;
-const MAX_PRICE = 1000000;
 
 interface Props {
   filters: FilterState;
@@ -38,8 +36,6 @@ interface Props {
 function FilterContent({ filters, setGender, toggleConcentration, setPriceRange, toggleBrand, toggleNote, clearFilters, hasActiveFilters, onClose, isMobile }: Props & { isMobile?: boolean }) {
   const [showAllBrands, setShowAllBrands] = useState(false);
   const visibleBrands = showAllBrands ? BRANDS : BRANDS.slice(0, 6);
-  const leftPct = ((filters.priceMin - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
-  const rightPct = 100 - ((filters.priceMax - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
 
   return (
     <div className="flex flex-col gap-7 px-6 py-6">
@@ -102,32 +98,33 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
 
       {/* Precio */}
       <div>
-        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-1">Precio</p>
-        <p className="font-body text-xs text-gold mb-4">
-          COP ${filters.priceMin.toLocaleString("es-CO")} – COP ${filters.priceMax.toLocaleString("es-CO")}
-        </p>
-        <div className="relative h-5 flex items-center">
-          <div className="absolute left-0 right-0 h-1 bg-border rounded-full" />
-          <div
-            className="absolute h-1 bg-gold rounded-full pointer-events-none"
-            style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
-          />
-          <input
-            type="range" min={MIN_PRICE} max={MAX_PRICE} step={10000}
-            value={filters.priceMin}
-            onChange={e => setPriceRange([Math.min(Number(e.target.value), filters.priceMax - 50000), filters.priceMax])}
-            className="absolute w-full h-full opacity-0 cursor-pointer"
-            style={{ zIndex: leftPct > 90 ? 5 : 3 }}
-          />
-          <input
-            type="range" min={MIN_PRICE} max={MAX_PRICE} step={10000}
-            value={filters.priceMax}
-            onChange={e => setPriceRange([filters.priceMin, Math.max(Number(e.target.value), filters.priceMin + 50000)])}
-            className="absolute w-full h-full opacity-0 cursor-pointer"
-            style={{ zIndex: 4 }}
-          />
-          <div className="absolute w-4 h-4 rounded-full bg-gold shadow-md pointer-events-none" style={{ left: `calc(${leftPct}% - 8px)` }} />
-          <div className="absolute w-4 h-4 rounded-full bg-gold shadow-md pointer-events-none" style={{ left: `calc(${100 - rightPct}% - 8px)` }} />
+        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Precio (COP)</p>
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <label className="font-body text-[10px] text-charcoal-muted mb-1 block">Mínimo</label>
+            <input
+              type="number"
+              min={0}
+              step={10000}
+              value={filters.priceMin === 0 ? "" : filters.priceMin}
+              onChange={e => setPriceRange([Number(e.target.value) || 0, filters.priceMax])}
+              placeholder="$ 0"
+              className="w-full px-3 py-2 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors"
+            />
+          </div>
+          <span className="text-charcoal-muted font-body text-sm mt-4">—</span>
+          <div className="flex-1">
+            <label className="font-body text-[10px] text-charcoal-muted mb-1 block">Máximo</label>
+            <input
+              type="number"
+              min={0}
+              step={10000}
+              value={filters.priceMax === 0 ? "" : filters.priceMax}
+              onChange={e => setPriceRange([filters.priceMin, Number(e.target.value) || 0])}
+              placeholder="Sin límite"
+              className="w-full px-3 py-2 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors"
+            />
+          </div>
         </div>
       </div>
 

@@ -59,7 +59,8 @@ function ProductsContent() {
     let list = allProducts.filter(p => {
       if (filters.gender !== "all" && p.gender !== filters.gender) return false;
       if (filters.concentrations.length > 0 && p.concentration && !filters.concentrations.includes(p.concentration as Concentration)) return false;
-      if (p.price < filters.priceMin || p.price > filters.priceMax) return false;
+      if (p.price < filters.priceMin) return false;
+      if (filters.priceMax < 999999999 && p.price > filters.priceMax) return false;
       if (filters.brands.length > 0 && p.brand && !filters.brands.includes(p.brand.name)) return false;
       if (filters.notes.length > 0) {
         const allNotes = [...(p.notes_top ?? []), ...(p.notes_heart ?? []), ...(p.notes_base ?? [])];

@@ -17,7 +17,7 @@ export interface FilterState {
 }
 
 const DEFAULT: FilterState = {
-  gender: "all", concentrations: [], priceMin: 0, priceMax: 1000000,
+  gender: "all", concentrations: [], priceMin: 0, priceMax: 999999999,
   brands: [], notes: [], sortBy: "relevance", viewMode: "grid",
 };
 
@@ -60,7 +60,7 @@ export function useFilters() {
 
   const hasActiveFilters =
     filters.gender !== "all" || filters.concentrations.length > 0 ||
-    filters.priceMin > 0 || filters.priceMax < 1000000 ||
+    filters.priceMin > 0 || filters.priceMax < 999999999 ||
     filters.brands.length > 0 || filters.notes.length > 0;
 
   return {
