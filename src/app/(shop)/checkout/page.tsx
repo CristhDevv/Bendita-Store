@@ -13,16 +13,23 @@ import toast from "react-hot-toast";
 const FREE_SHIPPING_THRESHOLD = 200000;
 
 function buildWhatsAppMessage(orderId: string, items: any[], address: { street?: string; city?: string; state?: string }, total: number) {
-  let msg = `Hola! Aquí los detalles de mi pedido:\n\n`;
-  msg += `🛍️ Pedido: #${orderId}\n\n`;
-  msg += `📦 Productos:\n`;
-  items.forEach((item) => {
-    msg += `- ${item.product.name} (${item.selectedMl}ml) x${item.quantity} — $${(item.selectedPrice * item.quantity).toLocaleString("es-CO")} COP\n`;
-  });
-  msg += `\n📍 Dirección de entrega:\n${address.street}, ${address.city}, ${address.state}\n\n`;
-  msg += `💰 Total a pagar: $${total.toLocaleString("es-CO")} COP\n\n`;
-  msg += `Deseo coordinar el pago por transferencia bancaria. ¿A qué cuenta puedo consignar?`;
-  return encodeURIComponent(msg);
+  const itemsList = items.map((item) => 
+    `- ${item.product.name} (${item.selectedMl}ml) x${item.quantity} — $${(item.selectedPrice * item.quantity).toLocaleString("es-CO")} COP`
+  ).join('\n');
+
+  return `Hola! Aquí los detalles de mi pedido:
+
+🛍️ Pedido: #${orderId}
+
+📦 Productos:
+${itemsList}
+
+📍 Dirección de entrega:
+${address.street}, ${address.city}, ${address.state}
+
+💰 Total a pagar: $${total.toLocaleString("es-CO")} COP
+
+Deseo coordinar el pago por transferencia bancaria. ¿A qué cuenta puedo consignar?`;
 }
 
 export default function CheckoutPage() {
@@ -164,9 +171,10 @@ export default function CheckoutPage() {
           ? newAddress 
           : addresses.find(a => a.id === selectedAddressId) || newAddress;
           
-        const msg = buildWhatsAppMessage(orderId.toString(), items, currentAddress, total);
+        const messageRaw = buildWhatsAppMessage(orderId.toString(), items, currentAddress, total);
+        const encodedMessage = encodeURIComponent(messageRaw);
         const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "573203567144";
-        window.open(`https://wa.me/${waNumber}?text=${msg}`, "_blank");
+        window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, "_blank");
       }
       router.push(`/order-confirmation/${orderId}`);
     } else {
