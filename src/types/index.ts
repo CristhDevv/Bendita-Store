@@ -40,6 +40,7 @@ export interface Product {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
+  olfactive_family?: string;
   // Joins
   category?: Category;
   brand?: Brand;

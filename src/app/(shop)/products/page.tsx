@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { useFilters, type Concentration } from "@/hooks/useFilters";
@@ -11,7 +12,7 @@ import type { Product } from "@/types";
 
 const PAGE_SIZE = 9;
 
-export default function ProductsPage() {
+function ProductsContent() {
   const {
     filters, setGender, toggleConcentration, setPriceRange,
     toggleBrand, toggleNote, setSortBy, setViewMode, clearFilters, hasActiveFilters,
@@ -21,6 +22,17 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const familyFilter = searchParams.get("family");
+
+  const handleRemoveFamily = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("family");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   useEffect(() => {
     async function fetchProducts() {
@@ -53,6 +65,7 @@ export default function ProductsPage() {
         const allNotes = [...(p.notes_top ?? []), ...(p.notes_heart ?? []), ...(p.notes_base ?? [])];
         if (!filters.notes.some(n => allNotes.includes(n))) return false;
       }
+      if (familyFilter && p.olfactive_family !== familyFilter) return false;
       return true;
     });
 
@@ -97,6 +110,17 @@ export default function ProductsPage() {
         </button>
       </div>
 
+      {familyFilter && (
+        <div className="mb-6 flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-cream border border-gold text-charcoal rounded-full text-sm font-body">
+            Familia: {familyFilter}
+            <button onClick={handleRemoveFamily} className="hover:text-red-500 transition-colors">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </span>
+        </div>
+      )}
+
       {/* Layout */}
       <div className="flex gap-10 items-start">
         <FilterSidebar {...sidebarProps} />
@@ -114,5 +138,13 @@ export default function ProductsPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 md:px-8 py-10">Cargando catálogo...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

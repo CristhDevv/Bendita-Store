@@ -47,7 +47,7 @@ export default function EditProductPage() {
     name: "", slug: "", description: "", price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
-    stock: 0, is_featured: false, is_active: true, images: "",
+    stock: 0, olfactive_family: "", is_featured: false, is_active: true, images: "",
   });
 
   useEffect(() => {
@@ -70,6 +70,7 @@ export default function EditProductPage() {
           gender: product.gender || "unisex",
           concentration: product.concentration || "edp",
           stock: product.stock || 0,
+          olfactive_family: product.olfactive_family || "",
           is_featured: product.is_featured || false,
           is_active: product.is_active !== false,
           images: (product.images || []).join("\n"),
@@ -93,6 +94,7 @@ export default function EditProductPage() {
       stock: Number(form.stock),
       category_id: form.category_id || null,
       brand_id: form.brand_id || null,
+      olfactive_family: form.olfactive_family || null,
       images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
       notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
     };
@@ -145,9 +147,21 @@ export default function EditProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><select className={selectClass} value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}><option value="">Sin categoría</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label><select className={selectClass} value={form.brand_id} onChange={(e) => setForm((f) => ({ ...f, brand_id: e.target.value }))}><option value="">Sin marca</option>{brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+            <div>
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Familia Olfativa</label>
+              <select className={selectClass} value={form.olfactive_family} onChange={(e) => setForm((f) => ({ ...f, olfactive_family: e.target.value }))}>
+                <option value="">Sin familia</option>
+                <option value="Floral">Floral</option>
+                <option value="Amaderado">Amaderado</option>
+                <option value="Oriental">Oriental</option>
+                <option value="Cítrico">Cítrico</option>
+                <option value="Acuático">Acuático</option>
+                <option value="Gourmand">Gourmand</option>
+              </select>
+            </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><select className={selectClass} value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as "women" | "men" | "unisex" }))}><option value="women">Mujer</option><option value="men">Hombre</option><option value="unisex">Unisex</option></select></div>
