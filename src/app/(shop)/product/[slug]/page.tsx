@@ -9,7 +9,6 @@ import { OlfactivePyramid } from "@/components/product/OlfactivePyramid";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CONFIG } from "@/lib/config";
-import { MOCK_PRODUCTS } from "@/lib/mock/products";
 import { formatPrice } from "@/lib/utils/format";
 
 export const revalidate = 86400; // 24 hours
@@ -20,10 +19,7 @@ const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   let product = await getProductBySlugPublic(resolvedParams.slug);
-  if (!product) {
-    const mock = MOCK_PRODUCTS.find(p => p.slug === resolvedParams.slug);
-    if (mock) product = mock as any;
-  }
+  if (!product) return { title: "Producto no encontrado | Bendita Store" };
   
   if (!product) return { title: "Producto no encontrado | Bendita Store" };
 
@@ -66,15 +62,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const resolvedParams = await params;
   let product = await getProductBySlugPublic(resolvedParams.slug);
   
-  if (!product) {
-    const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-    const mock = MOCK_PRODUCTS.find(p => p.slug === resolvedParams.slug);
-    if (!mock) notFound();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    product = mock as any;
-  }
-
-  if (!product) notFound(); // TypeScript narrowing guard
+  if (!product) notFound();
 
   const related = await getRelatedProducts(product.category_id, product.id);
   const discountPct = product.compare_price

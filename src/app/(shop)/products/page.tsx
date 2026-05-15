@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { useFilters, type Concentration } from "@/hooks/useFilters";
-import { MOCK_PRODUCTS } from "@/lib/mock/products";
+import { createClient } from "@/lib/supabase/client";
 import type { Product } from "@/types";
 
 
 const PAGE_SIZE = 9;
-const ALL_PRODUCTS: Product[] = MOCK_PRODUCTS;
 
 export default function ProductsPage() {
   const {
@@ -20,9 +19,32 @@ export default function ProductsPage() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const supabase = createClient();
+        if (!supabase) return;
+        const { data, error } = await supabase
+          .from("products")
+          .select("*, brand:brands(*), category:categories(*)")
+          .eq("is_active", true);
+        if (!error && data) {
+          setAllProducts(data as Product[]);
+        }
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const filtered = useMemo(() => {
-    let list = ALL_PRODUCTS.filter(p => {
+    let list = allProducts.filter(p => {
       if (filters.gender !== "all" && p.gender !== filters.gender) return false;
       if (filters.concentrations.length > 0 && p.concentration && !filters.concentrations.includes(p.concentration as Concentration)) return false;
       if (p.price < filters.priceMin || p.price > filters.priceMax) return false;
@@ -39,7 +61,7 @@ export default function ProductsPage() {
     else if (filters.sortBy === "newest") list = [...list].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
     return list;
-  }, [filters]);
+  }, [filters, allProducts]);
 
   const paginated = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = paginated.length < filtered.length;
@@ -81,7 +103,7 @@ export default function ProductsPage() {
         <ProductGrid
           products={paginated}
           total={filtered.length}
-          loading={false}
+          loading={loading}
           sortBy={filters.sortBy}
           viewMode={filters.viewMode}
           onSortChange={s => { setSortBy(s); setPage(1); }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,10 +8,9 @@ import { motion, useInView } from "framer-motion";
 import { Heart, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
+import { createClient } from "@/lib/supabase/client";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/format";
-
-import { MOCK_PRODUCTS } from "@/lib/mock/products";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -85,6 +84,33 @@ function ProductCard({ product }: { product: Product }) {
 export function FeaturedProducts() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchFeatured() {
+      try {
+        const supabase = createClient();
+        if (!supabase) return;
+        const { data, error } = await supabase
+          .from("products")
+          .select("*, brand:brands(*)")
+          .eq("is_active", true)
+          .eq("is_featured", true)
+          .limit(4);
+        if (!error && data) {
+          setProducts(data as Product[]);
+        }
+      } catch (err) {
+        console.error("Error fetching featured products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFeatured();
+  }, []);
+
+  if (!loading && products.length === 0) return null;
 
   return (
     <section className="py-24 bg-cream">
@@ -101,7 +127,18 @@ export function FeaturedProducts() {
           animate={isInView ? "visible" : "hidden"}
           className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8"
         >
-          {MOCK_PRODUCTS.map((p) => <ProductCard key={p.id} product={p} />)}
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-3 animate-pulse">
+                <div className="aspect-[3/4] bg-border rounded-2xl" />
+                <div className="h-3 w-1/2 bg-border rounded" />
+                <div className="h-5 w-3/4 bg-border rounded" />
+                <div className="h-4 w-1/4 bg-border rounded" />
+              </div>
+            ))
+          ) : (
+            products.map((p) => <ProductCard key={p.id} product={p} />)
+          )}
         </motion.div>
       </div>
     </section>

@@ -42,17 +42,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           slug: p.slug,
           updated_at: p.created_at
         }));
-      } else {
-        const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-        productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
       }
-    } catch {
-      const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-      productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
+    } catch (err) {
+      console.error("Sitemap error fetching products:", err);
     }
-  } else {
-    const { MOCK_PRODUCTS } = await import('@/lib/mock/products');
-    productSlugs = MOCK_PRODUCTS.map(p => ({ slug: p.slug, updated_at: new Date().toISOString() }));
   }
 
   const productRoutes = productSlugs.map((p) => ({
