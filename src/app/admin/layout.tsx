@@ -15,6 +15,8 @@ import {
   Shield,
   Gem,
   Loader2,
+  Tag,
+  Layers,
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +25,8 @@ import { createClient } from "@/lib/supabase/client";
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/admin/products", icon: Package, label: "Productos" },
+  { href: "/admin/brands", icon: Tag, label: "Marcas" },
+  { href: "/admin/categories", icon: Layers, label: "Categorías" },
   { href: "/admin/orders", icon: ShoppingBag, label: "Órdenes" },
   { href: "/admin/users", icon: Users, label: "Usuarios" },
 ];
