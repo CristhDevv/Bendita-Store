@@ -9,6 +9,7 @@ import * as z from "zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/lib/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email("Ingresa un correo válido"),
@@ -32,13 +33,34 @@ export default function LoginPage() {
     console.log("Intentando iniciar sesión para:", data.email);
     const { error, data: authData } = await signIn(data.email, data.password);
     console.log("Respuesta auth:", { error, authData });
-    setIsLoading(false);
 
     if (error) {
+      setIsLoading(false);
       toast.error(error.message || "Credenciales incorrectas");
-    } else {
+      return;
+    }
+
+    // Check if user is admin
+    try {
+      const supabase = createClient();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", authData.user?.id)
+        .single();
+
+      toast.success("¡Bienvenido!");
+      if (profile?.is_admin) {
+        router.push("/admin");
+      } else {
+        router.push("/account");
+      }
+    } catch (err) {
+      console.error("Error checking admin status:", err);
       toast.success("¡Bienvenido!");
       router.push("/account");
+    } finally {
+      setIsLoading(false);
     }
   };
 
