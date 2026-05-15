@@ -10,6 +10,11 @@ import {
   CreditCard,
   Package,
   Loader2,
+  User,
+  Phone,
+  Mail,
+  FileText,
+  Receipt,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Order, OrderStatus } from "@/types";
@@ -34,6 +39,24 @@ function formatCOP(amount: number) {
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function parseNotes(notes: string | null | undefined) {
+  if (!notes) return { name: null, email: null, phone: null, shipping: null };
+
+  const contactMatch = notes.match(/^Contacto:\s*(.+?)(?:\s*\|\s*Env[íi]o:\s*(.+))?$/);
+  if (!contactMatch) return { name: null, email: null, phone: null, shipping: null };
+
+  const contactPart = contactMatch[1].trim();
+  const shippingPart = contactMatch[2]?.trim() || null;
+
+  // Format: "Full Name, email@example.com, 3001234567"
+  const parts = contactPart.split(", ");
+  const phone = parts.length >= 1 ? parts[parts.length - 1] : null;
+  const email = parts.length >= 2 ? parts[parts.length - 2] : null;
+  const name = parts.length >= 3 ? parts.slice(0, parts.length - 2).join(", ") : null;
+
+  return { name, email, phone, shipping: shippingPart };
 }
 
 function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string, status: OrderStatus) => void }) {
@@ -228,6 +251,72 @@ export default function AdminOrdersPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Cliente (from notes) */}
+                  {(() => {
+                    const { name, email, phone, shipping } = parseNotes((order as any).notes);
+                    const hasContact = name || email || phone;
+                    return (
+                      <>
+                        {hasContact && (
+                          <div>
+                            <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-2">Cliente</p>
+                            <div className="grid sm:grid-cols-2 gap-4">
+                              {name && (
+                                <div className="flex items-start gap-2">
+                                  <User className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="font-body text-xs text-charcoal-muted mb-0.5">Nombre</p>
+                                    <p className="font-body text-xs text-charcoal">{name}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {email && (
+                                <div className="flex items-start gap-2">
+                                  <Mail className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="font-body text-xs text-charcoal-muted mb-0.5">Email</p>
+                                    <p className="font-body text-xs text-charcoal break-all">{email}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {phone && (
+                                <div className="flex items-start gap-2">
+                                  <Phone className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="font-body text-xs text-charcoal-muted mb-0.5">Teléfono</p>
+                                    <p className="font-body text-xs text-charcoal">{phone}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Dirección desde notes si no hay address_id */}
+                        {!order.address && shipping && (
+                          <div className="flex items-start gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-body text-xs text-charcoal-muted mb-0.5">Dirección de envío</p>
+                              <p className="font-body text-xs text-charcoal">{shipping}</p>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+
+                  {/* Referencia de pago */}
+                  {(order as any).payment_ref && (
+                    <div className="flex items-start gap-2">
+                      <Receipt className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-body text-xs text-charcoal-muted mb-0.5">Referencia de pago</p>
+                        <p className="font-body text-xs text-charcoal">{(order as any).payment_ref}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
