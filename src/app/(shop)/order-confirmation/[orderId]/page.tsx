@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { CONFIG } from "@/lib/config";
 
-export default function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
+export default function OrderConfirmationPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = use(params);
   const router = useRouter();
   
   // Scrollear arriba al cargar
@@ -65,7 +66,7 @@ export default function OrderConfirmationPage({ params }: { params: { orderId: s
       >
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-gold-500/10">
           <span className="text-crystal/60">Número de Orden</span>
-          <span className="font-medium text-gold">#{params.orderId.substring(0, 8).toUpperCase()}</span>
+          <span className="font-medium text-gold">#{(orderId ?? "").substring(0, 8).toUpperCase()}</span>
         </div>
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-gold-500/10">
           <span className="text-crystal/60">Estado</span>
