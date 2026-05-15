@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Link href={`/product/${product.slug}`} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
+    <Link href={`/product/${product.slug}`} prefetch={true} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
       <article>
         {/* Image */}
         <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-cream border border-border">

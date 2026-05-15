@@ -17,7 +17,7 @@ export async function getProductBySlugPublic(slug: string): Promise<Product | nu
           Authorization: `Bearer ${supabaseKey}`,
           'Content-Type': 'application/json',
         },
-        cache: 'no-store',
+        next: { revalidate: 86400 },
       }
     );
 

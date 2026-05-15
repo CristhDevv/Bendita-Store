@@ -12,7 +12,7 @@ import { CONFIG } from "@/lib/config";
 import { MOCK_PRODUCTS } from "@/lib/mock/products";
 import { formatPrice } from "@/lib/utils/format";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400; // 24 hours
 
 const BASE_URL = CONFIG.SITE.URL;
 const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;

@@ -2,6 +2,7 @@
 
 import { LayoutGrid, LayoutList, ChevronDown, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { Product } from "@/types";
 import type { SortBy } from "@/hooks/useFilters";
@@ -69,6 +70,7 @@ export function ProductGrid({
   products, total, loading, sortBy, viewMode,
   onSortChange, onViewModeChange, onLoadMore, hasMore, onClearFilters,
 }: Props) {
+  const router = useRouter();
   return (
     <div className="flex-1 min-w-0">
       {/* Grid header */}
@@ -132,6 +134,7 @@ export function ProductGrid({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: Math.min(i * 0.06, 0.4) }}
                 layout
+                onMouseEnter={() => router.prefetch(`/product/${p.slug}`)}
               >
                 <ProductCard product={p} />
               </motion.div>
