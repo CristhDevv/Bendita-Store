@@ -9,10 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { getUserAddresses, saveAddress, createOrderTransaction } from "@/lib/supabase/checkout";
 import { Address, Order } from "@/types";
 import toast from "react-hot-toast";
-import { CONFIG } from "@/lib/config";
 
 const FREE_SHIPPING_THRESHOLD = 200000;
-const EXPRESS_SHIPPING_COST = 15000;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -33,7 +31,6 @@ export default function CheckoutPage() {
   const [isNewAddress, setIsNewAddress] = useState(false);
   const [newAddress, setNewAddress] = useState({ street: "", city: "", state: "", postal_code: "" });
   const [saveNewAddress, setSaveNewAddress] = useState(false);
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
 
   // Paso 3: Pago
   const [paymentMethod, setPaymentMethod] = useState("transfer");
@@ -66,7 +63,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((acc, item) => acc + item.selectedPrice * item.quantity, 0);
-  const shippingCost = shippingMethod === "express" ? EXPRESS_SHIPPING_COST : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 10000); // 10000 is default standard if not free
+  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 10000;
   const total = subtotal + shippingCost;
 
   const handleNextStep = async () => {
@@ -78,13 +75,15 @@ export default function CheckoutPage() {
       setStep(2);
     } else if (step === 2) {
       if (isNewAddress) {
-        if (!newAddress.street || !newAddress.city || !newAddress.state) {
-          toast.error("Por favor completa la dirección de envío.");
+        if (!newAddress.street.trim() || !newAddress.city.trim() || !newAddress.state.trim()) {
+          toast.error("Por favor completa todos los campos de la dirección.");
           return;
         }
-      } else if (!selectedAddressId) {
-        toast.error("Selecciona una dirección de envío.");
-        return;
+      } else {
+        if (!selectedAddressId) {
+          toast.error("Selecciona una dirección de envío.");
+          return;
+        }
       }
       setStep(3);
     }
@@ -136,6 +135,12 @@ export default function CheckoutPage() {
 
     if (orderId) {
       clearCart();
+      if (paymentMethod === "transfer") {
+        const msg = encodeURIComponent(
+          `Hola! Acabo de realizar el pedido #${orderId} por un total de $${total.toLocaleString("es-CO")} COP y deseo pagar por transferencia bancaria. ¿A qué cuenta puedo consignar?`
+        );
+        window.open(`https://wa.me/573203567144?text=${msg}`, "_blank");
+      }
       router.push(`/order-confirmation/${orderId}`);
     } else {
       toast.error("Hubo un error procesando tu pedido.");
@@ -285,10 +290,7 @@ export default function CheckoutPage() {
 
                 <h3 className="font-display text-xl text-charcoal mb-4">Método de Envío</h3>
                 <div className="space-y-3">
-                  <div 
-                    onClick={() => setShippingMethod("standard")}
-                    className={`p-4 rounded-xl border flex justify-between items-center cursor-pointer ${shippingMethod === 'standard' ? 'border-gold bg-cream' : 'border-border bg-white shadow-sm'}`}
-                  >
+                  <div className="p-4 rounded-xl border border-gold bg-cream flex justify-between items-center shadow-sm">
                     <div>
                       <p className="font-medium text-charcoal">Envío Estándar (3-5 días)</p>
                       <p className="text-sm text-charcoal-muted">Servientrega o Inter Rapidísimo</p>
@@ -296,16 +298,6 @@ export default function CheckoutPage() {
                     <span className="text-gold font-semibold">
                       {subtotal >= FREE_SHIPPING_THRESHOLD ? "Gratis" : "$10.000"}
                     </span>
-                  </div>
-                  <div 
-                    onClick={() => setShippingMethod("express")}
-                    className={`p-4 rounded-xl border flex justify-between items-center cursor-pointer ${shippingMethod === 'express' ? 'border-gold bg-cream' : 'border-border bg-white shadow-sm'}`}
-                  >
-                    <div>
-                      <p className="font-medium text-charcoal">Envío Express (1-2 días)</p>
-                      <p className="text-sm text-charcoal-muted">Solo para ciudades principales</p>
-                    </div>
-                    <span className="text-gold font-semibold">$15.000</span>
                   </div>
                 </div>
 
@@ -339,27 +331,10 @@ export default function CheckoutPage() {
                     onSelect={() => setPaymentMethod("transfer")}
                   >
                     <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
-                      <p><strong>Bancolombia Ahorros:</strong> 123-456789-00</p>
-                      <p><strong>Titular:</strong> Bendita Store SAS</p>
-                      <p><strong>NIT:</strong> 901.234.567-8</p>
-                      <p className="mt-2 text-xs text-charcoal-muted">Enviaremos las instrucciones detalladas a tu correo. Tu pedido será procesado una vez confirmado el pago.</p>
-                    </div>
-                  </PaymentOption>
-
-                  <PaymentOption 
-                    id="nequi" 
-                    title="Nequi o Daviplata" 
-                    selected={paymentMethod === "nequi"} 
-                    onSelect={() => setPaymentMethod("nequi")}
-                  >
-                    <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2 flex gap-4 items-center">
-                      <div className="w-20 h-20 bg-white p-1 rounded">
-                        <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=nequi:${CONFIG.SITE.WHATSAPP}`} alt="QR Nequi" width={80} height={80} />
-                      </div>
-                      <div>
-                        <p><strong>Número:</strong> {CONFIG.SITE.WHATSAPP.slice(0, 3)} {CONFIG.SITE.WHATSAPP.slice(3, 6)} {CONFIG.SITE.WHATSAPP.slice(6)}</p>
-                        <p className="mt-1 text-xs text-charcoal-muted">Escanea el QR o transfiere al número y envía el comprobante por WhatsApp.</p>
-                      </div>
+                      <p className="text-xs text-charcoal-muted mb-3">Al confirmar el pedido serás redirigido a WhatsApp para coordinar el pago.</p>
+                      <p><strong>Nequi / Bancolombia:</strong> 320 356 7144</p>
+                      <p><strong>Titular:</strong> Bendita Store</p>
+                      <p className="mt-2 text-xs text-charcoal-muted">Envía el comprobante por WhatsApp y tu pedido será procesado en menos de 24 horas.</p>
                     </div>
                   </PaymentOption>
 
