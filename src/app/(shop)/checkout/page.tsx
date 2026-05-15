@@ -41,7 +41,7 @@ export default function CheckoutPage() {
   // Paso 2: Envío
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [isNewAddress, setIsNewAddress] = useState(false);
+  const [isNewAddress, setIsNewAddress] = useState(true);
   const [newAddress, setNewAddress] = useState({ street: "", city: "", state: "", postal_code: "" });
   const [saveNewAddress, setSaveNewAddress] = useState(false);
 
@@ -70,6 +70,7 @@ export default function CheckoutPage() {
     setAddresses(data);
     if (data.length > 0) {
       setSelectedAddressId(data[0].id);
+      setIsNewAddress(false);
     } else {
       setIsNewAddress(true);
     }
