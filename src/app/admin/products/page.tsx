@@ -106,107 +106,126 @@ export default function AdminProductsPage() {
         />
       </div>
 
-      {/* Table */}
+      {/* Product Cards */}
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-border rounded-xl animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-64 bg-white border border-border rounded-2xl p-4 animate-pulse flex flex-col justify-between">
+              <div className="w-full aspect-video bg-border rounded-xl mb-4" />
+              <div>
+                <div className="h-6 bg-border rounded w-3/4 mb-2" />
+                <div className="h-4 bg-border rounded w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-cream/30">
-                  {[
-                    { label: "Producto", cls: "text-left w-auto" },
-                    { label: "Marca", cls: "text-left w-28" },
-                    { label: "Precio", cls: "text-left w-28 whitespace-nowrap" },
-                    { label: "Stock", cls: "text-left w-16" },
-                    { label: "Estado", cls: "text-left w-24" },
-                    { label: "", cls: "text-right w-24" },
-                  ].map((h) => (
-                    <th key={h.label} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h.cls}`}>{h.label}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((product, i) => (
-                  <motion.tr
-                    key={product.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="border-b border-border hover:bg-cream/50 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-cream border border-border flex items-center justify-center shrink-0 overflow-hidden relative">
-                          {product.images?.[0] ? (
-                            <NextImage src={product.images[0]} alt={product.name} fill className="object-cover" />
-                          ) : (
-                            <ImageIcon className="w-4 h-4 text-charcoal-muted" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-body text-sm text-charcoal font-medium truncate max-w-[180px]">{product.name}</p>
-                          <p className="font-body text-xs text-charcoal-muted uppercase">{product.concentration}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-body text-xs text-charcoal-muted truncate max-w-[100px]">
-                      {(product.brand as Brand | undefined)?.name || "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-display text-sm text-charcoal font-semibold">{formatCOP(product.price)}</p>
-                      {product.compare_price && (
-                        <p className="font-body text-xs text-charcoal-muted line-through">{formatCOP(product.compare_price)}</p>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`font-body text-xs px-2 py-0.5 rounded-lg ${product.stock > 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>
-                        {product.stock}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((product, i) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="bg-white border border-border shadow-sm rounded-2xl p-4 flex flex-col"
+              >
+                {/* Image & Quick Actions */}
+                <div className="w-full aspect-video relative rounded-xl overflow-hidden mb-4 bg-cream border border-border flex items-center justify-center shrink-0">
+                  {product.images?.[0] ? (
+                    <NextImage src={product.images[0]} alt={product.name} fill className="object-cover" />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-charcoal-muted/30" />
+                  )}
+                  
+                  {/* Quick Actions overlay */}
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button
+                      onClick={() => handleToggleFeatured(product)}
+                      className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur-sm border border-white/20 shadow-sm flex items-center justify-center text-charcoal-muted hover:text-gold transition-colors"
+                      title={product.is_featured ? "Quitar destacado" : "Destacar"}
+                    >
+                      {product.is_featured ? <Star className="w-4 h-4 text-gold" fill="currentColor" /> : <StarOff className="w-4 h-4" />}
+                    </button>
+                    <button
+                      onClick={() => handleToggleActive(product)}
+                      className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur-sm border border-white/20 shadow-sm flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
+                      title={product.is_active ? "Desactivar" : "Activar"}
+                    >
+                      {product.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="flex-1">
+                  <h3 className="font-display text-lg text-charcoal line-clamp-1 mb-1" title={product.name}>
+                    {product.name}
+                  </h3>
+                  <p className="font-body text-xs text-charcoal-muted uppercase mb-3">
+                    {(product.brand as Brand | undefined)?.name || "Sin marca"} • {product.concentration}
+                  </p>
+                  
+                  <div className="flex items-baseline mb-4">
+                    <span className="font-display text-xl text-charcoal font-semibold">
+                      {formatCOP(product.price)}
+                    </span>
+                    {product.compare_price && (
+                      <span className="text-xs line-through text-charcoal-muted ml-2">
+                        {formatCOP(product.compare_price)}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-body ${product.is_active ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" : "text-charcoal-muted border-border bg-cream"}`}>
-                          {product.is_active ? "Activo" : "Inactivo"}
-                        </span>
-                        {product.is_featured && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full border text-gold border-gold/20 bg-gold/5 font-body">⭐</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => handleToggleFeatured(product)} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-gold transition-colors" title={product.is_featured ? "Quitar destacado" : "Destacar"}>
-                          {product.is_featured ? <Star className="w-3.5 h-3.5" /> : <StarOff className="w-3.5 h-3.5" />}
-                        </button>
-                        <button onClick={() => handleToggleActive(product)} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors" title={product.is_active ? "Desactivar" : "Activar"}>
-                          {product.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                        </button>
-                        <Link href={`/admin/products/${product.id}/edit`} className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Link>
-                        <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors disabled:opacity-40">
-                          {deletingId === product.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="py-12 text-center">
-                <Package className="w-8 h-8 text-gold/20 mx-auto mb-2" />
-                <p className="font-body text-sm text-charcoal-muted">Sin resultados</p>
-              </div>
-            )}
+                    )}
+                  </div>
+
+                  {/* Badges */}
+                  <div className="flex flex-wrap items-center gap-2 mb-5">
+                    <span className="bg-cream border border-border text-charcoal-muted rounded-full px-2.5 py-0.5 text-[10px] font-body uppercase tracking-wider">
+                      Stock: {product.stock}
+                    </span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-body uppercase tracking-wider border ${
+                      product.is_active 
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
+                        : "bg-gray-50 text-gray-500 border-gray-200"
+                    }`}>
+                      {product.is_active ? "Activo" : "Inactivo"}
+                    </span>
+                    {product.is_featured && (
+                      <span className="bg-gold/10 text-gold border border-gold/20 rounded-full px-2.5 py-0.5 text-[10px] font-body uppercase tracking-wider">
+                        Destacado
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 mt-auto">
+                  <Link
+                    href={`/admin/products/${product.id}/edit`}
+                    className="flex-1 bg-charcoal hover:bg-gold text-white rounded-xl flex justify-center py-2 items-center gap-2 font-body text-sm transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Editar
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    disabled={deletingId === product.id}
+                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl flex justify-center py-2 items-center gap-2 font-body text-sm transition-colors disabled:opacity-50"
+                  >
+                    {deletingId === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    Eliminar
+                  </button>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </div>
+
+          {filtered.length === 0 && (
+            <div className="py-12 bg-white border border-border shadow-sm rounded-2xl text-center">
+              <Package className="w-8 h-8 text-gold/20 mx-auto mb-2" />
+              <p className="font-body text-sm text-charcoal-muted">Sin resultados</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
