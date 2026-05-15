@@ -34,6 +34,7 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -100,7 +101,6 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}" permanentemente?`)) return;
     setDeletingId(id);
     try {
       const supabase = createClient();
@@ -109,7 +109,10 @@ export default function AdminCategoriesPage() {
       setCategories((prev) => prev.filter((c) => c.id !== id));
       toast.success("Categoría eliminada");
     } catch { toast.error("Error al eliminar"); }
-    finally { setDeletingId(null); }
+    finally { 
+      setDeletingId(null); 
+      setConfirmId(null);
+    }
   };
 
   const filtered = categories.filter(
@@ -287,16 +290,24 @@ export default function AdminCategoriesPage() {
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={() => handleDelete(cat.id, cat.name)}
-                          disabled={deletingId === cat.id}
-                          className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors disabled:opacity-40"
-                          title="Eliminar"
-                        >
-                          {deletingId === cat.id
-                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            : <Trash2 className="w-3.5 h-3.5" />}
-                        </button>
+                        {confirmId === cat.id ? (
+                          <div className="flex gap-1 items-center">
+                            <button onClick={() => handleDelete(cat.id, cat.name)} disabled={deletingId === cat.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                              {deletingId === cat.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
+                            </button>
+                            <button onClick={() => setConfirmId(null)} disabled={deletingId === cat.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmId(cat.id)}
+                            className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </motion.tr>

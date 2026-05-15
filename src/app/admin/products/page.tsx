@@ -35,6 +35,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
@@ -49,7 +50,6 @@ export default function AdminProductsPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar este producto permanentemente?")) return;
     setDeletingId(id);
     try {
       const supabase = createClient();
@@ -58,7 +58,10 @@ export default function AdminProductsPage() {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success("Producto eliminado");
     } catch { toast.error("Error al eliminar"); }
-    finally { setDeletingId(null); }
+    finally { 
+      setDeletingId(null); 
+      setConfirmId(null);
+    }
   };
 
   const handleToggleActive = async (product: Product) => {
@@ -206,14 +209,24 @@ export default function AdminProductsPage() {
                     <Pencil className="w-4 h-4" />
                     Editar
                   </Link>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    disabled={deletingId === product.id}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl flex justify-center py-2 items-center gap-2 font-body text-sm transition-colors disabled:opacity-50"
-                  >
-                    {deletingId === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                    Eliminar
-                  </button>
+                  {confirmId === product.id ? (
+                    <div className="flex-1 flex gap-1 items-center justify-center">
+                      <button onClick={() => handleDelete(product.id)} disabled={deletingId === product.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors flex-1 disabled:opacity-50 flex items-center justify-center">
+                        {deletingId === product.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
+                      </button>
+                      <button onClick={() => setConfirmId(null)} disabled={deletingId === product.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors flex-1 disabled:opacity-50">
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmId(product.id)}
+                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl flex justify-center py-2 items-center gap-2 font-body text-sm transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}

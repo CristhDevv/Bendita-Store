@@ -19,6 +19,7 @@ export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -29,7 +30,6 @@ export default function AddressesPage() {
   }, [user]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar esta dirección?")) return;
     setDeletingId(id);
     try {
       await deleteAddress(id);
@@ -39,6 +39,7 @@ export default function AddressesPage() {
       toast.error("Error al eliminar");
     } finally {
       setDeletingId(null);
+      setConfirmId(null);
     }
   };
 
@@ -158,17 +159,23 @@ export default function AddressesPage() {
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </Link>
-                  <button
-                    onClick={() => handleDelete(addr.id)}
-                    disabled={deletingId === addr.id}
-                    className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-red-600 border border-border transition-colors disabled:opacity-50"
-                  >
-                    {deletingId === addr.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
+                  {confirmId === addr.id ? (
+                    <div className="flex gap-1 items-center">
+                      <button onClick={() => handleDelete(addr.id)} disabled={deletingId === addr.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                        {deletingId === addr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
+                      </button>
+                      <button onClick={() => setConfirmId(null)} disabled={deletingId === addr.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmId(addr.id)}
+                      className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-red-600 border border-border transition-colors"
+                    >
                       <Trash2 className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>

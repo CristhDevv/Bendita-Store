@@ -26,6 +26,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
     const supabase = createClient();
@@ -41,7 +42,6 @@ export default function AdminUsersPage() {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const handleToggleAdmin = async (user: UserWithEmail) => {
-    if (!confirm(`¿${user.is_admin ? "Quitar" : "Asignar"} rol de administrador a ${user.full_name || user.id.slice(0, 8)}?`)) return;
     setTogglingId(user.id);
     const supabase = createClient();
     const { error } = await supabase
@@ -55,6 +55,7 @@ export default function AdminUsersPage() {
       toast.error("Error al actualizar");
     }
     setTogglingId(null);
+    setConfirmId(null);
   };
 
   const filtered = users.filter((u) =>
@@ -165,25 +166,31 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleToggleAdmin(user)}
-                        disabled={togglingId === user.id}
-                        className={`w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center ml-auto transition-colors disabled:opacity-40 ${
-                          user.is_admin ? "text-gold hover:text-amber-300" : "text-charcoal-muted hover:text-gold"
-                        }`}
-                        title={user.is_admin ? "Quitar admin" : "Hacer admin"}
-                      >
-                        {togglingId === user.id ? (
-                          <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                          </svg>
-                        ) : user.is_admin ? (
-                          <UserX className="w-3.5 h-3.5" />
-                        ) : (
-                          <UserCheck className="w-3.5 h-3.5" />
-                        )}
-                      </button>
+                      {confirmId === user.id ? (
+                        <div className="flex gap-1 items-center justify-end">
+                          <button onClick={() => handleToggleAdmin(user)} disabled={togglingId === user.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                            {togglingId === user.id ? (
+                              <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                              </svg>
+                            ) : "Confirmar"}
+                          </button>
+                          <button onClick={() => setConfirmId(null)} disabled={togglingId === user.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                            Cancelar
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmId(user.id)}
+                          className={`w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center ml-auto transition-colors ${
+                            user.is_admin ? "text-gold hover:text-amber-300" : "text-charcoal-muted hover:text-gold"
+                          }`}
+                          title={user.is_admin ? "Quitar admin" : "Hacer admin"}
+                        >
+                          {user.is_admin ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                        </button>
+                      )}
                     </td>
                   </motion.tr>
                 ))}
