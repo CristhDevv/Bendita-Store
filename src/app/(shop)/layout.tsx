@@ -17,21 +17,6 @@ export default function ShopLayout({
         {children}
       </main>
       <Footer />
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          style: {
-            background: "var(--color-navy-950)",
-            color: "var(--color-crystal)",
-            border: "1px solid rgba(201, 162, 39, 0.2)", // border-gold-500/20
-            backdropFilter: "blur(12px)",
-          },
-          iconTheme: {
-            primary: "var(--color-gold)",
-            secondary: "var(--color-navy-950)",
-          },
-        }}
-      />
     </>
   );
 }

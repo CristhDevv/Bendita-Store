@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,6 +21,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { signIn, signInWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -28,7 +29,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
-    const { error } = await signIn(data.email, data.password);
+    console.log("Intentando iniciar sesión para:", data.email);
+    const { error, data: authData } = await signIn(data.email, data.password);
+    console.log("Respuesta auth:", { error, authData });
     setIsLoading(false);
 
     if (error) {
@@ -61,13 +64,20 @@ export default function LoginPage() {
           {errors.email && <p className="text-rose-400 text-xs mt-1 px-1">{errors.email.message}</p>}
         </div>
 
-        <div>
+        <div className="relative">
           <input
             {...register("password")}
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Contraseña"
-            className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm"
+            className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none transition-colors shadow-sm pr-12"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal-muted hover:text-charcoal transition-colors p-1"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
           {errors.password && <p className="text-rose-400 text-xs mt-1 px-1">{errors.password.message}</p>}
         </div>
 
