@@ -380,8 +380,7 @@ export default function CheckoutPage() {
                     onSelect={() => setPaymentMethod("cod")}
                   >
                     <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
-                      <p>Paga en efectivo o tarjeta al recibir tu pedido.</p>
-                      <p className="text-xs text-gold mt-1">*Solo válido para Bogotá, Medellín y Cali.</p>
+                      <p>Paga en efectivo o tarjeta al recibir tu pedido. Disponible a nivel nacional.</p>
                     </div>
                   </PaymentOption>
                 </div>
