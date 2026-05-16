@@ -2,6 +2,38 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem, Product } from "@/types";
 
+// Helper para recalcular precios según la regla de mayorista
+function recalculateCartPrices(items: CartItem[]): CartItem[] {
+  // 1. Agrupar cantidades totales por product.id
+  const quantitiesByProduct = items.reduce((acc, item) => {
+    acc[item.product.id] = (acc[item.product.id] || 0) + item.quantity;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // 2. Mapear items y aplicar precio mayorista si la cantidad total >= 6
+  return items.map((item) => {
+    const totalQty = quantitiesByProduct[item.product.id] || 0;
+    const isWholesale = totalQty >= 6;
+    
+    // Obtener precios de variante si existe
+    const mlOption = item.selectedMl 
+      ? item.product.ml_options?.find((o) => o.ml === item.selectedMl)
+      : undefined;
+
+    let newPrice = mlOption ? mlOption.price : item.product.price;
+
+    if (isWholesale) {
+      // Buscar wholesale_price en variante, o en el base, o fallback al normal
+      const wholesale = mlOption?.wholesale_price ?? item.product.wholesale_price;
+      if (wholesale != null) {
+        newPrice = wholesale;
+      }
+    }
+
+    return { ...item, selectedPrice: newPrice };
+  });
+}
+
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
@@ -32,35 +64,32 @@ export const useCartStore = create<CartStore>()(
             (i) => i.product.id === product.id && i.selectedMl === ml
           );
 
-          const selectedPrice = ml
-            ? (product.ml_options?.find((o) => o.ml === ml)?.price ?? product.price)
-            : product.price;
-
+          let newItems: CartItem[];
           if (existing) {
-            return {
-              items: state.items.map((i) =>
-                i.product.id === product.id && i.selectedMl === ml
-                  ? { ...i, quantity: i.quantity + quantity }
-                  : i
-              ),
-            };
+            newItems = state.items.map((i) =>
+              i.product.id === product.id && i.selectedMl === ml
+                ? { ...i, quantity: i.quantity + quantity }
+                : i
+            );
+          } else {
+            newItems = [
+              ...state.items,
+              // selectedPrice será recalculado y asignado por recalculateCartPrices
+              { product, quantity, selectedMl: ml, selectedPrice: 0 },
+            ];
           }
 
-          return {
-            items: [
-              ...state.items,
-              { product, quantity, selectedMl: ml, selectedPrice },
-            ],
-          };
+          return { items: recalculateCartPrices(newItems) };
         });
       },
 
       removeItem: (productId, ml) => {
-        set((state) => ({
-          items: state.items.filter(
+        set((state) => {
+          const newItems = state.items.filter(
             (i) => !(i.product.id === productId && i.selectedMl === ml)
-          ),
-        }));
+          );
+          return { items: recalculateCartPrices(newItems) };
+        });
       },
 
       updateQuantity: (productId, quantity, ml) => {
@@ -68,13 +97,14 @@ export const useCartStore = create<CartStore>()(
           get().removeItem(productId, ml);
           return;
         }
-        set((state) => ({
-          items: state.items.map((i) =>
+        set((state) => {
+          const newItems = state.items.map((i) =>
             i.product.id === productId && i.selectedMl === ml
               ? { ...i, quantity }
               : i
-          ),
-        }));
+          );
+          return { items: recalculateCartPrices(newItems) };
+        });
       },
 
       clearCart: () => set({ items: [] }),

@@ -33,12 +33,13 @@ export interface Product {
   slug: string;
   description?: string;
   price: number;
+  wholesale_price?: number;
   compare_price?: number;
   category_id?: string;
   brand_id?: string;
   gender?: "men" | "women" | "unisex";
   concentration?: "parfum" | "edp" | "edt" | "edc" | "splash";
-  ml_options?: { ml: number; price: number }[];
+  ml_options?: { ml: number; price: number; wholesale_price?: number }[];
   images?: string[];
   notes_top?: string[];
   notes_heart?: string[];

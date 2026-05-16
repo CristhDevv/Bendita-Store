@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
+import { formatPrice } from "@/lib/utils/format";
 import type { Product } from "@/types";
 
 export function ProductActions({ product }: { product: Product }) {
@@ -11,7 +12,8 @@ export function ProductActions({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore(s => s.addItem);
 
-  const price = product.ml_options?.find(o => o.ml === selectedMl)?.price || product.price;
+  const selectedMlOption = product.ml_options?.find(o => o.ml === selectedMl);
+  const wholesalePrice = selectedMlOption?.wholesale_price ?? product.wholesale_price;
 
   const handleAdd = () => {
     addItem(product, quantity, selectedMl);
@@ -20,6 +22,14 @@ export function ProductActions({ product }: { product: Product }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {wholesalePrice != null && (
+        <div className="flex items-center gap-2 -mt-4 mb-2">
+          <span className="font-body text-sm font-semibold text-charcoal-muted bg-cream px-3 py-1 rounded-md border border-border">
+            Precio mayorista: <span className="text-gold">${formatPrice(wholesalePrice)}</span> desde 6 unidades
+          </span>
+        </div>
+      )}
+
       {/* ML Selector */}
       {product.ml_options && product.ml_options.length > 0 && (
         <div>

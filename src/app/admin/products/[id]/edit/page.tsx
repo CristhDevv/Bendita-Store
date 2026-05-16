@@ -72,7 +72,7 @@ export default function EditProductPage() {
   const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
   const [form, setForm] = useState({
-    name: "", slug: "", description: "", price: 0, compare_price: 0,
+    name: "", slug: "", description: "", price: 0, wholesale_price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
     stock: 0, olfactive_family: [] as string[], is_featured: false, is_active: true, images: "",
@@ -93,6 +93,7 @@ export default function EditProductPage() {
           slug: product.slug || "",
           description: product.description || "",
           price: product.price || 0,
+          wholesale_price: product.wholesale_price || 0,
           compare_price: product.compare_price || 0,
           category_id: product.category_id || "",
           brand_id: product.brand_id || "",
@@ -120,6 +121,7 @@ export default function EditProductPage() {
     const payload = {
       ...form,
       price: Number(form.price),
+      wholesale_price: Number(form.wholesale_price) || null,
       compare_price: Number(form.compare_price) || null,
       stock: Number(form.stock),
       category_id: form.category_id || null,
@@ -172,8 +174,9 @@ export default function EditProductPage() {
             <label className="block font-body text-xs text-charcoal-muted mb-1.5">Descripción</label>
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Descripción del producto..." />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio Mayorista</label><input className={inputClass} type="number" min={0} value={form.wholesale_price} onChange={(e) => setForm((f) => ({ ...f, wholesale_price: Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
           </div>
