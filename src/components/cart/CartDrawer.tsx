@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
+import type { CartItem } from "@/types";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, updateQuantity, removeItem, totalPrice, totalItems } = useCartStore();
@@ -118,6 +119,37 @@ export function CartDrawer() {
                         <span className="font-body text-xs text-charcoal-muted mb-auto">
                           {item.selectedMl ? `${item.selectedMl} ml` : ""}
                         </span>
+
+                        {/* Aviso mayorista */}
+                        {(() => {
+                          const mlOption = item.selectedMl
+                            ? item.product.ml_options?.find((o) => o.ml === item.selectedMl)
+                            : undefined;
+                          const basePrice = mlOption ? mlOption.price : item.product.price;
+                          const wholesalePrice = mlOption?.wholesale_price ?? item.product.wholesale_price;
+                          const totalQtyThisProduct = items
+                            .filter((i) => i.product.id === item.product.id)
+                            .reduce((sum, i) => sum + i.quantity, 0);
+                          const remaining = 6 - totalQtyThisProduct;
+
+                          if (item.selectedPrice < basePrice) {
+                            return (
+                              <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-body text-[10px] font-medium">
+                                ✓ Precio mayorista aplicado
+                              </span>
+                            );
+                          }
+
+                          if (wholesalePrice != null && remaining > 0) {
+                            return (
+                              <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-body text-[10px] font-medium">
+                                Agrega {remaining} más y activa precio mayorista
+                              </span>
+                            );
+                          }
+
+                          return null;
+                        })()}
 
                         <div className="flex items-center justify-between mt-3">
                           {/* Qty Selector */}
