@@ -142,9 +142,10 @@ export default function AdminBrandsPage() {
       </div>
 
       {/* Inline Create/Edit Form */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showForm && (
           <motion.div
+            key={editingId ?? "new"}
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
@@ -172,7 +173,8 @@ export default function AdminBrandsPage() {
                   onChange={(e) => setForm((f) => ({
                     ...f,
                     name: e.target.value,
-                    slug: f.slug || e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+                    // Solo auto-generar slug si es nuevo (editingId null) y el slug aún está vacío
+                    slug: editingId ? f.slug : (f.slug || e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")),
                   }))}
                   placeholder="Nombre de la marca"
                 />
