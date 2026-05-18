@@ -129,7 +129,7 @@ export function HeroSection() {
             {/* Eyebrow */}
             <motion.div variants={itemVariants}>
               <span className="inline-flex items-center gap-2 text-xs font-body tracking-[0.25em] uppercase text-charcoal-muted border border-border bg-white/50 rounded-full px-4 py-2">
-                ✦ Nueva Colección 2025
+                ✦ Nueva Colección 2026
               </span>
             </motion.div>
 

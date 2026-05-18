@@ -14,7 +14,7 @@ export default function ShopLayout({
       <Header />
       <CartDrawer />
       {/* pt-24 asegura que el contenido no quede oculto detrás del header fijo */}
-      <main className="flex-1 flex flex-col pt-24 min-h-screen">
+      <main className="flex-1 flex flex-col pt-14 min-h-screen">
         {children}
       </main>
       <Footer />

@@ -71,7 +71,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="font-display text-4xl text-charcoal mb-2">Bienvenida de nuevo</h1>
+        <h1 className="font-display text-4xl text-charcoal mb-2">Bienvenido de nuevo</h1>
         <p className="font-body text-charcoal-muted">Ingresa a tu cuenta para continuar</p>
       </div>
 
