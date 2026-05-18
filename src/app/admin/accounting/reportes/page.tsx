@@ -132,7 +132,7 @@ export default function ReportesPage() {
       if (error) throw error;
 
       const headers = ["ID Orden", "Fecha", "Cliente (Notas)", "Método de Pago", "Total COP"];
-      const rows = (data || []).map((o) => [
+      const rows = (data || []).map((o: { id: string; created_at: string; notes: string | null; payment_method: string | null; total: number | null }) => [
         o.id,
         new Date(o.created_at).toLocaleDateString("es-CO"),
         o.notes || "",
