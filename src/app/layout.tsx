@@ -6,6 +6,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { UpdateBanner } from "@/components/ui/UpdateBanner";
 
 /* ----------------------------------------
    Google Fonts — Bendita Store
@@ -98,6 +99,8 @@ export default function RootLayout({
             },
           }}
         />
+        {/* Banner de actualización automática — aparece cuando hay una nueva versión en Vercel */}
+        <UpdateBanner />
       </body>
     </html>
   );
