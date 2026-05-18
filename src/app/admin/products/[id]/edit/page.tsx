@@ -14,6 +14,19 @@ const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
 const selectClass = `${inputClass} cursor-pointer`;
 
+function generateSlug(name: string): string {
+  return name
+    .normalize("NFD")                        // descomponer tildes: á → a + ́
+    .replace(/[\u0300-\u036f]/g, "")          // quitar marcas diacríticas
+    .replace(/ñ/gi, "n")                     // ñ → n
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")           // quitar caracteres no válidos
+    .replace(/[\s_]+/g, "-")                 // espacios/guiones bajos → guión
+    .replace(/-+/g, "-")                     // colapsar guiones múltiples
+    .replace(/^-+|-+$/g, "");               // quitar guiones al inicio/final
+}
+
 function NotesSelector({ label, color, notes, onChange }: { label: string; color: string; notes: string[]; onChange: (notes: string[]) => void }) {
   const [input, setInput] = useState("");
   const add = () => { const v = input.trim(); if (!v || notes.includes(v)) { setInput(""); return; } onChange([...notes, v]); setInput(""); };
@@ -164,11 +177,26 @@ export default function EditProductPage() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-body text-xs text-charcoal-muted mb-1.5">Nombre *</label>
-              <input className={inputClass} required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nombre del producto" />
+              <input
+                className={inputClass}
+                required
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: generateSlug(e.target.value) }))}
+                placeholder="Nombre del producto"
+              />
             </div>
             <div>
-              <label className="block font-body text-xs text-charcoal-muted mb-1.5">Slug *</label>
-              <input className={inputClass} required value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="url-del-producto" />
+              <label className="block font-body text-xs text-charcoal-muted mb-1.5">
+                Slug
+                <span className="ml-2 text-[10px] font-normal text-charcoal-muted/60 normal-case tracking-normal">⚡ generado automáticamente</span>
+              </label>
+              <input
+                className="w-full px-3 py-2.5 rounded-xl bg-cream/60 border border-border text-charcoal-muted font-body text-sm outline-none cursor-default select-all"
+                readOnly
+                value={form.slug}
+                placeholder="se genera desde el nombre"
+                title="El slug se genera automáticamente desde el nombre"
+              />
             </div>
           </div>
           <div>
