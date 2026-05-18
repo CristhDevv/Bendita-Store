@@ -31,6 +31,10 @@ import { createClient } from "@/lib/supabase/client";
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/admin/orders", icon: ShoppingBag, label: "Órdenes" },
+  { href: "/admin/products", icon: Package, label: "Productos" },
+  { href: "/admin/categories", icon: Layers, label: "Categorías" },
+  { href: "/admin/brands", icon: Tag, label: "Marcas" },
+  { href: "/admin/olfactive-families", icon: Droplets, label: "Fam. Olfativas" },
   { href: "/admin/accounting", icon: Wallet, label: "Contabilidad", exact: true },
   { href: "/admin/accounting/gastos", icon: Receipt, label: "Gastos" },
   { href: "/admin/accounting/inventario", icon: Archive, label: "Inventario" },
