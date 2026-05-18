@@ -19,6 +19,18 @@ import type { OlfactiveFamily } from "@/types";
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
 
+function generateSlug(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ñ/gi, "n")
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 const emptyForm = { name: "", slug: "" };
 
 export default function AdminOlfactiveFamiliesPage() {
@@ -154,23 +166,20 @@ export default function AdminOlfactiveFamiliesPage() {
                   className={inputClass}
                   required
                   value={form.name}
-                  onChange={(e) => setForm((f) => ({
-                    ...f,
-                    name: e.target.value,
-                    // Solo auto-generar slug si es nuevo (editingId null) y el slug aún está vacío
-                    slug: editingId ? f.slug : (f.slug || e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")),
-                  }))}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: generateSlug(e.target.value) }))}
                   placeholder="Ej: Amaderado"
                 />
               </div>
               <div>
-                <label className="block font-body text-xs text-charcoal-muted mb-1.5">Slug *</label>
+                <label className="block font-body text-xs text-charcoal-muted mb-1.5">
+                  Slug
+                  <span className="ml-2 text-[10px] font-normal text-charcoal-muted/60 normal-case tracking-normal">⚡ generado automáticamente</span>
+                </label>
                 <input
-                  className={inputClass}
-                  required
+                  className="w-full px-3 py-2.5 rounded-xl bg-cream/60 border border-border text-charcoal-muted font-body text-sm outline-none cursor-default select-all"
+                  readOnly
                   value={form.slug}
-                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                  placeholder="ej-amaderado"
+                  placeholder="se genera desde el nombre"
                 />
               </div>
               <div className="sm:col-span-2 flex gap-3 pt-1">
