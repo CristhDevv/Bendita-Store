@@ -35,8 +35,8 @@ Deseo coordinar el pago por transferencia bancaria. ¿A qué cuenta puedo consig
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const items = useCartStore((state) => state.items);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const items = useCartStore((state: any) => state.items);
+  const clearCart = useCartStore((state: any) => state.clearCart);
 
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const subtotal = items.reduce((acc, item) => acc + item.selectedPrice * item.quantity, 0);
+  const subtotal = items.reduce((acc: number, item: any) => acc + item.selectedPrice * item.quantity, 0);
   const shippingCost = 0;
   const total = subtotal + shippingCost;
 
@@ -155,7 +155,7 @@ export default function CheckoutPage() {
     };
     if (user?.id) orderData.user_id = user.id;
 
-    const orderItems = items.map(item => ({
+    const orderItems = items.map((item: any) => ({
       product_id: item.product.id,
       quantity: item.quantity,
       price: item.selectedPrice,
@@ -166,6 +166,23 @@ export default function CheckoutPage() {
 
     if (orderId) {
       clearCart();
+      
+      fetch('/api/notify-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          customerName: contactInfo.fullName || 'Cliente',
+          total,
+          paymentMethod,
+          items: items.map((item: any) => ({
+            name: `${item.product.name} (${item.selectedMl}ml)`,
+            price: item.selectedPrice,
+            quantity: item.quantity
+          }))
+        })
+      });
+
       if (paymentMethod === "transfer") {
         const currentAddress = isNewAddress 
           ? newAddress 
@@ -186,11 +203,11 @@ export default function CheckoutPage() {
   if (items.length === 0 && !isPlacingOrder) return null;
 
   return (
-    <div className="min-h-screen bg-cream pt-24 pb-20">
+    <div className="min-h-screen bg-cream pt-8 pb-8">
       <div className="max-w-6xl mx-auto px-4 lg:px-8">
         
         {/* Stepper visual */}
-        <div className="flex items-center justify-center mb-12">
+        <div className="flex items-center justify-center mb-6">
           <div className="flex items-center gap-4">
             <StepIndicator current={step} target={1} icon={<User className="w-5 h-5" />} label="Información" />
             <div className={`w-16 h-px ${step >= 2 ? 'bg-gold' : 'bg-border'}`} />
@@ -200,16 +217,16 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-6">
           
           {/* Main Form Area */}
-          <div className="flex-1 space-y-8">
+          <div className="flex-1 space-y-4">
             
             {/* Step 1: Información */}
             {step === 1 && (
-              <div className="bg-white rounded-2xl p-6 lg:p-8 border border-border shadow-sm">
-                <h2 className="font-display text-2xl text-charcoal mb-6">Información de Contacto</h2>
-                <div className="space-y-4">
+              <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
+                <h2 className="font-display text-xl text-charcoal mb-4">Información de Contacto</h2>
+                <div className="space-y-3">
                   <input
                     type="text"
                     placeholder="Nombre completo"
@@ -254,8 +271,8 @@ export default function CheckoutPage() {
 
             {/* Step 2: Envío */}
             {step === 2 && (
-              <div className="bg-white rounded-2xl p-6 lg:p-8 border border-border shadow-sm">
-                <h2 className="font-display text-2xl text-charcoal mb-6">Dirección de Envío</h2>
+              <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
+                <h2 className="font-display text-xl text-charcoal mb-4">Dirección de Envío</h2>
                 
                 {user && addresses.length > 0 && (
                   <div className="space-y-3 mb-6">
@@ -355,8 +372,8 @@ export default function CheckoutPage() {
 
             {/* Step 3: Pago */}
             {step === 3 && (
-              <div className="bg-white rounded-2xl p-6 lg:p-8 border border-border shadow-sm">
-                <h2 className="font-display text-2xl text-charcoal mb-6">Método de Pago</h2>
+              <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
+                <h2 className="font-display text-xl text-charcoal mb-4">Método de Pago</h2>
                 
                 <div className="space-y-4">
                   <PaymentOption 
@@ -411,7 +428,7 @@ export default function CheckoutPage() {
               <h2 className="font-display text-xl text-charcoal mb-4">Resumen de tu pedido</h2>
               
               <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar mb-4">
-                {items.map((item, idx) => (
+                {items.map((item: any, idx: number) => (
                   <div key={idx} className="flex gap-3">
                     <div className="relative w-16 h-16 bg-cream rounded-lg overflow-hidden shrink-0 border border-border">
                       {item.product.images?.[0] ? (

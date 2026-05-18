@@ -19,6 +19,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Order, OrderStatus } from "@/types";
 import toast from "react-hot-toast";
+import { SearchableSelect } from "@/components/admin/SearchableSelect";
 
 const STATUS_OPTIONS: { value: OrderStatus; label: string; color: string }[] = [
   { value: "pending", label: "Pendiente", color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
@@ -148,18 +149,13 @@ export default function AdminOrdersPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="relative">
-          <select
-            className="pl-3 pr-8 py-2.5 rounded-xl bg-white border border-border text-charcoal font-body text-sm outline-none cursor-pointer appearance-none shadow-sm"
+        <div className="relative min-w-[200px]">
+          <SearchableSelect
+            options={[{value: "all", label: "Todos los estados"}, ...STATUS_OPTIONS.map(s => ({value: s.value, label: s.label}))]}
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as OrderStatus | "all")}
-          >
-            <option value="all">Todos los estados</option>
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-charcoal-muted pointer-events-none" />
+            onChange={(v) => setFilterStatus(v as OrderStatus | "all")}
+            placeholder="Todos los estados"
+          />
         </div>
       </div>
 

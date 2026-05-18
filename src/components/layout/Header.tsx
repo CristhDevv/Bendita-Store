@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Heart, ShoppingBag, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
+import { SearchOverlay } from "./SearchOverlay";
 
 const NAV_LINKS = [
   { label: "Inicio", href: "/" },
@@ -15,7 +16,13 @@ const NAV_LINKS = [
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems());
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,14 +53,23 @@ export function Header() {
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden text-charcoal-muted hover:text-gold transition-colors flex-shrink-0"
-            aria-label="Abrir menú"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          {/* Mobile menu and search buttons */}
+          <div className="flex items-center gap-3 md:hidden flex-shrink-0">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="text-charcoal-muted hover:text-gold transition-colors"
+              aria-label="Abrir menú"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="text-charcoal-muted hover:text-gold transition-colors"
+              aria-label="Buscar"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+          </div>
 
           {/* Logo */}
           <Link
@@ -81,7 +97,7 @@ export function Header() {
 
           {/* Icons */}
           <div className="flex items-center justify-end gap-5 text-charcoal-muted flex-shrink-0">
-            <button className="hover:text-gold transition-colors hidden md:block" aria-label="Buscar">
+            <button onClick={() => setSearchOpen(true)} className="hover:text-gold transition-colors hidden md:block" aria-label="Buscar">
               <Search className="w-5 h-5" />
             </button>
             <Link href="/account/wishlist" className="hover:text-gold transition-colors hidden sm:block" aria-label="Wishlist">
@@ -96,7 +112,7 @@ export function Header() {
               aria-label="Carrito"
             >
               <ShoppingBag className="w-5 h-5" />
-              {totalItems > 0 && (
+              {isMounted && totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 bg-gold text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {totalItems}
                 </span>
@@ -169,6 +185,8 @@ export function Header() {
           </div>
         </div>
       )}
+
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

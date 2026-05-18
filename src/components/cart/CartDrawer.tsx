@@ -83,43 +83,40 @@ export function CartDrawer() {
             ) : (
               <>
                 {/* Items List */}
-                <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
+                <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
                   {items.map((item) => (
-                    <div key={`${item.product.id}-${item.selectedMl}`} className="flex gap-4">
+                    <div key={`${item.product.id}-${item.selectedMl}`} className="flex gap-3 items-start">
                       {/* Image */}
-                      <div className="relative w-24 aspect-[3/4] rounded-xl overflow-hidden bg-cream border border-border shrink-0">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-cream border border-border shrink-0">
                         <Image
                           src={item.product.images?.[0] || "/hero-perfume.png"}
                           alt={item.product.name}
                           fill
-                          sizes="96px"
+                          sizes="64px"
                           className="object-cover"
                         />
                       </div>
-
                       {/* Info */}
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex justify-between items-start mb-1">
-                          <div className="flex flex-col">
-                            <span className="font-body text-[10px] tracking-widest uppercase text-gold">
+                      <div className="flex-1 flex flex-col gap-1 min-w-0">
+                        <div className="flex justify-between items-start gap-1">
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-body text-[10px] tracking-widest uppercase text-gold truncate">
                               {item.product.brand?.name}
                             </span>
-                            <span className="font-display text-lg text-charcoal leading-tight line-clamp-1">
+                            <span className="font-display text-sm text-charcoal leading-tight line-clamp-1">
                               {item.product.name}
                             </span>
+                            {item.selectedMl && (
+                              <span className="font-body text-[10px] text-charcoal-muted">{item.selectedMl} ml</span>
+                            )}
                           </div>
                           <button
                             onClick={() => removeItem(item.product.id, item.selectedMl)}
-                            className="p-1.5 text-charcoal-muted hover:text-rose-500 transition-colors rounded-lg hover:bg-rose-500/10"
+                            className="p-1 text-charcoal-muted hover:text-rose-500 transition-colors rounded shrink-0"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        
-                        <span className="font-body text-xs text-charcoal-muted mb-auto">
-                          {item.selectedMl ? `${item.selectedMl} ml` : ""}
-                        </span>
-
                         {/* Aviso mayorista */}
                         {(() => {
                           const mlOption = item.selectedMl
@@ -127,52 +124,64 @@ export function CartDrawer() {
                             : undefined;
                           const basePrice = mlOption ? mlOption.price : item.product.price;
                           const wholesalePrice = mlOption?.wholesale_price ?? item.product.wholesale_price;
-                          const totalQtyThisProduct = items
-                            .filter((i) => i.product.id === item.product.id)
-                            .reduce((sum, i) => sum + i.quantity, 0);
-                          const remaining = 6 - totalQtyThisProduct;
-
+                          const totalCartQty = items.reduce((sum, i) => sum + i.quantity, 0);
+                          const remaining = 6 - totalCartQty;
                           if (item.selectedPrice < basePrice) {
                             return (
-                              <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-body text-[10px] font-medium">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-body text-[10px] font-medium w-fit">
                                 ✓ Precio mayorista aplicado
                               </span>
                             );
                           }
-
                           if (wholesalePrice != null && remaining > 0) {
                             return (
-                              <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-body text-[10px] font-medium">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-body text-[10px] font-medium w-fit">
                                 Agrega {remaining} más y activa precio mayorista
                               </span>
                             );
                           }
-
                           return null;
                         })()}
-
-                        <div className="flex items-center justify-between mt-3">
-                          {/* Qty Selector */}
-                          <div className="flex items-center bg-white border border-border rounded-lg h-9 px-1">
+                        {/* Qty + Price */}
+                        <div className="flex items-center justify-between mt-1">
+                          <div className="flex items-center bg-white border border-border rounded-lg h-8 px-1">
                             <button
                               onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedMl)}
-                              className="w-8 h-full flex items-center justify-center text-charcoal hover:text-gold transition-colors"
+                              className="w-7 h-full flex items-center justify-center text-charcoal hover:text-gold transition-colors"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="w-8 text-center font-body text-sm text-charcoal font-medium">
+                            <span className="w-7 text-center font-body text-sm text-charcoal font-medium">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedMl)}
-                              className="w-8 h-full flex items-center justify-center text-charcoal hover:text-gold transition-colors"
+                              className="w-7 h-full flex items-center justify-center text-charcoal hover:text-gold transition-colors"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
-                          <span className="font-body font-bold text-gold">
-                            ${(item.selectedPrice * item.quantity).toLocaleString("es-CO")}
-                          </span>
+                          <div className="flex flex-col items-end">
+                            {(() => {
+                              const mlOption = item.selectedMl
+                                ? item.product.ml_options?.find((o) => o.ml === item.selectedMl)
+                                : undefined;
+                              const basePrice = mlOption ? mlOption.price : item.product.price;
+                              const isWholesale = item.selectedPrice < basePrice;
+                              return (
+                                <>
+                                  {isWholesale && (
+                                    <span className="font-body text-[10px] text-charcoal-muted line-through">
+                                      ${(basePrice * item.quantity).toLocaleString("es-CO")}
+                                    </span>
+                                  )}
+                                  <span className="font-body font-bold text-sm text-gold">
+                                    ${(item.selectedPrice * item.quantity).toLocaleString("es-CO")}
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -180,21 +189,9 @@ export function CartDrawer() {
                 </div>
 
                 {/* Footer / Summary */}
-                <div className="border-t border-border bg-white p-6 flex flex-col gap-4">
-                  {/* Coupon */}
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Código de descuento"
-                      className="flex-1 bg-white border border-border rounded-xl px-4 py-3 font-body text-sm text-charcoal outline-none focus:border-gold transition-colors"
-                    />
-                    <button className="px-6 py-3 rounded-xl border border-border text-charcoal font-body text-sm font-medium hover:bg-cream-dark transition-colors">
-                      Aplicar
-                    </button>
-                  </div>
-
+                <div className="border-t border-border bg-white px-4 py-3 flex flex-col gap-2">
                   {/* Summary Lines */}
-                  <div className="flex flex-col gap-3 font-body text-sm border-t border-border pt-4">
+                  <div className="flex flex-col gap-1 font-body text-xs">
                     <div className="flex justify-between text-charcoal-muted">
                       <span>Subtotal</span>
                       <span>${total.toLocaleString("es-CO")}</span>
@@ -212,23 +209,19 @@ export function CartDrawer() {
                         Te faltan ${(shippingThreshold - total).toLocaleString("es-CO")} para envío gratis
                       </div>
                     )}
-                    
-                    <div className="flex justify-between items-end mt-2">
-                      <span className="text-charcoal text-base">Total</span>
-                      <span className="font-bold text-2xl text-charcoal leading-none">
-                        ${finalTotal.toLocaleString("es-CO")}
-                      </span>
+                    <div className="flex justify-between items-center border-t border-border pt-2 mt-1">
+                      <span className="text-charcoal text-sm font-medium">Total</span>
+                      <span className="font-bold text-lg text-charcoal">${finalTotal.toLocaleString("es-CO")}</span>
                     </div>
                   </div>
-
                   {/* Checkout Button */}
                   <Link
                     href="/checkout"
                     onClick={closeCart}
-                    className="w-full py-4 mt-2 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-white bg-charcoal hover:bg-gold transition-colors shadow-sm"
+                    className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-body font-semibold text-sm text-white bg-charcoal hover:bg-gold transition-colors shadow-sm"
                   >
                     Ir al Checkout
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </>

@@ -45,6 +45,7 @@ export interface Product {
   notes_heart?: string[];
   notes_base?: string[];
   stock: number;
+  cost_price?: number | null;
   is_featured: boolean;
   is_active: boolean;
   created_at: string;

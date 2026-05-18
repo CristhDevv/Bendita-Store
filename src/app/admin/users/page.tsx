@@ -108,94 +108,78 @@ export default function AdminUsersPage() {
         </div>
       ) : (
         <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-cream/30">
-                  {["Usuario", "Teléfono", "Registro", "Rol", ""].map((h) => (
-                    <th key={h} className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h === "" ? "text-right" : "text-left"}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((user, i) => (
-                  <motion.tr
-                    key={user.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="border-b border-border hover:bg-cream/50 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-cream border border-border flex items-center justify-center text-gold font-display font-bold text-sm shrink-0">
-                          {(user.full_name || "?").charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-body text-sm text-charcoal font-medium">
-                            {user.full_name || <span className="text-charcoal-muted italic">Sin nombre</span>}
-                          </p>
-                          <p className="font-body text-xs text-charcoal-muted">
-                            ID: {user.id.slice(0, 8)}...
-                          </p>
-                        </div>
+          <div className="flex flex-col divide-y divide-border">
+            {filtered.map((user, i) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.04 }}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-cream/30 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-cream border border-border flex items-center justify-center text-gold font-display font-bold text-sm shrink-0">
+                  {(user.full_name || "?").charAt(0).toUpperCase()}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-sm text-charcoal font-medium truncate">
+                    {user.full_name || <span className="text-charcoal-muted italic">Sin nombre</span>}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {user.phone ? (
+                      <div className="flex items-center gap-1 text-charcoal-muted">
+                        <Mail className="w-3 h-3" />
+                        <span className="font-body text-xs truncate">{user.phone}</span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {user.phone ? (
-                        <div className="flex items-center gap-1.5 text-charcoal-muted">
-                          <Mail className="w-3 h-3" />
-                          <span className="font-body text-xs">{user.phone}</span>
-                        </div>
-                      ) : (
-                        <span className="font-body text-xs text-charcoal-muted">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 font-body text-xs text-charcoal-muted">
+                    ) : (
+                      <span className="font-body text-xs text-charcoal-muted">—</span>
+                    )}
+                    <span className="text-border">•</span>
+                    <span className="font-body text-xs text-charcoal-muted truncate">
                       {formatDate(user.created_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {user.is_admin ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-body border text-gold border-gold/20 bg-gold/5">
-                          <Shield className="w-3 h-3" /> Admin
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-body border text-charcoal-muted border-border bg-cream">
-                          Cliente
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {confirmId === user.id ? (
-                        <div className="flex gap-1 items-center justify-end">
-                          <button onClick={() => handleToggleAdmin(user)} disabled={togglingId === user.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
-                            {togglingId === user.id ? (
-                              <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                              </svg>
-                            ) : "Confirmar"}
-                          </button>
-                          <button onClick={() => setConfirmId(null)} disabled={togglingId === user.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
-                            Cancelar
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmId(user.id)}
-                          className={`w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center ml-auto transition-colors ${
-                            user.is_admin ? "text-gold hover:text-amber-300" : "text-charcoal-muted hover:text-gold"
-                          }`}
-                          title={user.is_admin ? "Quitar admin" : "Hacer admin"}
-                        >
-                          {user.is_admin ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
-                        </button>
-                      )}
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {user.is_admin ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider font-body border text-gold border-gold/20 bg-gold/5">
+                      <Shield className="w-3 h-3" /> Admin
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider font-body border text-charcoal-muted border-border bg-cream">
+                      Cliente
+                    </span>
+                  )}
+                  
+                  {confirmId === user.id ? (
+                    <div className="flex gap-1 items-center">
+                      <button onClick={() => handleToggleAdmin(user)} disabled={togglingId === user.id} className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-2.5 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                        {togglingId === user.id ? (
+                          <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                          </svg>
+                        ) : "Confirmar"}
+                      </button>
+                      <button onClick={() => setConfirmId(null)} disabled={togglingId === user.id} className="bg-cream hover:bg-border border border-border rounded-lg px-2.5 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmId(user.id)}
+                      className={`w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center transition-colors ${
+                        user.is_admin ? "text-gold hover:text-amber-300" : "text-charcoal-muted hover:text-gold"
+                      }`}
+                      title={user.is_admin ? "Quitar admin" : "Hacer admin"}
+                    >
+                      {user.is_admin ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            ))}
             {filtered.length === 0 && (
               <div className="py-12 text-center">
                 <Users className="w-8 h-8 text-gold/20 mx-auto mb-2" />

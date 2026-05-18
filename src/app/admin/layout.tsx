@@ -18,6 +18,11 @@ import {
   Tag,
   Layers,
   Droplets,
+  Wallet,
+  Receipt,
+  Archive,
+  FileText,
+  Settings,
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,12 +30,13 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
-  { href: "/admin/products", icon: Package, label: "Productos" },
-  { href: "/admin/brands", icon: Tag, label: "Marcas" },
-  { href: "/admin/categories", icon: Layers, label: "Categorías" },
-  { href: "/admin/olfactive-families", icon: Droplets, label: "Fam. Olfativas" },
   { href: "/admin/orders", icon: ShoppingBag, label: "Órdenes" },
+  { href: "/admin/accounting", icon: Wallet, label: "Contabilidad", exact: true },
+  { href: "/admin/accounting/gastos", icon: Receipt, label: "Gastos" },
+  { href: "/admin/accounting/inventario", icon: Archive, label: "Inventario" },
+  { href: "/admin/accounting/reportes", icon: FileText, label: "Reportes" },
   { href: "/admin/users", icon: Users, label: "Usuarios" },
+  { href: "/admin/settings", icon: Settings, label: "Configuración" },
 ];
 
 function AdminSidebar({ onClose }: { onClose?: () => void }) {
@@ -76,7 +82,7 @@ function AdminSidebar({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, icon: Icon, label, exact }) => {
           const isActive = exact ? pathname === href : pathname.startsWith(href);
           return (

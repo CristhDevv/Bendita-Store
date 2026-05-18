@@ -1,0 +1,6 @@
+feat: mostrar datos de cliente, direccion y referencia de pago en ordenes admin
+
+- Agrega funcion parseNotes para extraer nombre, email y telefono de campo notes
+- Muestra seccion Cliente con iconos User, Mail, Phone en panel expandido
+- Muestra direccion desde notes cuando no hay address_id guardado
+- Muestra campo payment_ref con icono Receipt si existe

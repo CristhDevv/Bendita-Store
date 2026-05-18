@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "@/components/admin/SearchableSelect";
+import type { Category, Brand, OlfactiveFamily, Product } from "@/types";
+
 
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
@@ -23,9 +25,7 @@ function NotesSelector({ label, color, notes, onChange }: { label: string; color
         {notes.map((n) => (
           <span key={n} className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body border shadow-sm ${color}`}>
             {n}
-            <button type="button" onClick={() => onChange(notes.filter((x) => x !== n))} className="opacity-60 hover:opacity-100 transition-opacity ml-0.5">
-              <X className="w-2.5 h-2.5" />
-            </button>
+            <button type="button" onClick={() => onChange(notes.filter((x) => x !== n))} className="opacity-60 hover:opacity-100 transition-opacity ml-0.5"><X className="w-2.5 h-2.5" /></button>
           </span>
         ))}
       </div>
@@ -51,8 +51,8 @@ function FamilySelector({ options, selected, onChange }: { options: OlfactiveFam
               else onChange([...selected, f.name]);
             }}
             className={`px-3 py-1.5 rounded-xl text-xs font-body transition-colors border ${
-              isSelected 
-                ? "bg-charcoal text-white border-charcoal" 
+              isSelected
+                ? "bg-charcoal text-white border-charcoal"
                 : "bg-cream text-charcoal-muted border-border hover:border-charcoal hover:text-charcoal"
             }`}
           >
@@ -64,106 +64,83 @@ function FamilySelector({ options, selected, onChange }: { options: OlfactiveFam
   );
 }
 
-export default function NewProductPage() {
+export default function InventarioEditProductPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
-  
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [form, setForm] = useState({
-    name: "", slug: "", description: "", 
-    price: "" as number | "", 
-    wholesale_price: "" as number | "",
-    compare_price: "" as number | "",
+    name: "", slug: "", description: "", price: 0, wholesale_price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
-    stock: "" as number | "", 
-    olfactive_family: [] as string[],
-    is_featured: false, is_active: true,
+    stock: 0, cost_price: 0 as number | null, olfactive_family: [] as string[], is_featured: false, is_active: true, images: "",
   });
 
   useEffect(() => {
     const supabase = createClient();
     Promise.all([
+      supabase.from("products").select("*, category:categories(*), brand:brands(*)").eq("id", id).single(),
       supabase.from("categories").select("*").order("name"),
       supabase.from("brands").select("*").order("name"),
       supabase.from("olfactive_families").select("*").order("name"),
-    ]).then(([{ data: c }, { data: b }, { data: f }]) => {
+    ]).then(([{ data: p }, { data: c }, { data: b }, { data: f }]) => {
+      if (p) {
+        const product = p as Product;
+        setForm({
+          name: product.name || "",
+          slug: product.slug || "",
+          description: product.description || "",
+          price: product.price || 0,
+          wholesale_price: product.wholesale_price || 0,
+          compare_price: product.compare_price || 0,
+          category_id: product.category_id || "",
+          brand_id: product.brand_id || "",
+          gender: product.gender || "unisex",
+          concentration: product.concentration || "edp",
+          stock: product.stock || 0,
+          cost_price: product.cost_price ?? null,
+          olfactive_family: product.olfactive_family || [],
+          is_featured: product.is_featured || false,
+          is_active: product.is_active !== false,
+          images: (product.images || []).join("\n"),
+        });
+        setNotes({ top: product.notes_top || [], heart: product.notes_heart || [], base: product.notes_base || [] });
+      }
       setCategories((c as Category[]) || []);
       setBrands((b as Brand[]) || []);
       setFamilies((f as OlfactiveFamily[]) || []);
+      setLoading(false);
     });
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const moveFile = (index: number, direction: 'left' | 'right') => {
-    if ((direction === 'left' && index === 0) || (direction === 'right' && index === selectedFiles.length - 1)) return;
-    setSelectedFiles(prev => {
-      const next = [...prev];
-      const targetIndex = direction === 'left' ? index - 1 : index + 1;
-      const temp = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = temp;
-      return next;
-    });
-  };
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     const supabase = createClient();
-    
+    const payload = {
+      ...form,
+      price: Number(form.price),
+      wholesale_price: Number(form.wholesale_price) || null,
+      compare_price: Number(form.compare_price) || null,
+      stock: Number(form.stock),
+      cost_price: form.cost_price !== null && form.cost_price !== undefined && String(form.cost_price) !== ""
+        ? Number(form.cost_price)
+        : null,
+      category_id: form.category_id || null,
+      brand_id: form.brand_id || null,
+      olfactive_family: form.olfactive_family.length > 0 ? form.olfactive_family : null,
+      images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
+      notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
+    };
     try {
-      const uploadedImageUrls: string[] = [];
-      
-      for (const file of selectedFiles) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
-        const { error: uploadError, data } = await supabase.storage
-          .from('products')
-          .upload(fileName, file);
-          
-        if (uploadError) throw uploadError;
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('products')
-          .getPublicUrl(data.path);
-          
-        uploadedImageUrls.push(publicUrl);
-      }
-
-      const payload = {
-        ...form,
-        price: Number(form.price),
-        wholesale_price: Number(form.wholesale_price) || null,
-        compare_price: Number(form.compare_price) || null,
-        stock: Number(form.stock),
-        category_id: form.category_id || null,
-        brand_id: form.brand_id || null,
-        olfactive_family: form.olfactive_family.length > 0 ? form.olfactive_family : null,
-        images: uploadedImageUrls,
-        notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
-      };
-
-      const { error } = await supabase.from("products").insert(payload);
+      const { error } = await supabase.from("products").update(payload).eq("id", id);
       if (error) throw error;
-      toast.success("Producto creado");
-      router.push("/admin/products");
+      toast.success("Producto actualizado");
+      router.push("/admin/accounting/inventario");
     } catch (err: unknown) {
       toast.error((err as Error).message || "Error al guardar");
     } finally {
@@ -171,19 +148,28 @@ export default function NewProductPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-4 max-w-2xl">
+        <div className="h-8 w-32 bg-cream rounded-lg animate-pulse" />
+        <div className="h-96 bg-cream rounded-3xl animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-2xl">
-      <Link href="/admin/products" className="inline-flex items-center gap-2 text-charcoal-muted hover:text-charcoal font-body text-sm transition-colors mb-6">
-        <ArrowLeft className="w-4 h-4" /> Volver a Productos
+      <Link href="/admin/accounting/inventario" className="inline-flex items-center gap-2 text-charcoal-muted hover:text-charcoal font-body text-sm transition-colors mb-6">
+        <ArrowLeft className="w-4 h-4" /> Volver a Inventario
       </Link>
 
       <div className="bg-white border border-border rounded-3xl p-6 shadow-sm">
-        <h1 className="font-display text-2xl text-charcoal mb-6">Nuevo Producto</h1>
+        <h1 className="font-display text-2xl text-charcoal mb-6">Editar Producto</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-body text-xs text-charcoal-muted mb-1.5">Nombre *</label>
-              <input className={inputClass} required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: f.slug || e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") }))} placeholder="Nombre del producto" />
+              <input className={inputClass} required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nombre del producto" />
             </div>
             <div>
               <label className="block font-body text-xs text-charcoal-muted mb-1.5">Slug *</label>
@@ -195,11 +181,30 @@ export default function NewProductPage() {
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Descripción del producto..." />
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio Mayorista</label><input className={inputClass} type="number" min={0} value={form.wholesale_price} onChange={(e) => setForm((f) => ({ ...f, wholesale_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio Mayorista</label><input className={inputClass} type="number" min={0} value={form.wholesale_price} onChange={(e) => setForm((f) => ({ ...f, wholesale_price: Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
           </div>
+
+          {/* Costo Unitario — campo exclusivo de la vista inventario */}
+          <div>
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Costo unitario COP</label>
+            <input
+              className={inputClass}
+              type="number"
+              min={0}
+              value={form.cost_price ?? ""}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  cost_price: e.target.value === "" ? null : Number(e.target.value),
+                }))
+              }
+              placeholder="Ej: 45000"
+            />
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><SearchableSelect options={[{value: "", label: "Sin categoría"}, ...categories.map(c => ({value: c.id, label: c.name}))]} value={form.category_id} onChange={(v) => setForm((f) => ({ ...f, category_id: v }))} placeholder="Selecciona categoría" /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label><SearchableSelect options={[{value: "", label: "Sin marca"}, ...brands.map(b => ({value: b.id, label: b.name}))]} value={form.brand_id} onChange={(v) => setForm((f) => ({ ...f, brand_id: v }))} placeholder="Selecciona marca" /></div>
@@ -212,79 +217,17 @@ export default function NewProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><SearchableSelect options={[{value: "women", label: "Mujer"}, {value: "men", label: "Hombre"}, {value: "unisex", label: "Unisex"}]} value={form.gender} onChange={(v) => setForm((f) => ({ ...f, gender: v as "women" | "men" | "unisex" }))} placeholder="Selecciona género" /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><SearchableSelect options={[{value: "parfum", label: "Parfum"}, {value: "edp", label: "EDP"}, {value: "edt", label: "EDT"}, {value: "edc", label: "EDC"}, {value: "splash", label: "Splash"}]} value={form.concentration} onChange={(v) => setForm((f) => ({ ...f, concentration: v as "parfum" | "edp" | "edt" | "edc" | "splash" }))} placeholder="Selecciona concentración" /></div>
           </div>
-
-          {/* Image Upload Component */}
-          <div className="pt-2">
-            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Imágenes del Producto</label>
-            <div className="space-y-4">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                ref={fileInputRef}
-                onChange={handleFileChange}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2.5 rounded-xl bg-white border border-border hover:border-gold hover:text-gold text-charcoal font-body text-sm transition-colors shadow-sm inline-flex items-center gap-2"
-              >
-                Seleccionar imágenes
-              </button>
-
-              {selectedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-4 mt-2">
-                  {selectedFiles.map((file, idx) => (
-                    <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-border bg-cream">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${idx}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                        {idx > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => moveFile(idx, 'left')}
-                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-                        )}
-                        {idx < selectedFiles.length - 1 && (
-                          <button
-                            type="button"
-                            onClick={() => moveFile(idx, 'right')}
-                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(idx)}
-                        className="absolute top-1 right-1 p-1 rounded-full bg-charcoal/60 text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div>
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>
+            <textarea className={`${inputClass} resize-none`} rows={3} value={form.images} onChange={(e) => setForm((f) => ({ ...f, images: e.target.value }))} placeholder={"https://ejemplo.com/imagen1.jpg\nhttps://ejemplo.com/imagen2.jpg"} />
           </div>
-
-          <div className="space-y-3 pt-4">
+          <div className="space-y-3 pt-1">
             <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest">Pirámide Olfativa</p>
             <NotesSelector label="🌿 Notas de Salida (Top)" color="text-emerald-400 border-emerald-400/20 bg-emerald-400/5" notes={notes.top} onChange={(v) => setNotes((n) => ({ ...n, top: v }))} />
             <NotesSelector label="🌸 Notas de Corazón (Heart)" color="text-rose-400 border-rose-400/20 bg-rose-400/5" notes={notes.heart} onChange={(v) => setNotes((n) => ({ ...n, heart: v }))} />
             <NotesSelector label="🪵 Notas de Fondo (Base)" color="text-amber-400 border-amber-400/20 bg-amber-400/5" notes={notes.base} onChange={(v) => setNotes((n) => ({ ...n, base: v }))} />
           </div>
-          
-          <div className="flex items-center gap-6 pt-4">
+          <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_active ? "bg-charcoal border-charcoal" : "border-border"}`} onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}>
                 {form.is_active && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
@@ -298,12 +241,11 @@ export default function NewProductPage() {
               <span className="font-body text-sm text-charcoal-muted">Destacado</span>
             </label>
           </div>
-          
-          <div className="flex gap-3 pt-4">
-            <Link href="/admin/products" className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm text-center flex items-center justify-center">Cancelar</Link>
+          <div className="flex gap-3 pt-2">
+            <Link href="/admin/accounting/inventario" className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm text-center">Cancelar</Link>
             <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-charcoal hover:bg-gold text-white font-body font-semibold text-sm transition-all shadow-sm disabled:opacity-60">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? "Subiendo imágenes..." : "Crear Producto"}
+              {saving ? "Guardando..." : "Guardar Producto"}
             </button>
           </div>
         </form>

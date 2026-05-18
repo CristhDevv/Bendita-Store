@@ -5,12 +5,8 @@ import { BrandShowcase } from "@/components/home/BrandShowcase";
 import { PromoSection } from "@/components/home/PromoSection";
 
 export const metadata = {
-  title: "Bendita Store | Perfumería Premium",
-  description:
-    "Descubre fragancias exclusivas de las mejores casas de perfumería del mundo en Bendita Store. Envíos a toda Colombia con la mejor selección de perfumes de lujo.",
-  alternates: {
-    canonical: "/",
-  },
+  title: "Perfumería Premium — Fragancias Exclusivas",
+  description: "Tienda de perfumes premium en Colombia. Encuentra las mejores fragancias del mundo con envío a todo el país. Baccarat Rouge 540, Creed Aventus, Tom Ford y más.",
 };
 
 export default function HomePage() {

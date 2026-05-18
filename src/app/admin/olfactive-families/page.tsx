@@ -213,77 +213,60 @@ export default function AdminOlfactiveFamiliesPage() {
         </div>
       ) : (
         <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-cream/30">
-                  {["Nombre", "Slug", ""].map((h) => (
-                    <th
-                      key={h}
-                      className={`px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted ${h === "" ? "text-right" : "text-left"}`}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((fam, i) => (
-                  <motion.tr
-                    key={fam.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="border-b border-border hover:bg-cream/50 transition-colors last:border-0"
+          <div className="flex flex-col divide-y divide-border">
+            {filtered.map((fam, i) => (
+              <motion.div
+                key={fam.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-cream/30 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-sm text-charcoal font-medium truncate">{fam.name}</p>
+                  <div className="mt-0.5">
+                    <span className="font-mono text-[10px] text-charcoal-muted bg-cream px-1.5 py-0.5 rounded-md border border-border">
+                      {fam.slug}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="shrink-0 flex items-center gap-1">
+                  <button
+                    onClick={() => openEdit(fam)}
+                    className="w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
+                    title="Editar"
                   >
-                    <td className="px-4 py-3">
-                      <p className="font-body text-sm text-charcoal font-medium">{fam.name}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-xs text-charcoal-muted bg-cream px-2 py-0.5 rounded-lg border border-border">
-                        {fam.slug}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEdit(fam)}
-                          className="w-7 h-7 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
-                          title="Editar"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        {confirmId === fam.id ? (
-                          <div className="flex gap-1 items-center">
-                            <button onClick={() => handleDelete(fam.id, fam.name)} disabled={deletingId === fam.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
-                              {deletingId === fam.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
-                            </button>
-                            <button onClick={() => setConfirmId(null)} disabled={deletingId === fam.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
-                              Cancelar
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmId(fam.id)}
-                            className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  {confirmId === fam.id ? (
+                    <div className="flex gap-1 items-center">
+                      <button onClick={() => handleDelete(fam.id, fam.name)} disabled={deletingId === fam.id} className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-2.5 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                        {deletingId === fam.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
+                      </button>
+                      <button onClick={() => setConfirmId(null)} disabled={deletingId === fam.id} className="bg-cream hover:bg-border border border-border rounded-lg px-2.5 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmId(fam.id)}
+                      className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
             {filtered.length === 0 && (
               <div className="py-12 text-center">
                 <Droplets className="w-8 h-8 text-gold/20 mx-auto mb-2" />
                 <p className="font-body text-sm text-charcoal-muted">Sin familias olfativas</p>
               </div>
             )}
-          </div>
         </div>
       )}
     </div>

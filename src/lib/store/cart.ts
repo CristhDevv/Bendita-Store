@@ -5,15 +5,11 @@ import type { CartItem, Product } from "@/types";
 // Helper para recalcular precios según la regla de mayorista
 function recalculateCartPrices(items: CartItem[]): CartItem[] {
   // 1. Agrupar cantidades totales por product.id
-  const quantitiesByProduct = items.reduce((acc, item) => {
-    acc[item.product.id] = (acc[item.product.id] || 0) + item.quantity;
-    return acc;
-  }, {} as Record<string, number>);
+  const totalCartQty = items.reduce((sum, item) => sum + item.quantity, 0);
 
   // 2. Mapear items y aplicar precio mayorista si la cantidad total >= 6
   return items.map((item) => {
-    const totalQty = quantitiesByProduct[item.product.id] || 0;
-    const isWholesale = totalQty >= 6;
+    const isWholesale = totalCartQty >= 6;
     
     // Obtener precios de variante si existe
     const mlOption = item.selectedMl 
@@ -120,6 +116,11 @@ export const useCartStore = create<CartStore>()(
     {
       name: "bendita-cart",
       partialize: (state) => ({ items: state.items }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.items = recalculateCartPrices(state.items);
+        }
+      },
     }
   )
 );

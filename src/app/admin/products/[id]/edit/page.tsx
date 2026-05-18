@@ -6,8 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Product, Category, Brand, OlfactiveFamily } from "@/types";
 import toast from "react-hot-toast";
+import { SearchableSelect } from "@/components/admin/SearchableSelect";
 
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
@@ -181,16 +181,16 @@ export default function EditProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} /></div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><select className={selectClass} value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}><option value="">Sin categoría</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label><select className={selectClass} value={form.brand_id} onChange={(e) => setForm((f) => ({ ...f, brand_id: e.target.value }))}><option value="">Sin marca</option>{brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Categoría</label><SearchableSelect options={[{value: "", label: "Sin categoría"}, ...categories.map(c => ({value: c.id, label: c.name}))]} value={form.category_id} onChange={(v) => setForm((f) => ({ ...f, category_id: v }))} placeholder="Selecciona categoría" /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Marca</label><SearchableSelect options={[{value: "", label: "Sin marca"}, ...brands.map(b => ({value: b.id, label: b.name}))]} value={form.brand_id} onChange={(v) => setForm((f) => ({ ...f, brand_id: v }))} placeholder="Selecciona marca" /></div>
           </div>
           <div>
             <label className="block font-body text-xs text-charcoal-muted mb-1.5">Familias Olfativas</label>
             <FamilySelector options={families} selected={form.olfactive_family} onChange={(v) => setForm(f => ({ ...f, olfactive_family: v }))} />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><select className={selectClass} value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as "women" | "men" | "unisex" }))}><option value="women">Mujer</option><option value="men">Hombre</option><option value="unisex">Unisex</option></select></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><select className={selectClass} value={form.concentration} onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value as "parfum" | "edp" | "edt" | "edc" | "splash" }))}><option value="parfum">Parfum</option><option value="edp">EDP</option><option value="edt">EDT</option><option value="edc">EDC</option><option value="splash">Splash</option></select></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><SearchableSelect options={[{value: "women", label: "Mujer"}, {value: "men", label: "Hombre"}, {value: "unisex", label: "Unisex"}]} value={form.gender} onChange={(v) => setForm((f) => ({ ...f, gender: v as "women" | "men" | "unisex" }))} placeholder="Selecciona género" /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><SearchableSelect options={[{value: "parfum", label: "Parfum"}, {value: "edp", label: "EDP"}, {value: "edt", label: "EDT"}, {value: "edc", label: "EDC"}, {value: "splash", label: "Splash"}]} value={form.concentration} onChange={(v) => setForm((f) => ({ ...f, concentration: v as "parfum" | "edp" | "edt" | "edc" | "splash" }))} placeholder="Selecciona concentración" /></div>
           </div>
           <div>
             <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>

@@ -410,55 +410,48 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white border border-border shadow-sm rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border bg-cream/30">
-                    <th className="text-left px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted">Pedido</th>
-                    <th className="text-left px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted">Fecha</th>
-                    <th className="text-left px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted">Estado</th>
-                    <th className="text-right px-4 py-3 font-body text-xs uppercase tracking-widest text-charcoal-muted">Total</th>
-                    <th className="px-4 py-3" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order, i) => (
-                    <motion.tr
-                      key={order.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.04 }}
-                      className="border-b border-border hover:bg-cream/50 transition-colors"
+            <div className="flex flex-col divide-y divide-border">
+              {recentOrders.map((order, i) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-cream/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm text-charcoal font-medium">
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-body text-xs text-charcoal-muted">{formatDate(order.created_at)}</span>
+                      {order.payment_method && (
+                        <>
+                          <span className="text-border">•</span>
+                          <span className="font-body text-xs text-charcoal-muted capitalize">{order.payment_method}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center gap-3">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] uppercase tracking-wider font-body border ${STATUS_COLORS[order.status]}`}>
+                      {STATUS_LABELS[order.status]}
+                    </span>
+                    
+                    <p className="font-display text-sm text-charcoal font-semibold w-24 text-right">
+                      {formatCOP(order.total)}
+                    </p>
+                    
+                    <a
+                      href="/admin/orders"
+                      className="w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-gold transition-colors"
                     >
-                      <td className="px-4 py-3">
-                        <p className="font-body text-sm text-charcoal font-medium">
-                          #{order.id.slice(0, 8).toUpperCase()}
-                        </p>
-                        {order.payment_method && (
-                          <p className="font-body text-xs text-charcoal-muted capitalize">{order.payment_method}</p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 font-body text-xs text-charcoal-muted">{formatDate(order.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-body border ${STATUS_COLORS[order.status]}`}>
-                          {STATUS_LABELS[order.status]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <p className="font-display text-sm text-charcoal font-semibold">{formatCOP(order.total)}</p>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <a
-                          href="/admin/orders"
-                          className="font-body text-xs text-charcoal-muted hover:text-gold transition-colors"
-                        >
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                        </a>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+                      <ArrowUpRight className="w-4 h-4" />
+                    </a>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         )}
