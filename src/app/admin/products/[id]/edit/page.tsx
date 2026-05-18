@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, X } from "lucide-react";
+import { ArrowLeft, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "@/components/admin/SearchableSelect";
@@ -13,6 +13,12 @@ import type { Category, Brand, OlfactiveFamily, Product } from "@/types";
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
 const selectClass = `${inputClass} cursor-pointer`;
+
+type ImageItem = {
+  id: string;
+  url: string;
+  file?: File;
+};
 
 function generateSlug(name: string): string {
   return name
@@ -85,11 +91,15 @@ export default function EditProductPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
   const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
+  
+  const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState({
     name: "", slug: "", description: "", price: 0, wholesale_price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
-    stock: 0, olfactive_family: [] as string[], is_featured: false, is_active: true, images: "",
+    stock: 0, olfactive_family: [] as string[], is_featured: false, is_active: true,
   });
 
   useEffect(() => {
@@ -117,9 +127,14 @@ export default function EditProductPage() {
           olfactive_family: product.olfactive_family || [],
           is_featured: product.is_featured || false,
           is_active: product.is_active !== false,
-          images: (product.images || []).join("\n"),
         });
         setNotes({ top: product.notes_top || [], heart: product.notes_heart || [], base: product.notes_base || [] });
+        
+        const initialImages = (product.images || []).map((url) => ({
+          id: Math.random().toString(36).substring(2),
+          url,
+        }));
+        setSelectedImages(initialImages);
       }
       setCategories((c as Category[]) || []);
       setBrands((b as Brand[]) || []);
@@ -128,11 +143,63 @@ export default function EditProductPage() {
     });
   }, [id]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files).map(file => ({
+        id: Math.random().toString(36).substring(2),
+        url: URL.createObjectURL(file),
+        file
+      }));
+      setSelectedImages(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    if ((direction === 'left' && index === 0) || (direction === 'right' && index === selectedImages.length - 1)) return;
+    setSelectedImages(prev => {
+      const next = [...prev];
+      const targetIndex = direction === 'left' ? index - 1 : index + 1;
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     const supabase = createClient();
-    const payload = {
+    
+    try {
+      const finalImageUrls: string[] = [];
+      
+      for (const item of selectedImages) {
+        if (item.file) {
+          const fileExt = item.file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+          
+          const { error: uploadError, data } = await supabase.storage
+            .from('products')
+            .upload(fileName, item.file);
+            
+          if (uploadError) throw uploadError;
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('products')
+            .getPublicUrl(data.path);
+            
+          finalImageUrls.push(publicUrl);
+        } else {
+          finalImageUrls.push(item.url);
+        }
+      }
+
+      const payload = {
       ...form,
       price: Number(form.price),
       wholesale_price: Number(form.wholesale_price) || null,
@@ -141,10 +208,10 @@ export default function EditProductPage() {
       category_id: form.category_id || null,
       brand_id: form.brand_id || null,
       olfactive_family: form.olfactive_family.length > 0 ? form.olfactive_family : null,
-      images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
+      images: finalImageUrls,
       notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
     };
-    try {
+    
       const { error } = await supabase.from("products").update(payload).eq("id", id);
       if (error) throw error;
       toast.success("Producto actualizado");
@@ -221,10 +288,71 @@ export default function EditProductPage() {
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><SearchableSelect options={[{value: "women", label: "Mujer"}, {value: "men", label: "Hombre"}, {value: "unisex", label: "Unisex"}]} value={form.gender} onChange={(v) => setForm((f) => ({ ...f, gender: v as "women" | "men" | "unisex" }))} placeholder="Selecciona género" /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><SearchableSelect options={[{value: "parfum", label: "Parfum"}, {value: "edp", label: "EDP"}, {value: "edt", label: "EDT"}, {value: "edc", label: "EDC"}, {value: "splash", label: "Splash"}]} value={form.concentration} onChange={(v) => setForm((f) => ({ ...f, concentration: v as "parfum" | "edp" | "edt" | "edc" | "splash" }))} placeholder="Selecciona concentración" /></div>
           </div>
-          <div>
-            <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>
-            <textarea className={`${inputClass} resize-none`} rows={3} value={form.images} onChange={(e) => setForm((f) => ({ ...f, images: e.target.value }))} placeholder={"https://ejemplo.com/imagen1.jpg\nhttps://ejemplo.com/imagen2.jpg"} />
+          
+          {/* Image Upload Component */}
+          <div className="pt-2">
+            <label className="block font-body text-xs text-charcoal-muted mb-1.5">Imágenes del Producto</label>
+            <div className="space-y-4">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2.5 rounded-xl bg-white border border-border hover:border-gold hover:text-gold text-charcoal font-body text-sm transition-colors shadow-sm inline-flex items-center gap-2"
+              >
+                Seleccionar imágenes
+              </button>
+
+              {selectedImages.length > 0 && (
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {selectedImages.map((item, idx) => (
+                    <div key={item.id} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-border bg-cream">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.url}
+                        alt={`Preview ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImage(idx, 'left')}
+                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                        )}
+                        {idx < selectedImages.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImage(idx, 'right')}
+                            className="p-1 rounded-lg bg-white/20 hover:bg-white/40 text-white transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-charcoal/60 text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
           <div className="space-y-3 pt-1">
             <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest">Pirámide Olfativa</p>
             <NotesSelector label="🌿 Notas de Salida (Top)" color="text-emerald-400 border-emerald-400/20 bg-emerald-400/5" notes={notes.top} onChange={(v) => setNotes((n) => ({ ...n, top: v }))} />
@@ -249,7 +377,7 @@ export default function EditProductPage() {
             <Link href="/admin/products" className="flex-1 py-3 rounded-xl bg-cream border border-border font-body text-sm text-charcoal-muted hover:text-charcoal transition-colors shadow-sm text-center">Cancelar</Link>
             <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-charcoal hover:bg-gold text-white font-body font-semibold text-sm transition-all shadow-sm disabled:opacity-60">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? "Guardando..." : "Guardar Producto"}
+              {saving ? "Guardando imágenes..." : "Guardar Producto"}
             </button>
           </div>
         </form>
