@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await resend.emails.send({
       from: "onboarding@resend.dev",
-      to: "camilovelascoofficial@gmail.com",
+      to: "benditastoreperfumes@gmail.com",
       subject: `🛍️ Nuevo pedido #${shortOrderId} de ${customerName || 'Cliente'}`,
       html: htmlContent,
     });
