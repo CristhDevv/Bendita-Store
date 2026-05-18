@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "@/components/admin/SearchableSelect";
+import type { Category, Brand, OlfactiveFamily } from "@/types";
 
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
