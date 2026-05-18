@@ -162,7 +162,7 @@ export default function ReportesPage() {
       if (error) throw error;
 
       const headers = ["Fecha", "Categoría", "Descripción", "Monto COP"];
-      const rows = (data || []).map((e) => [
+      const rows = (data || []).map((e: { date: string; category: string | null; description: string | null; amount: number | null }) => [
         e.date,
         e.category || "",
         e.description || "",
