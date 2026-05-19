@@ -45,14 +45,6 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
       if (p.price < filters.priceMin) return false;
       if (filters.priceMax < 999999999 && p.price > filters.priceMax) return false;
       if (filters.brands.length > 0 && p.brand && !filters.brands.includes(p.brand.name)) return false;
-      if (filters.notes.length > 0) {
-        const allNotes = [
-          ...(p.notes_top ?? []),
-          ...(p.notes_heart ?? []),
-          ...(p.notes_base ?? []),
-        ];
-        if (!filters.notes.some(n => allNotes.includes(n))) return false;
-      }
       if (familyFilter && (!p.olfactive_family || !p.olfactive_family.includes(familyFilter))) return false;
       return true;
     });

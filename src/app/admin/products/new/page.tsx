@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "@/components/admin/SearchableSelect";
@@ -12,7 +12,7 @@ import type { Category, Brand, OlfactiveFamily } from "@/types";
 
 const inputClass =
   "w-full px-3 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors placeholder:text-charcoal-muted/40";
-const selectClass = `${inputClass} cursor-pointer`;
+
 
 function generateSlug(name: string): string {
   return name
@@ -27,29 +27,7 @@ function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, "");               // quitar guiones al inicio/final
 }
 
-function NotesSelector({ label, color, notes, onChange }: { label: string; color: string; notes: string[]; onChange: (notes: string[]) => void }) {
-  const [input, setInput] = useState("");
-  const add = () => { const v = input.trim(); if (!v || notes.includes(v)) { setInput(""); return; } onChange([...notes, v]); setInput(""); };
-  return (
-    <div>
-      <label className="block font-body text-xs text-charcoal-muted mb-1.5">{label}</label>
-      <div className="flex flex-wrap gap-1.5 mb-2 min-h-[28px]">
-        {notes.map((n) => (
-          <span key={n} className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body border shadow-sm ${color}`}>
-            {n}
-            <button type="button" onClick={() => onChange(notes.filter((x) => x !== n))} className="opacity-60 hover:opacity-100 transition-opacity ml-0.5">
-              <X className="w-2.5 h-2.5" />
-            </button>
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <input className="flex-1 px-3 py-2 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-xs outline-none transition-colors placeholder:text-charcoal-muted/40" placeholder="Agregar nota y presionar Enter" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} />
-        <button type="button" onClick={add} className="px-3 py-2 rounded-xl bg-white border border-border text-charcoal text-xs font-body hover:border-gold hover:text-gold transition-colors shadow-sm">+ Agregar</button>
-      </div>
-    </div>
-  );
-}
+
 
 function FamilySelector({ options, selected, onChange }: { options: OlfactiveFamily[]; selected: string[]; onChange: (v: string[]) => void }) {
   return (
@@ -84,7 +62,7 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
-  const [notes, setNotes] = useState({ top: [] as string[], heart: [] as string[], base: [] as string[] });
+
   
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +149,7 @@ export default function NewProductPage() {
         brand_id: form.brand_id || null,
         olfactive_family: form.olfactive_family.length > 0 ? form.olfactive_family : null,
         images: uploadedImageUrls,
-        notes_top: notes.top, notes_heart: notes.heart, notes_base: notes.base,
+
       };
 
       const { error } = await supabase.from("products").insert(payload);
@@ -306,12 +284,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          <div className="space-y-3 pt-4">
-            <p className="font-body text-xs text-charcoal-muted uppercase tracking-widest">Pirámide Olfativa</p>
-            <NotesSelector label="🌿 Notas de Salida (Top)" color="text-emerald-400 border-emerald-400/20 bg-emerald-400/5" notes={notes.top} onChange={(v) => setNotes((n) => ({ ...n, top: v }))} />
-            <NotesSelector label="🌸 Notas de Corazón (Heart)" color="text-rose-400 border-rose-400/20 bg-rose-400/5" notes={notes.heart} onChange={(v) => setNotes((n) => ({ ...n, heart: v }))} />
-            <NotesSelector label="🪵 Notas de Fondo (Base)" color="text-amber-400 border-amber-400/20 bg-amber-400/5" notes={notes.base} onChange={(v) => setNotes((n) => ({ ...n, base: v }))} />
-          </div>
+
           
           <div className="flex items-center gap-6 pt-4">
             <label className="flex items-center gap-2 cursor-pointer">

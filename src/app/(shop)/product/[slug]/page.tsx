@@ -5,7 +5,6 @@ import { getProductBySlugPublic, getRelatedProducts } from "@/lib/supabase/produ
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductActions } from "@/components/product/ProductActions";
 import { ProductAccordions } from "@/components/product/ProductAccordions";
-import { OlfactivePyramid } from "@/components/product/OlfactivePyramid";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CONFIG } from "@/lib/config";
@@ -181,9 +180,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
-
-      {/* Olfactive Pyramid */}
-      <OlfactivePyramid product={product} />
 
       {/* Reviews (Mock empty array for now since we don't fetch reviews yet) */}
       <ProductReviews reviews={[]} />

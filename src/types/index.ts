@@ -41,9 +41,6 @@ export interface Product {
   concentration?: "parfum" | "edp" | "edt" | "edc" | "splash";
   ml_options?: { ml: number; price: number; wholesale_price?: number }[];
   images?: string[];
-  notes_top?: string[];
-  notes_heart?: string[];
-  notes_base?: string[];
   stock: number;
   cost_price?: number | null;
   is_featured: boolean;

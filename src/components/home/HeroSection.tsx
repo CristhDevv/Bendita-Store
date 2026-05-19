@@ -289,31 +289,6 @@ export function HeroSection() {
               </div>
             </motion.div>
 
-            {/* ── Floating notes badge (left side) ── */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.2, duration: 0.6 }}
-              className="absolute bottom-12 -left-4 md:-left-8 z-10"
-            >
-              <div
-                className="px-4 py-3 rounded-2xl border border-border shadow-xl bg-white"
-              >
-                <p className="font-body text-[10px] text-gold tracking-widest uppercase mb-2">
-                  Notas
-                </p>
-                <div className="flex flex-col gap-1">
-                  {["🌸 Rosa & Jazmín", "🌿 Sándalo", "🍋 Cítrico fresco"].map(
-                    (note) => (
-                      <p key={note} className="font-body text-[11px] text-charcoal-muted">
-                        {note}
-                      </p>
-                    )
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
           </motion.div>
         </div>
       </div>

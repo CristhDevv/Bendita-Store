@@ -10,7 +10,6 @@ import { getUserAddresses, saveAddress, createOrderTransaction } from "@/lib/sup
 import { Address, Order } from "@/types";
 import toast from "react-hot-toast";
 
-const FREE_SHIPPING_THRESHOLD = 200000;
 
 function buildWhatsAppMessage(orderId: string, items: any[], address: { street?: string; city?: string; state?: string }, total: number) {
   const itemsList = items.map((item) => 
@@ -56,6 +55,12 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("transfer");
 
   useEffect(() => {
+    if (items.length >= 2 && paymentMethod === "cod") {
+      setPaymentMethod("transfer");
+    }
+  }, [items.length]);
+
+  useEffect(() => {
     if (user) {
       setContactInfo({
         fullName: user.user_metadata?.full_name || "",
@@ -84,8 +89,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((acc: number, item: any) => acc + item.selectedPrice * item.quantity, 0);
-  const shippingCost = 0;
-  const total = subtotal + shippingCost;
+  const total = subtotal;
 
   const handleNextStep = async () => {
     if (step === 1) {
@@ -344,11 +348,11 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="p-4 rounded-xl border border-gold bg-cream flex justify-between items-center shadow-sm">
                     <div>
-                      <p className="font-medium text-charcoal">Envío Estándar (3-5 días)</p>
-                      <p className="text-sm text-charcoal-muted">Gratis a todo Colombia</p>
+                      <p className="font-medium text-charcoal">Envío estándar</p>
+                      <p className="text-sm text-charcoal-muted">2 a 5 días calendario según transportadora</p>
                     </div>
-                    <span className="text-gold font-semibold">
-                      Gratis
+                    <span className="text-charcoal-muted font-medium text-sm">
+                      A cargo del destinatario
                     </span>
                   </div>
                 </div>
@@ -389,17 +393,34 @@ export default function CheckoutPage() {
                       <p className="mt-2 text-xs text-charcoal-muted">Envía el comprobante por WhatsApp y tu pedido será procesado en menos de 24 horas.</p>
                     </div>
                   </PaymentOption>
+                  {items.length === 1 && (
+                    <PaymentOption 
+                      id="cod" 
+                      title="Pago en Casa" 
+                      selected={paymentMethod === "cod"} 
+                      onSelect={() => setPaymentMethod("cod")}
+                    >
+                      <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
+                        <p>Paga en efectivo al recibir tu pedido. Entrega en 2 a 5 días calendario según transportadora.</p>
+                      </div>
+                    </PaymentOption>
+                  )}
+                </div>
 
-                  <PaymentOption 
-                    id="cod" 
-                    title="Pago Contra Entrega" 
-                    selected={paymentMethod === "cod"} 
-                    onSelect={() => setPaymentMethod("cod")}
-                  >
-                    <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
-                      <p>Paga en efectivo o tarjeta al recibir tu pedido. Disponible a nivel nacional.</p>
+                <div className="mt-6 p-4 rounded-xl border border-border bg-cream">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      </svg>
                     </div>
-                  </PaymentOption>
+                    <div>
+                      <p className="font-body text-sm font-semibold text-charcoal mb-1">Garantía del producto</p>
+                      <p className="font-body text-xs text-charcoal-muted leading-relaxed">
+                        Cubrimos rotura de envase o válvula en mal estado. La garantía aplica únicamente durante las <strong className="text-charcoal">48 horas siguientes a la recepción del paquete</strong>. Te recomendamos revisar el producto al momento de recibirlo y contactarnos de inmediato si detectas algún inconveniente.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-4 mt-8">
@@ -458,12 +479,12 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-charcoal-muted">
                   <span>Envío</span>
-                  <span className="text-gold">Gratis</span>
+                  <span>A cargo del destinatario</span>
                 </div>
                 {step === 3 && (
                   <div className="flex justify-between text-charcoal-muted">
                     <span>Método de pago</span>
-                    <span className="capitalize">{paymentMethod === 'cod' ? 'Contra Entrega' : paymentMethod}</span>
+                    <span className="capitalize">{paymentMethod === 'cod' ? 'Pago en Casa' : 'Transferencia'}</span>
                   </div>
                 )}
               </div>
