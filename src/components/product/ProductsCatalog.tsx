@@ -5,7 +5,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { ProductGrid } from "@/components/product/ProductGrid";
-import { useFilters, type Concentration } from "@/hooks/useFilters";
+import { useFilters } from "@/hooks/useFilters";
 import type { Product } from "@/types";
 
 const PAGE_SIZE = 9;
@@ -16,7 +16,7 @@ interface ProductsCatalogProps {
 
 export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const {
-    filters, setGender, toggleConcentration, setPriceRange,
+    filters, setGender, setPriceRange,
     toggleBrand, toggleNote, setSortBy, setViewMode, clearFilters, hasActiveFilters,
   } = useFilters();
 
@@ -37,11 +37,6 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const filtered = useMemo(() => {
     let list = initialProducts.filter(p => {
       if (filters.gender !== "all" && p.gender !== filters.gender) return false;
-      if (
-        filters.concentrations.length > 0 &&
-        p.concentration &&
-        !filters.concentrations.includes(p.concentration as Concentration)
-      ) return false;
       if (p.price < filters.priceMin) return false;
       if (filters.priceMax < 999999999 && p.price > filters.priceMax) return false;
       if (filters.brands.length > 0 && p.brand && !filters.brands.includes(p.brand.name)) return false;
@@ -60,7 +55,7 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const hasMore = paginated.length < filtered.length;
 
   const sidebarProps = {
-    filters, setGender, toggleConcentration, setPriceRange,
+    filters, setGender, setPriceRange,
     toggleBrand, toggleNote, clearFilters, hasActiveFilters,
     isMobileOpen: drawerOpen, onClose: () => setDrawerOpen(false),
   };

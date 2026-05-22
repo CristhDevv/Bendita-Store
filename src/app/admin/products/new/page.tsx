@@ -64,8 +64,16 @@ export default function NewProductPage() {
   const [families, setFamilies] = useState<OlfactiveFamily[]>([]);
 
   
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<{file: File, preview: string}[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Cleanup previews on unmount
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach(f => URL.revokeObjectURL(f.preview));
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [form, setForm] = useState({
     name: "", slug: "", description: "", 
@@ -94,12 +102,22 @@ export default function NewProductPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+      const newFiles = Array.from(e.target.files).map(file => ({
+        file,
+        preview: URL.createObjectURL(file)
+      }));
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const moveFile = (index: number, direction: 'left' | 'right') => {
@@ -122,7 +140,8 @@ export default function NewProductPage() {
     try {
       const uploadedImageUrls: string[] = [];
       
-      for (const file of selectedFiles) {
+      for (const item of selectedFiles) {
+        const file = item.file;
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
@@ -242,11 +261,11 @@ export default function NewProductPage() {
 
               {selectedFiles.length > 0 && (
                 <div className="flex flex-wrap gap-4 mt-2">
-                  {selectedFiles.map((file, idx) => (
+                  {selectedFiles.map((item, idx) => (
                     <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-border bg-cream">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={URL.createObjectURL(file)}
+                        src={item.preview}
                         alt={`Preview ${idx}`}
                         className="w-full h-full object-cover"
                       />

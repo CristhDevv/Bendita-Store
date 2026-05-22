@@ -75,6 +75,16 @@ export default function EditProductPage() {
   const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      selectedImages.forEach(img => {
+        if (img.file) URL.revokeObjectURL(img.url);
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [form, setForm] = useState({
     name: "", slug: "", description: "", price: 0, wholesale_price: 0, compare_price: 0,
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
@@ -131,11 +141,20 @@ export default function EditProductPage() {
         file
       }));
       setSelectedImages(prev => [...prev, ...newFiles]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedImages(prev => {
+      const toRemove = prev[index];
+      if (toRemove.file) {
+        URL.revokeObjectURL(toRemove.url);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const moveImage = (index: number, direction: 'left' | 'right') => {

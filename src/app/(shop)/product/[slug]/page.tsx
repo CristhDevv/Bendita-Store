@@ -53,9 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const CONC_LABEL: Record<string, string> = {
-  parfum: "Parfum", edp: "EDP", edt: "EDT", edc: "EDC", splash: "Splash",
-};
+
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
@@ -127,11 +125,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   {product.gender === 'women' ? 'Mujer' : product.gender === 'men' ? 'Hombre' : 'Unisex'}
                 </span>
               )}
-              {product.concentration && (
-                <span className="px-3 py-1 bg-charcoal text-white font-bold rounded-full text-[10px] uppercase tracking-widest shadow-sm">
-                  {CONC_LABEL[product.concentration]}
-                </span>
-              )}
+
             </div>
 
             {/* Title & Brand */}

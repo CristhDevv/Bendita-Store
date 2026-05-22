@@ -43,11 +43,6 @@ function ProductCard({ product }: { product: Product }) {
         
         {/* Badges */}
         <div className="absolute top-3 left-3">
-          {product.concentration && (
-            <span className="bg-cream text-charcoal text-[10px] px-2 py-1 rounded-full uppercase tracking-widest border border-border shadow-sm">
-              {product.concentration}
-            </span>
-          )}
         </div>
 
         {/* Wishlist */}

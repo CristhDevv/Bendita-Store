@@ -14,11 +14,19 @@ export function PromoSection() {
         />
         <div className="container mx-auto px-4 md:px-8 py-16 md:py-20 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
           <div className="text-center md:text-left">
-            <h2 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-white leading-tight">
-              Envío gratis <br className="hidden md:block" />
-              a todo Colombia
+            <h2 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-6">
+              Envíos a todo <br className="hidden md:block" />
+              Colombia
             </h2>
-            <p className="font-body text-white/70 mt-3 text-lg">Sin monto mínimo. En todos tus pedidos.</p>
+            <div className="p-4 rounded-xl border border-gold/30 bg-white/10 backdrop-blur-sm flex justify-between items-center shadow-sm text-left">
+              <div>
+                <p className="font-medium text-white">Envío estándar</p>
+                <p className="text-sm text-white/70">2 a 5 días calendario según transportadora</p>
+              </div>
+              <span className="text-white/70 font-medium text-sm ml-4 text-right">
+                A cargo del<br/>destinatario
+              </span>
+            </div>
           </div>
           
           <Link 

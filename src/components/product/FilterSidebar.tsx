@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, SlidersHorizontal } from "lucide-react";
-import type { FilterState, Gender, Concentration } from "@/hooks/useFilters";
+import type { FilterState, Gender } from "@/hooks/useFilters";
 
 const BRANDS = ["Dior", "Chanel", "Tom Ford", "Creed", "Armani", "Versace", "Guerlain", "YSL", "Le Labo", "MFK"];
 const NOTES = ["Rosa", "Vainilla", "Sándalo", "Bergamota", "Oud", "Musk", "Jazmín", "Cedro"];
@@ -13,17 +13,10 @@ const GENDERS: { label: string; value: Gender }[] = [
   { label: "Hombre", value: "men" },
   { label: "Unisex", value: "unisex" },
 ];
-const CONCENTRATIONS: { label: string; value: Concentration }[] = [
-  { label: "Parfum", value: "parfum" },
-  { label: "EDP", value: "edp" },
-  { label: "EDT", value: "edt" },
-  { label: "EDC", value: "edc" },
-];
 
 interface Props {
   filters: FilterState;
   setGender: (g: Gender) => void;
-  toggleConcentration: (c: Concentration) => void;
   setPriceRange: (r: [number, number]) => void;
   toggleBrand: (b: string) => void;
   toggleNote: (n: string) => void;
@@ -33,7 +26,7 @@ interface Props {
   onClose: () => void;
 }
 
-function FilterContent({ filters, setGender, toggleConcentration, setPriceRange, toggleBrand, toggleNote, clearFilters, hasActiveFilters, onClose, isMobile }: Props & { isMobile?: boolean }) {
+function FilterContent({ filters, setGender, setPriceRange, toggleBrand, toggleNote, clearFilters, hasActiveFilters, onClose, isMobile }: Props & { isMobile?: boolean }) {
   const [showAllBrands, setShowAllBrands] = useState(false);
   const visibleBrands = showAllBrands ? BRANDS : BRANDS.slice(0, 6);
 
@@ -72,29 +65,7 @@ function FilterContent({ filters, setGender, toggleConcentration, setPriceRange,
         </div>
       </div>
 
-      {/* Concentración */}
-      <div>
-        <p className="font-body text-xs tracking-widest uppercase text-charcoal-muted mb-3">Concentración</p>
-        <div className="flex flex-col gap-2.5">
-          {CONCENTRATIONS.map(c => (
-            <label key={c.value} className="flex items-center gap-3 cursor-pointer group">
-              <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${
-                filters.concentrations.includes(c.value)
-                  ? "bg-gold border-gold"
-                  : "border-border group-hover:border-charcoal"
-              }`}>
-                {filters.concentrations.includes(c.value) && (
-                  <svg viewBox="0 0 12 9" fill="none" className="w-2.5 h-2.5">
-                    <path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                )}
-              </div>
-              <input type="checkbox" className="sr-only" checked={filters.concentrations.includes(c.value)} onChange={() => toggleConcentration(c.value)} />
-              <span className="font-body text-sm text-charcoal-muted group-hover:text-charcoal transition-colors">{c.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+
 
       {/* Precio */}
       <div>

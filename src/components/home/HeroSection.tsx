@@ -55,7 +55,7 @@ const imageVariants = {
 const STATS = [
   { icon: <Sparkles className="w-4 h-4" />, value: "500+", label: "Fragancias" },
   { icon: <Package className="w-4 h-4" />, value: "50+", label: "Marcas" },
-  { icon: <Package className="w-4 h-4" />, value: "Gratis", label: "Envío Colombia" },
+  { icon: <Package className="w-4 h-4" />, value: "Estándar", label: "Envío Nacional" },
 ];
 
 /* ═══════════════════════════════════════════════════════════════

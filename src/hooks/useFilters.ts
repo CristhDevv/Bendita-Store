@@ -2,12 +2,10 @@
 import { useState, useCallback } from "react";
 
 export type Gender = "all" | "women" | "men" | "unisex";
-export type Concentration = "parfum" | "edp" | "edt" | "edc";
 export type SortBy = "relevance" | "price_asc" | "price_desc" | "newest" | "bestselling";
 
 export interface FilterState {
   gender: Gender;
-  concentrations: Concentration[];
   priceMin: number;
   priceMax: number;
   brands: string[];
@@ -17,7 +15,7 @@ export interface FilterState {
 }
 
 const DEFAULT: FilterState = {
-  gender: "all", concentrations: [], priceMin: 0, priceMax: 999999999,
+  gender: "all", priceMin: 0, priceMax: 999999999,
   brands: [], notes: [], sortBy: "relevance", viewMode: "grid",
 };
 
@@ -26,14 +24,6 @@ export function useFilters() {
 
   const setGender = useCallback((gender: Gender) =>
     setFilters(f => ({ ...f, gender })), []);
-
-  const toggleConcentration = useCallback((c: Concentration) =>
-    setFilters(f => ({
-      ...f,
-      concentrations: f.concentrations.includes(c)
-        ? f.concentrations.filter(x => x !== c)
-        : [...f.concentrations, c],
-    })), []);
 
   const setPriceRange = useCallback((range: [number, number]) =>
     setFilters(f => ({ ...f, priceMin: range[0], priceMax: range[1] })), []);
@@ -59,12 +49,12 @@ export function useFilters() {
   const clearFilters = useCallback(() => setFilters(DEFAULT), []);
 
   const hasActiveFilters =
-    filters.gender !== "all" || filters.concentrations.length > 0 ||
+    filters.gender !== "all" ||
     filters.priceMin > 0 || filters.priceMax < 999999999 ||
     filters.brands.length > 0 || filters.notes.length > 0;
 
   return {
-    filters, setGender, toggleConcentration, setPriceRange,
+    filters, setGender, setPriceRange,
     toggleBrand, toggleNote, setSortBy, setViewMode, clearFilters, hasActiveFilters,
   };
 }

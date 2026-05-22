@@ -42,6 +42,7 @@ export default function AdminProductsPage() {
     const { data: p } = await supabase
       .from("products")
       .select("*, category:categories(name), brand:brands(name)")
+      .eq("is_archived", false)
       .order("created_at", { ascending: false });
     setProducts((p as Product[]) || []);
     setLoading(false);
@@ -53,11 +54,11 @@ export default function AdminProductsPage() {
     setDeletingId(id);
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("products").delete().eq("id", id);
+      const { error } = await supabase.from("products").update({ is_archived: true }).eq("id", id);
       if (error) throw error;
       setProducts((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Producto eliminado");
-    } catch { toast.error("Error al eliminar"); }
+      toast.success("Producto archivado");
+    } catch { toast.error("Error al archivar"); }
     finally { 
       setDeletingId(null); 
       setConfirmId(null);

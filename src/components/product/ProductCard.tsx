@@ -9,9 +9,7 @@ import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/format";
 
-const CONC_LABEL: Record<string, string> = {
-  parfum: "Parfum", edp: "EDP", edt: "EDT", edc: "EDC", splash: "Splash",
-};
+
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore(s => s.addItem);
@@ -42,11 +40,6 @@ export function ProductCard({ product }: { product: Product }) {
 
           {/* Badges */}
           <div className="absolute top-3 left-3">
-            {product.concentration && (
-              <span className="bg-cream-dark text-charcoal-muted text-[10px] px-2 py-1 rounded-full uppercase tracking-widest font-medium">
-                {CONC_LABEL[product.concentration]}
-              </span>
-            )}
           </div>
           {discountPct && (
             <div className="absolute top-3 right-3">

@@ -23,7 +23,34 @@ export function ProductAccordions({ description }: { description?: string }) {
     },
     {
       title: "Política de envío y devoluciones",
-      content: <p className="text-charcoal-muted text-sm leading-relaxed">Envíos express a toda Colombia (2-4 días hábiles). Envío gratis por compras superiores a $200.000 COP. Aceptamos devoluciones dentro de los primeros 14 días si el producto no ha sido abierto.</p>
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl border border-gold bg-cream flex justify-between items-center shadow-sm">
+            <div>
+              <p className="font-medium text-charcoal">Envío estándar</p>
+              <p className="text-sm text-charcoal-muted">2 a 5 días calendario según transportadora</p>
+            </div>
+            <span className="text-charcoal-muted font-medium text-sm">
+              A cargo del destinatario
+            </span>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-cream">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-body text-sm font-semibold text-charcoal mb-1">Garantía del producto</p>
+                <p className="font-body text-xs text-charcoal-muted leading-relaxed">
+                  Cubrimos rotura de envase o válvula en mal estado. La garantía aplica únicamente durante las <strong className="text-charcoal">48 horas siguientes a la recepción del paquete</strong>. Te recomendamos revisar el producto al momento de recibirlo y contactarnos de inmediato si detectas algún inconveniente.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
     }
   ];
 
