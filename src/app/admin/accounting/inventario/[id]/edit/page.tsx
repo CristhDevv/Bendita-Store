@@ -216,7 +216,7 @@ export default function InventarioEditProductPage() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Género</label><SearchableSelect options={[{value: "women", label: "Mujer"}, {value: "men", label: "Hombre"}, {value: "unisex", label: "Unisex"}]} value={form.gender} onChange={(v) => setForm((f) => ({ ...f, gender: v as "women" | "men" | "unisex" }))} placeholder="Selecciona género" /></div>
-            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><SearchableSelect options={[{value: "parfum", label: "Parfum"}, {value: "edp", label: "EDP"}, {value: "edt", label: "EDT"}, {value: "edc", label: "EDC"}, {value: "splash", label: "Splash"}]} value={form.concentration} onChange={(v) => setForm((f) => ({ ...f, concentration: v as "parfum" | "edp" | "edt" | "edc" | "splash" }))} placeholder="Selecciona concentración" /></div>
+            {/* <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Concentración</label><SearchableSelect options={[{value: "parfum", label: "Parfum"}, {value: "edp", label: "EDP"}, {value: "edt", label: "EDT"}, {value: "edc", label: "EDC"}, {value: "splash", label: "Splash"}]} value={form.concentration} onChange={(v) => setForm((f) => ({ ...f, concentration: v as "parfum" | "edp" | "edt" | "edc" | "splash" }))} placeholder="Selecciona concentración" /></div> */}
           </div>
           <div>
             <label className="block font-body text-xs text-charcoal-muted mb-1.5">URLs de Imágenes (una por línea)</label>

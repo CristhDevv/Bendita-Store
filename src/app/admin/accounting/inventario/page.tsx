@@ -317,7 +317,7 @@ export default function InventarioPage() {
                       {product.name}
                     </h3>
                     <p className="font-body text-xs text-charcoal-muted uppercase mb-3">
-                      {product.brands?.name || "Sin marca"} {product.concentration ? `• ${product.concentration}` : ''}
+                      {product.brands?.name || "Sin marca"}
                     </p>
                     
                     <div className="flex items-baseline mb-4">

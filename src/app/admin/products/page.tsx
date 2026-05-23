@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
                     {product.name}
                   </h3>
                   <p className="font-body text-xs text-charcoal-muted uppercase mb-3">
-                    {(product.brand as Brand | undefined)?.name || "Sin marca"} • {product.concentration}
+                    {(product.brand as Brand | undefined)?.name || "Sin marca"}
                   </p>
                   
                   <div className="flex items-baseline mb-4">
