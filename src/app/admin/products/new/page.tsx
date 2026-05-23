@@ -80,6 +80,7 @@ export default function NewProductPage() {
     price: "" as number | "", 
     wholesale_price: "" as number | "",
     compare_price: "" as number | "",
+    cost_price: "" as number | "",
     category_id: "", brand_id: "", gender: "unisex" as "women" | "men" | "unisex",
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
     stock: "" as number | "", 
@@ -163,6 +164,7 @@ export default function NewProductPage() {
         price: Number(form.price),
         wholesale_price: Number(form.wholesale_price) || null,
         compare_price: Number(form.compare_price) || null,
+        cost_price: Number(form.cost_price) || null,
         stock: Number(form.stock),
         category_id: form.category_id || null,
         brand_id: form.brand_id || null,
@@ -220,10 +222,11 @@ export default function NewProductPage() {
             <label className="block font-body text-xs text-charcoal-muted mb-1.5">Descripción</label>
             <textarea className={`${inputClass} resize-none`} rows={3} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Descripción del producto..." />
           </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio COP *</label><input className={inputClass} type="number" required min={0} value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio Mayorista</label><input className={inputClass} type="number" min={0} value={form.wholesale_price} onChange={(e) => setForm((f) => ({ ...f, wholesale_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio comparar</label><input className={inputClass} type="number" min={0} value={form.compare_price} onChange={(e) => setForm((f) => ({ ...f, compare_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
+            <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Precio de Costo</label><input className={inputClass} type="number" min={0} value={form.cost_price} onChange={(e) => setForm((f) => ({ ...f, cost_price: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
             <div><label className="block font-body text-xs text-charcoal-muted mb-1.5">Stock</label><input className={inputClass} type="number" min={0} value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value === "" ? "" : Number(e.target.value) }))} /></div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
