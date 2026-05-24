@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Zap, Package } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Sparkles, Package } from "lucide-react";
+import type { Product } from "@/types";
+import { formatPrice } from "@/lib/utils/format";
 
 /* ─── Particle data generated once ──────────────────────────── */
 const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
@@ -49,8 +51,6 @@ const imageVariants = {
   },
 };
 
-// Badge bounce uses direct animate prop (not Variants) to avoid keyframe typing issues
-
 /* ─── Stats data ─────────────────────────────────────────────── */
 const STATS = [
   { icon: <Sparkles className="w-4 h-4" />, value: "500+", label: "Fragancias" },
@@ -61,12 +61,26 @@ const STATS = [
 /* ═══════════════════════════════════════════════════════════════
    HeroSection
 ═══════════════════════════════════════════════════════════════ */
-export function HeroSection() {
+export function HeroSection({ discountProducts = [] }: { discountProducts?: Product[] }) {
   const [mounted, setMounted] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted || discountProducts.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % discountProducts.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [mounted, discountProducts.length]);
+
+  const currentProduct = discountProducts[currentIndex] || null;
+  const discountPercentage = currentProduct && currentProduct.compare_price && currentProduct.compare_price > currentProduct.price
+    ? Math.round(((currentProduct.compare_price - currentProduct.price) / currentProduct.compare_price) * 100)
+    : 0;
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-cream">
@@ -215,12 +229,12 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT: Image ── */}
+          {/* ── RIGHT: Image Carousel ── */}
           <motion.div
             variants={imageVariants}
             initial="hidden"
             animate="visible"
-            className="relative flex justify-center lg:justify-end"
+            className="relative flex flex-col items-center lg:items-end justify-center w-full"
           >
             {/* Glow behind image */}
             <div
@@ -231,63 +245,142 @@ export function HeroSection() {
               }}
             />
 
-            {/* Image frame */}
-            <div
-              className="relative rounded-3xl overflow-hidden border border-border"
-              style={{
-                aspectRatio: "3/4",
-                width: "min(340px, 80vw)",
-                background:
-                  "linear-gradient(160deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              <Image
-                src="/hero-perfume.png"
-                alt="Fragancia premium — Bendita Store"
-                fill
-                priority
-                className="object-cover object-center"
-                sizes="(max-width: 768px) 80vw, 340px"
-              />
-
-              {/* Inner gradient overlay (bottom) */}
+            {/* Carousel Content */}
+            <div className="flex flex-col items-center space-y-5 w-full max-w-[340px]">
+              {/* Image frame */}
               <div
-                className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(250,249,247,0.8) 0%, transparent 100%)",
-                }}
-              />
-            </div>
-
-            {/* ── Floating badge "Top Seller" ── */}
-            <motion.div
-              animate={{ y: [-6, 6, -6] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-4 -right-4 md:top-6 md:-right-6 z-10"
-            >
-              <div
-                className="relative px-4 py-3 rounded-2xl shadow-xl border border-border bg-white"
+                className="relative rounded-3xl overflow-hidden border border-border w-full aspect-[3/4] bg-white/50 backdrop-blur-[4px] shadow-xl group cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🏆</span>
-                  <div>
-                    <p className="font-body font-semibold text-xs text-gold tracking-wide uppercase">
-                      Top Seller
-                    </p>
-                    <p className="font-body text-[10px] text-charcoal-muted">
-                      Esta semana
-                    </p>
+                {currentProduct && (
+                  <Link href={`/product/${currentProduct.slug}`} className="block w-full h-full">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        className="absolute inset-0 w-full h-full"
+                      >
+                        <Image
+                          src={currentProduct.images?.[0] || "/hero-perfume.png"}
+                          alt={currentProduct.name}
+                          fill
+                          priority
+                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 768px) 80vw, 340px"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  </Link>
+                )}
+
+                {/* Inner gradient overlay (bottom) */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none z-10"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(250,249,247,0.8) 0%, transparent 100%)",
+                  }}
+                />
+
+                {/* ── Floating badge "% de descuento" ── */}
+                {discountPercentage > 0 && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    key={`badge-${currentIndex}`}
+                    className="absolute top-4 left-4 z-20 bg-gold text-white font-body font-bold text-[10px] px-2.5 py-1 rounded-full shadow-lg"
+                  >
+                    -{discountPercentage}% OFF
+                  </motion.div>
+                )}
+
+                {/* ── Floating badge "Top Seller" ── */}
+                <motion.div
+                  animate={{ y: [-6, 6, -6] }}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-4 -right-4 md:top-6 md:-right-6 z-20"
+                >
+                  <div
+                    className="relative px-4 py-3 rounded-2xl shadow-xl border border-border bg-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🏆</span>
+                      <div>
+                        <p className="font-body font-semibold text-xs text-gold tracking-wide uppercase">
+                          Top Seller
+                        </p>
+                        <p className="font-body text-[10px] text-charcoal-muted">
+                          Esta semana
+                        </p>
+                      </div>
+                    </div>
+                    {/* Pulsing dot */}
+                    <span className="absolute top-2 right-2 w-2 h-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-60" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
+                    </span>
                   </div>
-                </div>
-                {/* Pulsing dot */}
-                <span className="absolute top-2 right-2 w-2 h-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-60" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
-                </span>
+                </motion.div>
               </div>
-            </motion.div>
+
+              {/* Product Info below the frame */}
+              {currentProduct && (
+                <Link
+                  href={`/product/${currentProduct.slug}`}
+                  className="w-full text-center space-y-1 block group/info"
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-0.5"
+                    >
+                      {currentProduct.brand?.name && (
+                        <p className="text-[11px] font-body tracking-[0.2em] uppercase text-gold font-semibold">
+                          {currentProduct.brand.name}
+                        </p>
+                      )}
+                      <h3 className="font-display font-medium text-lg text-charcoal group-hover/info:text-gold transition-colors line-clamp-1">
+                        {currentProduct.name}
+                      </h3>
+                      <div className="flex items-center justify-center gap-2">
+                        {currentProduct.compare_price && (
+                          <span className="font-body text-xs text-charcoal-muted line-through">
+                            ${formatPrice(currentProduct.compare_price)}
+                          </span>
+                        )}
+                        <span className="font-body text-sm font-bold text-charcoal">
+                          ${formatPrice(currentProduct.price)}
+                        </span>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </Link>
+              )}
+
+              {/* Dots navigation */}
+              {discountProducts.length > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  {discountProducts.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        idx === currentIndex
+                          ? "bg-gold w-6"
+                          : "bg-charcoal/20 hover:bg-charcoal/40 w-2"
+                      }`}
+                      aria-label={`Ir a slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
           </motion.div>
         </div>
