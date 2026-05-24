@@ -27,10 +27,17 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const router = useRouter();
   const pathname = usePathname();
   const familyFilter = searchParams.get("family");
+  const saleFilter = searchParams.get("sale") === "true";
 
   const handleRemoveFamily = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("family");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleRemoveSale = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("sale");
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -41,6 +48,7 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
       if (filters.priceMax < 999999999 && p.price > filters.priceMax) return false;
       if (filters.brands.length > 0 && p.brand && !filters.brands.includes(p.brand.name)) return false;
       if (familyFilter && (!p.olfactive_family || !p.olfactive_family.includes(familyFilter))) return false;
+      if (saleFilter && (!p.compare_price || p.compare_price <= p.price)) return false;
       return true;
     });
 
@@ -49,7 +57,7 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
     else if (filters.sortBy === "newest") list = [...list].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
     return list;
-  }, [filters, initialProducts, familyFilter]);
+  }, [filters, initialProducts, familyFilter, saleFilter]);
 
   const paginated = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = paginated.length < filtered.length;
@@ -85,14 +93,24 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
         </button>
       </div>
 
-      {familyFilter && (
-        <div className="mb-6 flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-cream border border-gold text-charcoal rounded-full text-sm font-body">
-            Familia: {familyFilter}
-            <button onClick={handleRemoveFamily} className="hover:text-red-500 transition-colors">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </span>
+      {(familyFilter || saleFilter) && (
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {familyFilter && (
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-cream border border-gold text-charcoal rounded-full text-sm font-body">
+              Familia: {familyFilter}
+              <button onClick={handleRemoveFamily} className="hover:text-red-500 transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          )}
+          {saleFilter && (
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-cream border border-gold text-charcoal rounded-full text-sm font-body">
+              Ofertas especiales
+              <button onClick={handleRemoveSale} className="hover:text-red-500 transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          )}
         </div>
       )}
 

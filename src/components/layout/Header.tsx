@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { label: "Inicio", href: "/" },
   { label: "Catálogo", href: "/products" },
   { label: "Marcas", href: "/products?gender=all" }, // temporal hasta crear página de marcas
-  { label: "Ofertas", href: "/products?sort=price_asc" },
+  { label: "Ofertas", href: "/products?sale=true" },
 ];
 
 export function Header() {
