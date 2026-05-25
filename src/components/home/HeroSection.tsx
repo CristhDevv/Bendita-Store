@@ -130,15 +130,15 @@ export function HeroSection({ discountProducts = [] }: { discountProducts?: Prod
       </div>
 
       {/* ── Main content ── */}
-      <div className="container mx-auto px-4 md:px-8 py-24 md:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="container mx-auto px-4 md:px-8 py-16 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
           {/* ── LEFT: Copy ── */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6"
+            className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5"
           >
             {/* Eyebrow */}
             <motion.div variants={itemVariants}>
@@ -206,7 +206,7 @@ export function HeroSection({ discountProducts = [] }: { discountProducts?: Prod
             {/* Stats */}
             <motion.div
               variants={itemVariants}
-              className="flex items-center gap-6 pt-4"
+              className="flex items-center gap-6 pt-2"
             >
               {STATS.map((stat, idx) => (
                 <div key={stat.label} className="flex items-center gap-6">
@@ -246,7 +246,7 @@ export function HeroSection({ discountProducts = [] }: { discountProducts?: Prod
             />
 
             {/* Carousel Content */}
-            <div className="flex flex-col items-center space-y-5 w-full max-w-[340px]">
+            <div className="flex flex-col items-center space-y-5 w-full max-w-[380px] lg:max-w-[420px]">
               {/* Image frame */}
               <div
                 className="relative rounded-3xl overflow-hidden border border-border w-full aspect-[3/4] bg-white/50 backdrop-blur-[4px] shadow-xl group cursor-pointer"
