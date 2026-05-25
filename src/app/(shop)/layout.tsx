@@ -4,6 +4,7 @@ import { CartDrawer } from "@/components/cart/CartDrawerDynamic";
 import { Toaster } from "react-hot-toast";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
+import { OrderChangeNotification } from "@/components/ui/OrderChangeNotification";
 
 export default function ShopLayout({
   children,
@@ -13,6 +14,7 @@ export default function ShopLayout({
   return (
     <>
       <PageViewTracker />
+      <OrderChangeNotification />
       <Header />
       <CartDrawer />
       {/* pt-24 asegura que el contenido no quede oculto detrás del header fijo */}

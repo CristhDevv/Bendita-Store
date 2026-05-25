@@ -100,6 +100,66 @@ function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string
   );
 }
 
+function TrackingNumberForm({
+  orderId,
+  initialTrackingNumber,
+  onUpdate,
+}: {
+  orderId: string;
+  initialTrackingNumber: string | null | undefined;
+  onUpdate: (trackingNum: string | null) => void;
+}) {
+  const [trackingNumber, setTrackingNumber] = useState(initialTrackingNumber || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const supabase = createClient();
+    const val = trackingNumber.trim() || null;
+    const { error } = await supabase
+      .from("orders")
+      .update({ tracking_number: val })
+      .eq("id", orderId);
+
+    if (!error) {
+      onUpdate(val);
+      toast.success("Número de guía actualizado");
+    } else {
+      toast.error("Error al guardar el número de guía");
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="pt-3 border-t border-border/60 mt-4">
+      <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-2">Información de Envío</p>
+      <div className="flex gap-2 max-w-md">
+        <input
+          type="text"
+          placeholder="Número de guía / tracking..."
+          value={trackingNumber}
+          onChange={(e) => setTrackingNumber(e.target.value)}
+          className="flex-1 px-3 py-1.5 rounded-lg border border-border text-xs font-body outline-none focus:border-gold bg-white text-charcoal shadow-inner"
+        />
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="px-4 py-1.5 bg-gold text-white rounded-lg text-xs font-body hover:bg-gold/90 transition-colors flex items-center gap-1 disabled:opacity-70 font-semibold"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="w-3 h-3 animate-spin" /> Guardando...
+            </>
+          ) : (
+            "Guardar Guía"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,6 +181,10 @@ export default function AdminOrdersPage() {
 
   const handleStatusUpdate = (id: string, status: OrderStatus) => {
     setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
+  };
+
+  const handleTrackingUpdate = (id: string, trackingNumber: string | null) => {
+    setOrders((prev) => prev.map((o) => o.id === id ? { ...o, tracking_number: trackingNumber } : o));
   };
 
   const filtered = orders.filter((o) => {
@@ -312,6 +376,15 @@ export default function AdminOrdersPage() {
                         <p className="font-body text-xs text-charcoal">{(order as any).payment_ref}</p>
                       </div>
                     </div>
+                  )}
+
+                  {/* Número de Guía (visible solo si el estado es 'shipped') */}
+                  {order.status === "shipped" && (
+                    <TrackingNumberForm
+                      orderId={order.id}
+                      initialTrackingNumber={order.tracking_number}
+                      onUpdate={(trackingNum) => handleTrackingUpdate(order.id, trackingNum)}
+                    />
                   )}
                 </div>
               )}

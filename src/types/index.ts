@@ -89,6 +89,7 @@ export interface Order {
   payment_method?: string;
   payment_ref?: string;
   notes?: string;
+  tracking_number?: string | null;
   created_at: string;
   // Joins
   address?: Address;
