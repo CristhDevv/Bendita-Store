@@ -68,6 +68,13 @@ export default function WishlistPage() {
     if (!item.product) return;
     addItem(item.product);
     toast.success(`${item.product.name} agregado al carrito`);
+    trackEvent("add_to_cart", {
+      product_id: item.product_id,
+      product_name: item.product.name,
+      brand_name: item.product.brand?.name,
+      price: item.product.price,
+      quantity: 1,
+    });
   };
 
   if (authLoading || loading) {

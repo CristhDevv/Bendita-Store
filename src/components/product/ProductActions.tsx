@@ -6,11 +6,17 @@ import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/utils/format";
 import type { Product } from "@/types";
+import { useTracking } from "@/hooks/useTracking";
+import { useAuth } from "@/hooks/useAuth";
+import { addToWishlist } from "@/lib/supabase/account";
 
 export function ProductActions({ product }: { product: Product }) {
   const [selectedMl, setSelectedMl] = useState(product.ml_options?.[0]?.ml || 100);
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore(s => s.addItem);
+  const { trackEvent } = useTracking();
+  const { user } = useAuth();
+  const [isWishlisting, setIsWishlisting] = useState(false);
 
   const selectedMlOption = product.ml_options?.find(o => o.ml === selectedMl);
   const wholesalePrice = selectedMlOption?.wholesale_price ?? product.wholesale_price;
@@ -18,6 +24,36 @@ export function ProductActions({ product }: { product: Product }) {
   const handleAdd = () => {
     addItem(product, quantity, selectedMl);
     toast.success(`${quantity} x ${product.name} añadido al carrito`, { icon: "🛍️" });
+    trackEvent("add_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      brand_name: product.brand?.name,
+      price: selectedMlOption?.price ?? product.price,
+      quantity,
+      ml: selectedMl,
+    });
+  };
+
+  const handleWishlist = async () => {
+    if (!user) {
+      toast.error("Por favor inicia sesión para guardar fragancias en tu wishlist");
+      return;
+    }
+    setIsWishlisting(true);
+    try {
+      await addToWishlist(user.id, product.id);
+      toast.success("Añadido a tu wishlist", { icon: "❤️" });
+      trackEvent("wishlist_add", {
+        product_id: product.id,
+        product_name: product.name,
+        brand_name: product.brand?.name,
+        price: product.price,
+      });
+    } catch {
+      toast.error("Error al añadir a tu wishlist");
+    } finally {
+      setIsWishlisting(false);
+    }
   };
 
   return (
@@ -86,9 +122,13 @@ export function ProductActions({ product }: { product: Product }) {
           </button>
         </div>
 
-        <button className="h-[56px] flex items-center justify-center gap-2 rounded-xl bg-cream border border-border text-charcoal font-body hover:border-gold hover:text-gold transition-colors shadow-sm">
-          <Heart className="w-5 h-5" />
-          Agregar a Wishlist
+        <button
+          onClick={handleWishlist}
+          disabled={isWishlisting}
+          className="h-[56px] flex items-center justify-center gap-2 rounded-xl bg-cream border border-border text-charcoal font-body hover:border-gold hover:text-gold transition-colors shadow-sm disabled:opacity-50"
+        >
+          <Heart className={`w-5 h-5 ${isWishlisting ? "animate-pulse" : ""}`} />
+          {isWishlisting ? "Agregando..." : "Agregar a Wishlist"}
         </button>
       </div>
     </div>

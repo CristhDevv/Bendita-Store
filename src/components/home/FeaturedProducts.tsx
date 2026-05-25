@@ -22,13 +22,23 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
 };
 
+import { useTracking } from "@/hooks/useTracking";
+
 function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
+  const { trackEvent } = useTracking();
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     addItem(product, 1);
     toast.success(`${product.name} añadido al carrito`, { icon: "🛍️" });
+    trackEvent("add_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      brand_name: product.brand?.name,
+      price: product.price,
+      quantity: 1,
+    });
   };
 
   return (

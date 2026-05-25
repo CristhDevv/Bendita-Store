@@ -65,15 +65,18 @@ export function useTracking() {
           const page =
             typeof window !== "undefined" ? window.location.pathname : "/";
 
-          await supabase.from("analytics_events").insert({
+          const { error } = await supabase.from("analytics_events").insert({
             session_id: sessionId,
             user_id: user?.id ?? null,
             event_type: eventType,
             page,
             payload,
           });
-        } catch {
-          // Silently swallow — tracking must never break the app
+          if (error) {
+            console.error("Supabase tracking insert error:", error);
+          }
+        } catch (err) {
+          console.error("Failed to execute tracking event:", err);
         }
       })();
     },

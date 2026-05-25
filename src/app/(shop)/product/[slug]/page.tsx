@@ -7,6 +7,7 @@ import { ProductActions } from "@/components/product/ProductActions";
 import { ProductAccordions } from "@/components/product/ProductAccordions";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductViewTracker } from "@/components/product/ProductViewTracker";
 import { CONFIG } from "@/lib/config";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -91,6 +92,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main>
+      <ProductViewTracker product={product} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
