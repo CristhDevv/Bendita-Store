@@ -36,13 +36,21 @@ export default function WishlistPage() {
 
   const handleRemove = async (item: WishlistItem) => {
     if (!user || removing) return;
+
+    // Respaldar el estado anterior en caso de que debamos revertirlo
+    const previousItems = [...items];
+
+    // Actualización optimista: removemos visualmente de inmediato
+    setItems((prev) => prev.filter((i) => i.id !== item.id));
     setRemoving(item.product_id);
+
     try {
       await removeFromWishlist(user.id, item.product_id);
-      setItems((prev) => prev.filter((i) => i.id !== item.id));
       toast.success("Eliminado de tu wishlist");
     } catch {
-      toast.error("Error al eliminar");
+      // Revertir estado si falla la transacción en Supabase
+      setItems(previousItems);
+      toast.error("Error al eliminar de la wishlist");
     } finally {
       setRemoving(null);
     }

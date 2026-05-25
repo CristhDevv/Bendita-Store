@@ -13,7 +13,6 @@ import {
 } from "@/lib/supabase/account";
 import type { Address } from "@/types";
 
-// ─── Addresses Page ────────────────────────────────────────────
 export default function AddressesPage() {
   const { user, loading: authLoading } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -82,7 +81,7 @@ export default function AddressesPage() {
         </div>
         <Link
           href="/account/addresses/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-charcoal hover:bg-gold text-white rounded-xl font-body font-semibold text-sm transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Nueva
@@ -119,7 +118,7 @@ export default function AddressesPage() {
                 addr.is_default ? "border-gold shadow-md" : "border-border hover:border-gold"
               }`}
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-4 flex-wrap sm:flex-nowrap">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-cream border border-border shadow-sm flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-gold" />
@@ -131,7 +130,7 @@ export default function AddressesPage() {
                       )}
                       {addr.is_default && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cream border border-border text-charcoal text-[10px] font-body rounded-full">
-                          <Star className="w-2.5 h-2.5" /> Principal
+                          <Star className="w-2.5 h-2.5 text-gold fill-gold" /> Principal
                         </span>
                       )}
                     </div>
@@ -143,7 +142,7 @@ export default function AddressesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-1 shrink-0 ml-auto pt-2 sm:pt-0">
                   {!addr.is_default && (
                     <button
                       onClick={() => handleSetDefault(addr.id)}
@@ -155,23 +154,23 @@ export default function AddressesPage() {
                   )}
                   <Link
                     href={`/account/addresses/${addr.id}/edit`}
-                    className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-charcoal border border-border transition-colors"
+                    className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-charcoal border border-border transition-colors shadow-sm"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </Link>
                   {confirmId === addr.id ? (
                     <div className="flex gap-1 items-center">
-                      <button onClick={() => handleDelete(addr.id)} disabled={deletingId === addr.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                      <button onClick={() => handleDelete(addr.id)} disabled={deletingId === addr.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50 shadow-sm">
                         {deletingId === addr.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
                       </button>
-                      <button onClick={() => setConfirmId(null)} disabled={deletingId === addr.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">
+                      <button onClick={() => setConfirmId(null)} disabled={deletingId === addr.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50 shadow-sm">
                         Cancelar
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => setConfirmId(addr.id)}
-                      className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-red-600 border border-border transition-colors"
+                      className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-charcoal-muted hover:text-red-600 border border-border transition-colors shadow-sm"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

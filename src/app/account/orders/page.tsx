@@ -28,7 +28,6 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-// ─── Orders List ─────────────────────────────────────────────
 export default function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -77,12 +76,12 @@ export default function OrdersPage() {
           <p className="font-body text-sm text-charcoal-muted mb-6">
             Explora nuestros perfumes y encuentra tu fragancia ideal.
           </p>
-          <a
+          <Link
             href="/products"
             className="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white rounded-xl font-body font-semibold text-sm hover:bg-gold transition-colors shadow-sm"
           >
             Explorar Catálogo
-          </a>
+          </Link>
         </motion.div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -112,15 +111,15 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 text-right sm:text-left justify-end w-full sm:w-auto">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-body border ${cfg.bg} ${cfg.color}`}>
                       <cfg.Icon className="w-3 h-3" />
                       {cfg.label}
                     </span>
-                    <p className="font-display text-base text-gold">{formatCOP(order.total)}</p>
+                    <p className="font-display text-base text-gold font-semibold min-w-[100px] text-right">{formatCOP(order.total)}</p>
                     <Link
                       href={`/account/orders/${order.id}`}
-                      className="px-3 py-1.5 rounded-lg bg-white border border-border text-charcoal text-xs font-body hover:text-gold hover:border-gold transition-colors shadow-sm"
+                      className="px-3 py-1.5 rounded-lg bg-white border border-border text-charcoal text-xs font-body hover:text-gold hover:border-gold transition-colors shadow-sm text-center"
                     >
                       Ver detalle
                     </Link>

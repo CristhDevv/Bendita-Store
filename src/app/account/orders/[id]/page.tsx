@@ -132,15 +132,15 @@ export default function OrderDetailPage() {
 
         {/* Status Timeline */}
         {order.status !== "cancelled" && (
-          <div className="mb-6">
-            <div className="flex items-center gap-0">
+          <div className="mb-8 overflow-x-auto pb-4">
+            <div className="flex items-center min-w-[500px] gap-0">
               {STATUS_TIMELINE.map((step, i) => {
                 const stepCfg = STATUS_CONFIG[step];
                 const done = i <= currentStep;
                 const isLast = i === STATUS_TIMELINE.length - 1;
                 return (
                   <div key={step} className="flex items-center flex-1">
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center gap-1 shrink-0">
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
                           done ? "bg-gold border-gold text-white" : "border-border text-border"
@@ -173,29 +173,35 @@ export default function OrderDetailPage() {
         {/* Order Items */}
         {order.items && order.items.length > 0 && (
           <div className="mb-6">
-            <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-3">
+            <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-3 font-semibold">
               Productos
             </p>
             <div className="flex flex-col gap-3">
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-cream border border-border"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-cream border border-border hover:border-gold/40 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-white border border-border shadow-sm flex items-center justify-center shrink-0">
                     <Package className="w-5 h-5 text-gold/60" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-body text-sm text-charcoal truncate">
+                    <p className="font-body text-sm font-semibold text-charcoal truncate">
                       {item.product?.name || "Producto"}
                     </p>
+                    <p className="font-body text-xs text-charcoal-muted mt-0.5">
+                      Cantidad: {item.quantity} · {item.ml ? `${item.ml}ml` : ""}
+                    </p>
                     <p className="font-body text-xs text-charcoal-muted">
-                      {item.quantity}x{item.ml ? ` · ${item.ml}ml` : ""}
+                      Precio Unitario: {formatCOP(item.price)}
                     </p>
                   </div>
-                  <p className="font-body text-sm font-medium text-gold shrink-0">
-                    {formatCOP(item.price * item.quantity)}
-                  </p>
+                  <div className="text-right shrink-0">
+                    <p className="font-body text-[10px] text-charcoal-muted">Subtotal</p>
+                    <p className="font-display text-sm font-bold text-gold">
+                      {formatCOP(item.price * item.quantity)}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -231,7 +237,7 @@ export default function OrderDetailPage() {
           </div>
           <div className="text-right">
             <p className="font-body text-xs text-charcoal-muted">Total</p>
-            <p className="font-display text-xl text-gold">{formatCOP(order.total)}</p>
+            <p className="font-display text-xl text-gold font-bold">{formatCOP(order.total)}</p>
           </div>
         </div>
       </div>

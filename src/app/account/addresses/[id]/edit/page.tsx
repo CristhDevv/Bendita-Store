@@ -105,7 +105,7 @@ export default function EditAddressPage() {
             <input className={inputClass} placeholder="Código postal" value={form.postal_code} onChange={(e) => setForm((f) => ({ ...f, postal_code: e.target.value }))} />
             <input className={inputClass} placeholder="País" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
           </div>
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
             <div
               className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${form.is_default ? "bg-gold border-gold text-white" : "border-border"}`}
               onClick={() => setForm((f) => ({ ...f, is_default: !f.is_default }))}

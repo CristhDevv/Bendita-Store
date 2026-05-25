@@ -13,12 +13,16 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { CartDrawer } from "@/components/cart/CartDrawerDynamic";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 const NAV_ITEMS = [
   { href: "/account/orders", icon: ShoppingBag, label: "Mis Pedidos" },
   { href: "/account/wishlist", icon: Heart, label: "Mi Wishlist" },
   { href: "/account/addresses", icon: MapPin, label: "Mis Direcciones" },
-  { href: "/account/profile", icon: User, label: "Datos Personales" },
+  { href: "/account", icon: User, label: "Datos Personales" },
 ];
 
 function AccountSidebar() {
@@ -58,7 +62,11 @@ function AccountSidebar() {
         {/* Navigation */}
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
-            const isActive = pathname === href || pathname.startsWith(href + "/");
+            const isActive =
+              href === "/account"
+                ? pathname === "/account"
+                : pathname === href || pathname.startsWith(href + "/");
+
             return (
               <Link
                 key={href}
@@ -143,7 +151,11 @@ function MobileTabBar() {
               </button>
             );
           }
-          const isActive = pathname === href || pathname.startsWith(href + "/");
+          const isActive =
+            href === "/account"
+              ? pathname === "/account"
+              : pathname === href || pathname.startsWith(href + "/");
+
           return (
             <Link
               key={href}
@@ -167,13 +179,13 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
 
   // Verificar si Supabase está configurado
-  const isSupabaseConfigured = 
-    !!process.env.NEXT_PUBLIC_SUPABASE_URL && 
+  const isSupabaseConfigured =
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
     process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith("http");
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!isSupabaseConfigured) {
       console.warn("Supabase no está configurado. Redirigiendo a inicio...");
       router.replace("/");
@@ -194,14 +206,22 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen bg-cream pt-6 pb-24 lg:pb-8">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex gap-8">
-          <AccountSidebar />
-          <main className="flex-1 min-w-0">{children}</main>
+    <>
+      <Header />
+      <CartDrawer />
+      <main className="flex-1 flex flex-col pt-14 min-h-screen">
+        <div className="min-h-screen bg-cream pt-6 pb-24 lg:pb-8 flex-1 flex flex-col">
+          <div className="container mx-auto px-4 max-w-6xl flex-1">
+            <div className="flex gap-8">
+              <AccountSidebar />
+              <main className="flex-1 min-w-0">{children}</main>
+            </div>
+          </div>
+          <MobileTabBar />
         </div>
-      </div>
-      <MobileTabBar />
-    </div>
+      </main>
+      <Footer />
+      <WhatsAppButton />
+    </>
   );
 }

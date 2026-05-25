@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { upsertAddress } from "@/lib/supabase/account";
@@ -55,7 +55,12 @@ export default function NewAddressPage() {
       </Link>
 
       <div className="bg-white border border-border rounded-2xl p-6 shadow-sm max-w-lg">
-        <h1 className="font-display text-2xl text-charcoal mb-6">Nueva Dirección</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-cream border border-border flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-gold" />
+          </div>
+          <h1 className="font-display text-2xl text-charcoal">Nueva Dirección</h1>
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input className={inputClass} placeholder="Etiqueta (Casa, Oficina...)" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} />
           <input className={inputClass} placeholder="Calle / Carrera / Avenida *" required value={form.street} onChange={(e) => setForm((f) => ({ ...f, street: e.target.value }))} />
@@ -67,7 +72,7 @@ export default function NewAddressPage() {
             <input className={inputClass} placeholder="Código postal" value={form.postal_code} onChange={(e) => setForm((f) => ({ ...f, postal_code: e.target.value }))} />
             <input className={inputClass} placeholder="País" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
           </div>
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
             <div
               className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${form.is_default ? "bg-gold border-gold text-white" : "border-border"}`}
               onClick={() => setForm((f) => ({ ...f, is_default: !f.is_default }))}

@@ -40,13 +40,30 @@ export default function ProfilePage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    // Validación del formato de teléfono en Colombia
+    let validatedPhone = phone.trim();
+    if (validatedPhone) {
+      const digits = validatedPhone.replace(/\D/g, "");
+      // Si empieza con 57 y tiene 12 dígitos total, extraemos los últimos 10
+      const localNumber = digits.startsWith("57") && digits.length === 12 ? digits.slice(2) : digits;
+
+      if (localNumber.length !== 10 || !localNumber.startsWith("3")) {
+        toast.error("El teléfono debe ser un número de celular de Colombia válido de 10 dígitos (ej. 3001234567)");
+        return;
+      }
+      // Formato normalizado a guardar
+      validatedPhone = `+57 ${localNumber.slice(0, 3)} ${localNumber.slice(3, 6)} ${localNumber.slice(6)}`;
+    }
+
     setSavingProfile(true);
     try {
       const updated = await updateProfile(user.id, {
         full_name: fullName,
-        phone,
+        phone: validatedPhone,
       });
       setProfile(updated);
+      setPhone(validatedPhone);
       toast.success("Perfil actualizado");
     } catch {
       toast.error("Error al actualizar el perfil");
@@ -71,8 +88,19 @@ export default function ProfilePage() {
       setNewPassword("");
       setConfirmPassword("");
       toast.success("Contraseña actualizada");
-    } catch {
-      toast.error("Error al cambiar la contraseña");
+    } catch (error: any) {
+      console.error(error);
+      const errMsg = error?.message || "";
+      if (
+        errMsg.toLowerCase().includes("session") ||
+        errMsg.toLowerCase().includes("jwt") ||
+        errMsg.toLowerCase().includes("auth") ||
+        error?.status === 401
+      ) {
+        toast.error("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      } else {
+        toast.error(error?.message || "Error al cambiar la contraseña");
+      }
     } finally {
       setSavingPassword(false);
     }
