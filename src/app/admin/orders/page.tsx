@@ -62,7 +62,6 @@ function parseNotes(notes: string | null | undefined) {
 
 function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string, status: OrderStatus) => void }) {
   const [updating, setUpdating] = useState(false);
-  const cfg = getStatusConfig(order.status);
 
   const handleChange = async (newStatus: OrderStatus) => {
     if (newStatus === order.status) return;
@@ -75,26 +74,19 @@ function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string
   };
 
   return (
-    <div className="relative">
+    <div className="relative max-w-xs mt-1">
       {updating ? (
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-body border ${cfg.color}`}>
-          <Loader2 className="w-3 h-3 animate-spin" /> {cfg.label}
+        <div className="flex items-center gap-2 text-xs font-body text-charcoal-muted py-2.5">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+          <span>Actualizando estado...</span>
         </div>
       ) : (
-        <div className="relative inline-flex items-center">
-          <select
-            className={`appearance-none pl-2.5 pr-6 py-1 rounded-lg text-xs font-body border cursor-pointer outline-none ${cfg.color} bg-transparent`}
-            value={order.status}
-            onChange={(e) => handleChange(e.target.value as OrderStatus)}
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s.value} value={s.value} className="bg-white text-charcoal">
-                {s.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-1.5 w-3 h-3 pointer-events-none opacity-60" />
-        </div>
+        <SearchableSelect
+          options={STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label }))}
+          value={order.status}
+          onChange={(val) => handleChange(val as OrderStatus)}
+          placeholder="Selecciona estado"
+        />
       )}
     </div>
   );
@@ -131,7 +123,7 @@ function TrackingNumberForm({
   };
 
   return (
-    <div className="pt-3 border-t border-border/60 mt-4">
+    <div className="mt-4">
       <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-2">Información de Envío</p>
       <div className="flex gap-2 max-w-md">
         <input
@@ -256,7 +248,14 @@ export default function AdminOrdersPage() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <StatusSelect order={order} onUpdate={handleStatusUpdate} />
+                  {(() => {
+                    const cfg = getStatusConfig(order.status);
+                    return (
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-body border font-medium ${cfg.color}`}>
+                        {cfg.label}
+                      </span>
+                    );
+                  })()}
                   <p className="font-display text-base text-charcoal font-semibold">{formatCOP(order.total)}</p>
                   <ChevronDown className={`w-4 h-4 text-charcoal-muted transition-transform ${expandedId === order.id ? "rotate-180" : ""}`} />
                 </div>
@@ -377,6 +376,12 @@ export default function AdminOrdersPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Estado del Pedido */}
+                  <div className="pt-3 border-t border-border/60 mt-4">
+                    <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-1 font-semibold">ESTADO DEL PEDIDO</p>
+                    <StatusSelect order={order} onUpdate={handleStatusUpdate} />
+                  </div>
 
                   {/* Número de Guía (visible solo si el estado es 'shipped') */}
                   {order.status === "shipped" && (
