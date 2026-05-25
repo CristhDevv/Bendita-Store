@@ -19,7 +19,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Order, OrderStatus } from "@/types";
 import toast from "react-hot-toast";
-import { SearchableSelect } from "@/components/admin/SearchableSelect";
+import { SearchableSelect } from "@/components/admin/SearchableSelect"; // used in filter bar
 
 const STATUS_OPTIONS: { value: OrderStatus; label: string; color: string }[] = [
   { value: "pending", label: "Pendiente", color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
@@ -81,12 +81,20 @@ function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string
           <span>Actualizando estado...</span>
         </div>
       ) : (
-        <SearchableSelect
-          options={STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label }))}
-          value={order.status}
-          onChange={(val) => handleChange(val as OrderStatus)}
-          placeholder="Selecciona estado"
-        />
+        <div className="relative">
+          <select
+            value={order.status}
+            onChange={(e) => handleChange(e.target.value as OrderStatus)}
+            className="w-full appearance-none pl-3 pr-9 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors cursor-pointer"
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-muted pointer-events-none" />
+        </div>
       )}
     </div>
   );
