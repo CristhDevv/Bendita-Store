@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getUserWishlist, removeFromWishlist } from "@/lib/supabase/account";
 import { useCartStore } from "@/lib/store/cart";
 import type { WishlistItem } from "@/types";
+import { useTracking } from "@/hooks/useTracking";
 
 function formatCOP(amount: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -25,6 +26,7 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
   const addItem = useCartStore((s) => s.addItem);
+  const { trackEvent } = useTracking();
 
   useEffect(() => {
     if (!user) return;
@@ -47,6 +49,12 @@ export default function WishlistPage() {
     try {
       await removeFromWishlist(user.id, item.product_id);
       toast.success("Eliminado de tu wishlist");
+      trackEvent("wishlist_remove", {
+        product_id: item.product_id,
+        product_name: item.product?.name,
+        brand_name: item.product?.brand?.name,
+        price: item.product?.price,
+      });
     } catch {
       // Revertir estado si falla la transacción en Supabase
       setItems(previousItems);

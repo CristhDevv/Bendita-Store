@@ -23,6 +23,7 @@ import {
   Archive,
   FileText,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +31,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/admin/orders", icon: ShoppingBag, label: "Órdenes" },
   { href: "/admin/products", icon: Package, label: "Productos" },
   { href: "/admin/categories", icon: Layers, label: "Categorías" },

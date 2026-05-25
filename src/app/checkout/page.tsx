@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getUserAddresses, saveAddress, createOrderTransaction } from "@/lib/supabase/checkout";
 import { Address, Order } from "@/types";
 import toast from "react-hot-toast";
+import { useTracking } from "@/hooks/useTracking";
 
 
 function buildWhatsAppMessage(orderId: string, items: any[], address: { street?: string; city?: string; state?: string }, total: number) {
@@ -36,6 +37,7 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const items = useCartStore((state: any) => state.items);
   const clearCart = useCartStore((state: any) => state.clearCart);
+  const { trackEvent } = useTracking();
 
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,8 +76,15 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (items.length === 0 && !isPlacingOrder) {
       router.push("/products");
+    } else if (items.length > 0) {
+      // Fire begin_checkout once on mount
+      trackEvent("begin_checkout", {
+        item_count: items.length,
+        subtotal: items.reduce((acc: number, item: any) => acc + item.selectedPrice * item.quantity, 0),
+      });
     }
-  }, [items, router, isPlacingOrder]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadAddresses = async (userId: string) => {
     const data = await getUserAddresses(userId);

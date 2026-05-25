@@ -8,11 +8,11 @@ import toast from "react-hot-toast";
 import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/format";
-
-
+import { useTracking } from "@/hooks/useTracking";
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore(s => s.addItem);
+  const { trackEvent } = useTracking();
 
   const discountPct = product.compare_price
     ? Math.round((1 - product.price / product.compare_price) * 100)
@@ -23,10 +23,28 @@ export function ProductCard({ product }: { product: Product }) {
     e.stopPropagation();
     addItem(product, 1);
     toast.success(`${product.name} añadido`, { icon: "🛍️" });
+    trackEvent("add_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      product_slug: product.slug,
+      brand_name: product.brand?.name,
+      price: product.price,
+      quantity: 1,
+    });
+  };
+
+  const handleProductView = () => {
+    trackEvent("product_view", {
+      product_id: product.id,
+      product_name: product.name,
+      product_slug: product.slug,
+      brand_name: product.brand?.name,
+      price: product.price,
+    });
   };
 
   return (
-    <Link href={`/product/${product.slug}`} prefetch={true} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
+    <Link href={`/product/${product.slug}`} prefetch={true} onClick={handleProductView} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
       <article>
         {/* Image */}
         <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-cream border border-border">

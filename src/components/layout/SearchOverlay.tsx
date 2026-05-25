@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils/format";
+import { useTracking } from "@/hooks/useTracking";
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
+  const { trackEvent } = useTracking();
 
   useEffect(() => {
     if (isOpen) {
@@ -77,6 +79,14 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
         if (error) throw error;
         setResults(data as unknown as ProductResult[]);
+        // Track search event after results are known
+        if (debouncedQuery.trim()) {
+          trackEvent("search", {
+            search_term: debouncedQuery.trim(),
+            result_count: (data ?? []).length,
+            has_results: (data ?? []).length > 0,
+          });
+        }
       } catch (error) {
         console.error("Error searching products:", error);
       } finally {

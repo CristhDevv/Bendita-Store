@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import type { CartItem } from "@/types";
+import { useTracking } from "@/hooks/useTracking";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, updateQuantity, removeItem, totalPrice, totalItems } = useCartStore();
+  const { trackEvent } = useTracking();
   
   // Para evitar hydration mismatch, usamos un state mounted
   const [isMounted, setIsMounted] = useState(false);
@@ -111,7 +113,17 @@ export function CartDrawer() {
                             )}
                           </div>
                           <button
-                            onClick={() => removeItem(item.product.id, item.selectedMl)}
+                            onClick={() => {
+                              trackEvent("remove_from_cart", {
+                                product_id: item.product.id,
+                                product_name: item.product.name,
+                                brand_name: item.product.brand?.name,
+                                price: item.selectedPrice,
+                                quantity: item.quantity,
+                                ml: item.selectedMl,
+                              });
+                              removeItem(item.product.id, item.selectedMl);
+                            }}
                             className="p-1 text-charcoal-muted hover:text-rose-500 transition-colors rounded shrink-0"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
