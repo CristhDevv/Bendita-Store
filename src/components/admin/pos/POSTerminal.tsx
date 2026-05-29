@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, ShoppingBag, Trash2, Plus, Minus, User, Sparkles, AlertCircle, ShoppingCart, MessageCircle, Instagram, Store } from "lucide-react";
+import { Search, ShoppingBag, Trash2, Plus, Minus, User, Sparkles, AlertCircle, ShoppingCart, MessageCircle, Hash, Store } from "lucide-react";
 import { searchProducts, searchUsers, createPosSale } from "@/lib/supabase/pos";
 import { formatPrice } from "@/lib/utils/format";
 import type { Product } from "@/types";
@@ -619,7 +619,7 @@ export function POSTerminal() {
           <div className="grid grid-cols-3 gap-2.5">
             {[
               { id: "whatsapp", label: "WhatsApp", icon: MessageCircle, activeClass: "bg-emerald-500 border-emerald-500 text-white shadow-emerald-100" },
-              { id: "instagram", label: "Instagram", icon: Instagram, activeClass: "bg-pink-500 border-pink-500 text-white shadow-pink-100" },
+              { id: "instagram", label: "Instagram", icon: Hash, activeClass: "bg-pink-500 border-pink-500 text-white shadow-pink-100" },
               { id: "efectivo", label: "Físico / Local", icon: Store, activeClass: "bg-charcoal border-charcoal text-white shadow-charcoal-100" }
             ].map((ch) => {
               const Icon = ch.icon;
