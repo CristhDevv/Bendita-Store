@@ -92,6 +92,11 @@ export function ProductCard({ product }: { product: Product }) {
               </span>
             )}
           </div>
+          {product.wholesale_price && (
+            <span className="font-body text-[10px] text-charcoal-muted bg-cream px-2 py-0.5 rounded border border-border">
+              Mayorista: <span className="text-gold font-semibold">${formatPrice(product.wholesale_price)}</span> x6+
+            </span>
+          )}
         </div>
 
         {/* Add to cart — always visible mobile, hover-only desktop */}
