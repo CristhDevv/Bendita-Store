@@ -188,7 +188,7 @@ export function HeroSection({ discountProducts = [] }: { discountProducts?: Prod
                   href="/products"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-body font-medium text-sm tracking-wide bg-charcoal text-white hover:bg-gold transition-all duration-300 shadow-lg shadow-gold/10"
                 >
-                  Explorar Colección
+                  Explorar Catálogo
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
