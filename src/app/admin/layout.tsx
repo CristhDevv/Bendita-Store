@@ -25,6 +25,7 @@ import {
   Settings,
   BarChart3,
   Calculator,
+  FlaskConical,
 } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -43,6 +44,8 @@ const NAV_ITEMS = [
   { href: "/admin/accounting", icon: Wallet, label: "Contabilidad", exact: true },
   { href: "/admin/accounting/gastos", icon: Receipt, label: "Gastos" },
   { href: "/admin/accounting/inventario", icon: Archive, label: "Inventario" },
+  { href: "/admin/accounting/insumos", icon: FlaskConical, label: "Insumos" },
+  { href: "/admin/accounting/lotes", icon: Layers, label: "Lotes de Producción" },
   { href: "/admin/accounting/reportes", icon: FileText, label: "Reportes" },
   { href: "/admin/users", icon: Users, label: "Usuarios" },
   { href: "/admin/settings", icon: Settings, label: "Configuración" },

@@ -345,7 +345,7 @@ export default function AccountingPage() {
       </div>
 
       {/* Navegación a Submódulos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <Link href="/admin/accounting" className="px-6 py-4 bg-charcoal text-white rounded-xl font-body font-medium flex items-center justify-between transition-transform hover:-translate-y-1">
           Resumen
           <ArrowRight className="w-4 h-4" />
@@ -360,6 +360,14 @@ export default function AccountingPage() {
         </Link>
         <Link href="/admin/accounting/reportes" className="px-6 py-4 bg-white border border-border text-charcoal rounded-xl font-body font-medium flex items-center justify-between transition-transform hover:-translate-y-1 hover:border-gold">
           Reportes
+          <ArrowRight className="w-4 h-4 text-charcoal-muted" />
+        </Link>
+        <Link href="/admin/accounting/insumos" className="px-6 py-4 bg-white border border-border text-charcoal rounded-xl font-body font-medium flex items-center justify-between transition-transform hover:-translate-y-1 hover:border-gold">
+          Insumos
+          <ArrowRight className="w-4 h-4 text-charcoal-muted" />
+        </Link>
+        <Link href="/admin/accounting/lotes" className="px-6 py-4 bg-white border border-border text-charcoal rounded-xl font-body font-medium flex items-center justify-between transition-transform hover:-translate-y-1 hover:border-gold">
+          Lotes de Producción
           <ArrowRight className="w-4 h-4 text-charcoal-muted" />
         </Link>
       </div>
