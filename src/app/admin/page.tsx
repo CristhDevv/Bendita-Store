@@ -31,6 +31,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   shipped: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20",
   delivered: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
   cancelled: "text-red-400 bg-red-400/10 border-red-400/20",
+  confirmed: "text-teal-400 bg-teal-400/10 border-teal-400/20",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -40,6 +41,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   shipped: "Enviado",
   delivered: "Entregado",
   cancelled: "Cancelado",
+  confirmed: "Confirmado",
 };
 
 function formatCOP(amount: number) {
@@ -249,8 +251,9 @@ export default function AdminDashboard() {
             .limit(5),
           supabase
             .from("orders")
-            .select("total, created_at")
-            .gte("created_at", sevenDaysAgo.toISOString()),
+            .select("total, created_at, status")
+            .gte("created_at", sevenDaysAgo.toISOString())
+            .eq("status", "confirmed"),
         ]);
 
       setStats(statsData as DashboardStats);
@@ -263,13 +266,17 @@ export default function AdminDashboard() {
 
   // Today's sales
   const todaySales = allOrders
-    .filter((o) => new Date(o.created_at).toDateString() === new Date().toDateString())
+    .filter((o) =>
+      new Date(o.created_at).toDateString() === new Date().toDateString() &&
+      o.status === "confirmed"
+    )
     .reduce((sum, o) => sum + o.total, 0);
 
   const yesterdaySales = allOrders
     .filter((o) => {
       const y = new Date(); y.setDate(y.getDate() - 1);
-      return new Date(o.created_at).toDateString() === y.toDateString();
+      return new Date(o.created_at).toDateString() === y.toDateString() &&
+        o.status === "confirmed";
     })
     .reduce((sum, o) => sum + o.total, 0);
 

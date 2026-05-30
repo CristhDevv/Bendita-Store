@@ -28,6 +28,7 @@ const STATUS_OPTIONS: { value: OrderStatus; label: string; color: string }[] = [
   { value: "shipped", label: "Enviado", color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
   { value: "delivered", label: "Entregado", color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
   { value: "cancelled", label: "Cancelado", color: "text-red-400 bg-red-400/10 border-red-400/20" },
+  { value: "confirmed", label: "Confirmado", color: "text-teal-400 bg-teal-400/10 border-teal-400/20" },
 ];
 
 function getStatusConfig(status: OrderStatus) {
@@ -398,6 +399,33 @@ export default function AdminOrdersPage() {
                       initialTrackingNumber={order.tracking_number}
                       onUpdate={(trackingNum) => handleTrackingUpdate(order.id, trackingNum)}
                     />
+                  )}
+
+                  {/* Botón Confirmar Orden — solo visible si status es delivered */}
+                  {order.status === "delivered" && (
+                    <div className="pt-3 border-t border-border/60">
+                      <p className="font-body text-xs uppercase tracking-widest text-charcoal-muted mb-2 font-semibold">Confirmación Contable</p>
+                      <button
+                        onClick={async () => {
+                          const supabase = createClient();
+                          const { error } = await supabase
+                            .from("orders")
+                            .update({ status: "confirmed" })
+                            .eq("id", order.id);
+                          if (!error) {
+                            handleStatusUpdate(order.id, "confirmed");
+                            toast.success("Orden confirmada — ingreso registrado en contabilidad");
+                          } else {
+                            toast.error("Error al confirmar orden");
+                          }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-body text-sm font-medium transition-colors shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Confirmar Orden — Registrar Ingreso
+                      </button>
+                      <p className="font-body text-xs text-charcoal-muted mt-1.5">Solo confirmar cuando el pago esté verificado y el pedido entregado.</p>
+                    </div>
                   )}
                 </div>
               )}
