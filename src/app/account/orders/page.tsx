@@ -18,6 +18,7 @@ const STATUS_CONFIG: Record<
   shipped: { label: "Enviado", color: "text-cyan-400", bg: "bg-cyan-400/10 border-cyan-400/30", Icon: ShoppingBag },
   delivered: { label: "Entregado", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/30", Icon: ShoppingBag },
   cancelled: { label: "Cancelado", color: "text-red-400", bg: "bg-red-400/10 border-red-400/30", Icon: ShoppingBag },
+  confirmed: { label: "Confirmado", color: "text-teal-400", bg: "bg-teal-400/10 border-teal-400/30", Icon: ShoppingBag },
 };
 
 function formatCOP(amount: number) {
