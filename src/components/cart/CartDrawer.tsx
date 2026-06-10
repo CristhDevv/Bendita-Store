@@ -20,9 +20,7 @@ export function CartDrawer() {
   if (!isMounted) return null;
 
   const total = totalPrice();
-  const shippingThreshold = 200000;
-  const isFreeShipping = total >= shippingThreshold;
-  const shippingCost = isFreeShipping || total === 0 ? 0 : 15000;
+  const shippingCost = total === 0 ? 0 : 15000;
   const finalTotal = total + shippingCost;
 
   return (
@@ -210,17 +208,8 @@ export function CartDrawer() {
                     </div>
                     <div className="flex justify-between text-charcoal-muted">
                       <span>Envío</span>
-                      {isFreeShipping ? (
-                        <span className="text-green-600 font-medium">Gratis</span>
-                      ) : (
-                        <span>${shippingCost.toLocaleString("es-CO")}</span>
-                      )}
+                      <span>${shippingCost.toLocaleString("es-CO")}</span>
                     </div>
-                    {!isFreeShipping && (
-                      <div className="text-[10px] text-charcoal-muted text-right">
-                        Te faltan ${(shippingThreshold - total).toLocaleString("es-CO")} para envío gratis
-                      </div>
-                    )}
                     <div className="flex justify-between items-center border-t border-border pt-2 mt-1">
                       <span className="text-charcoal text-sm font-medium">Total</span>
                       <span className="font-bold text-lg text-charcoal">${finalTotal.toLocaleString("es-CO")}</span>

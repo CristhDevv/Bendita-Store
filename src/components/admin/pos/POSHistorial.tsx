@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Calendar, Filter, FileSpreadsheet, ArrowUpRight, DollarSign, Tag, TrendingUp, Info } from "lucide-react";
-import { getPosSales, getPosStats } from "@/lib/supabase/pos";
+import { Calendar, Filter, FileSpreadsheet, ArrowUpRight, DollarSign, Tag, TrendingUp, Info, Trash2 } from "lucide-react";
+import { getPosSales, getPosStats, deletePosSale } from "@/lib/supabase/pos";
 import { formatPrice } from "@/lib/utils/format";
 import toast from "react-hot-toast";
 
@@ -64,6 +64,21 @@ export function POSHistorial() {
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
+
+  const handleDeleteSale = async (id: string) => {
+    if (!window.confirm("¿Eliminar esta venta de prueba? Esta acción no se puede deshacer.")) {
+      return;
+    }
+    try {
+      await deletePosSale(id);
+      setSales((prev) => prev.filter((s) => s.id !== id));
+      toast.success("Venta eliminada correctamente");
+      fetchHistory();
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al eliminar la venta");
+    }
+  };
 
   const handleExportCSV = () => {
     if (sales.length === 0) {
@@ -247,76 +262,160 @@ export function POSHistorial() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-body text-sm divide-y divide-border">
-              <thead className="bg-cream/40 text-charcoal-muted text-[11px] uppercase tracking-wider">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Fecha / Hora</th>
-                  <th className="px-6 py-4 font-semibold">Cliente</th>
-                  <th className="px-6 py-4 font-semibold text-center">Canal</th>
-                  <th className="px-6 py-4 font-semibold text-center">Pago</th>
-                  <th className="px-6 py-4 font-semibold">Items</th>
-                  <th className="px-6 py-4 font-semibold text-right">Total</th>
-                  <th className="px-6 py-4 text-center w-24">Orden</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {sales.map((sale) => (
-                  <tr key={sale.id} className="hover:bg-cream/10 transition-colors">
-                    <td className="px-6 py-4 text-charcoal font-medium whitespace-nowrap">
+          <div>
+            {/* MOBILE LAYOUT (CARDS) */}
+            <div className="block lg:hidden divide-y divide-border">
+              {sales.map((sale) => (
+                <div key={sale.id} className="p-4 space-y-3 bg-white">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-charcoal font-medium">
                       {new Date(sale.created_at).toLocaleString("es-CO", {
                         day: "2-digit",
                         month: "short",
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-charcoal font-medium">
-                        {sale.customer_name || <span className="text-charcoal-muted italic">Anónimo</span>}
-                      </p>
-                      {sale.customer_phone && (
-                        <p className="text-[10px] text-charcoal-muted">{sale.customer_phone}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-lg bg-cream border border-border text-charcoal capitalize">
+                    </span>
+                    <div className="flex gap-1.5">
+                      <span className="px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded bg-cream border border-border text-charcoal capitalize">
                         {sale.channel === "efectivo" ? "Físico" : sale.channel}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded border border-border text-charcoal-muted capitalize">
+                      <span className="px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded border border-border text-charcoal-muted capitalize">
                         {sale.payment_method}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="max-w-[240px] truncate text-xs text-charcoal-muted" title={sale.items.map(i => `${i.product_name} (x${i.quantity})`).join(", ")}>
-                        {sale.items.map((i) => `${i.product_name} (x${i.quantity})`).join(", ")}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right font-semibold text-charcoal">
-                      ${formatPrice(sale.total)}
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs space-y-1">
+                    <p className="text-charcoal font-medium">
+                      <span className="text-charcoal-muted font-normal">Cliente: </span>
+                      {sale.customer_name || <span className="text-charcoal-muted italic">Anónimo</span>}
+                      {sale.customer_phone && ` (${sale.customer_phone})`}
+                    </p>
+                    <p className="text-charcoal-muted">
+                      <span className="font-semibold text-charcoal-muted">Items: </span>
+                      {sale.items.map((i) => `${i.product_name} (x${i.quantity})`).join(", ")}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <div>
+                      <span className="text-sm font-semibold text-charcoal">
+                        ${formatPrice(sale.total)}
+                      </span>
                       {sale.discount > 0 && (
-                        <p className="text-[9px] text-rose-500">Desc: -${formatPrice(sale.discount)}</p>
+                        <span className="text-[10px] text-rose-500 ml-2">
+                          Desc: -${formatPrice(sale.discount)}
+                        </span>
                       )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
                       {sale.order_id ? (
                         <a
                           href={`/admin/orders/${sale.order_id}`}
-                          className="inline-flex items-center gap-1 text-xs text-gold hover:underline font-semibold"
+                          className="inline-flex items-center gap-1 text-xs text-gold hover:underline font-semibold border border-border rounded-lg px-2.5 py-1 bg-cream/30"
                         >
-                          Ver
-                          <ArrowUpRight className="w-3.5 h-3.5" />
+                          Orden <ArrowUpRight className="w-3 h-3" />
                         </a>
                       ) : (
-                        <span className="text-charcoal-muted/50">—</span>
+                        <span className="text-xs text-charcoal-muted py-1">—</span>
                       )}
-                    </td>
+                      <button
+                        onClick={() => handleDeleteSale(sale.id)}
+                        className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg border border-rose-100 transition-colors"
+                        title="Eliminar venta"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* DESKTOP LAYOUT (TABLE) */}
+            <div className="hidden lg:block">
+              <table className="w-full text-left font-body text-sm divide-y divide-border">
+                <thead className="bg-cream/40 text-charcoal-muted text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="px-3 py-4 font-semibold">Fecha / Hora</th>
+                    <th className="px-3 py-4 font-semibold">Cliente</th>
+                    <th className="px-3 py-4 font-semibold text-center">Canal</th>
+                    <th className="px-3 py-4 font-semibold text-center">Pago</th>
+                    <th className="px-3 py-4 font-semibold">Items</th>
+                    <th className="px-3 py-4 font-semibold text-right">Total</th>
+                    <th className="px-3 py-4 text-center w-20">Orden</th>
+                    <th className="px-3 py-4 text-center w-12">Acción</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {sales.map((sale) => (
+                    <tr key={sale.id} className="hover:bg-cream/10 transition-colors">
+                      <td className="px-3 py-4 text-charcoal font-medium">
+                        {new Date(sale.created_at).toLocaleString("es-CO", {
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td className="px-3 py-4">
+                        <p className="text-charcoal font-medium">
+                          {sale.customer_name || <span className="text-charcoal-muted italic">Anónimo</span>}
+                        </p>
+                        {sale.customer_phone && (
+                          <p className="text-[10px] text-charcoal-muted">{sale.customer_phone}</p>
+                        )}
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <span className="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-lg bg-cream border border-border text-charcoal capitalize">
+                          {sale.channel === "efectivo" ? "Físico" : sale.channel}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <span className="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded border border-border text-charcoal-muted capitalize">
+                          {sale.payment_method}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="max-w-[240px] truncate text-xs text-charcoal-muted" title={sale.items.map(i => `${i.product_name} (x${i.quantity})`).join(", ")}>
+                          {sale.items.map((i) => `${i.product_name} (x${i.quantity})`).join(", ")}
+                        </div>
+                      </td>
+                      <td className="px-3 py-4 text-right font-semibold text-charcoal">
+                        ${formatPrice(sale.total)}
+                        {sale.discount > 0 && (
+                          <p className="text-[9px] text-rose-500">Desc: -${formatPrice(sale.discount)}</p>
+                        )}
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        {sale.order_id ? (
+                          <a
+                            href={`/admin/orders/${sale.order_id}`}
+                            className="inline-flex items-center gap-1 text-xs text-gold hover:underline font-semibold"
+                          >
+                            Ver
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </a>
+                        ) : (
+                          <span className="text-charcoal-muted/50">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          onClick={() => handleDeleteSale(sale.id)}
+                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                          title="Eliminar venta"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

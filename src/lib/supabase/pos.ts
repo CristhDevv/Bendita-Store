@@ -279,3 +279,61 @@ export async function getPosStats(dateFrom: string, dateTo: string) {
     return null;
   }
 }
+
+export async function deletePosSale(id: string) {
+  try {
+    if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+
+    // 1. Obtener el order_id asociado a la venta POS
+    const getSaleRes = await fetch(`${supabaseUrl}/rest/v1/pos_sales?id=eq.${id}&select=order_id`, {
+      headers: getServiceHeaders(),
+      next: { revalidate: 0 },
+    });
+
+    let orderId: string | null = null;
+    if (getSaleRes.ok) {
+      const salesData = await getSaleRes.json();
+      orderId = salesData[0]?.order_id || null;
+    }
+
+    // 2. Eliminar de pos_sale_items primero
+    const deleteItemsRes = await fetch(`${supabaseUrl}/rest/v1/pos_sale_items?pos_sale_id=eq.${id}`, {
+      method: "DELETE",
+      headers: getServiceHeaders(),
+    });
+
+    if (!deleteItemsRes.ok) {
+      const errText = await deleteItemsRes.text();
+      throw new Error(`Failed to delete POS sale items: ${errText}`);
+    }
+
+    // 3. Eliminar de pos_sales
+    const deleteSaleRes = await fetch(`${supabaseUrl}/rest/v1/pos_sales?id=eq.${id}`, {
+      method: "DELETE",
+      headers: getServiceHeaders(),
+    });
+
+    if (!deleteSaleRes.ok) {
+      const errText = await deleteSaleRes.text();
+      throw new Error(`Failed to delete POS sale: ${errText}`);
+    }
+
+    // 4. Eliminar de orders si existe vinculada
+    if (orderId) {
+      const deleteOrderRes = await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${orderId}`, {
+        method: "DELETE",
+        headers: getServiceHeaders(),
+      });
+
+      if (!deleteOrderRes.ok) {
+        const errText = await deleteOrderRes.text();
+        throw new Error(`Failed to delete linked order: ${errText}`);
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error in deletePosSale:", error);
+    throw error;
+  }
+}
