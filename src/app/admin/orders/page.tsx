@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   Search,
@@ -15,6 +15,10 @@ import {
   Mail,
   FileText,
   Receipt,
+  Pencil,
+  X,
+  Eye,
+  Trash2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Order, OrderStatus } from "@/types";
@@ -61,11 +65,25 @@ function parseNotes(notes: string | null | undefined) {
   return { name, email, phone, shipping: shippingPart };
 }
 
-function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string, status: OrderStatus) => void }) {
+function StatusSelect({
+  order,
+  onUpdate,
+  value,
+  onChange,
+}: {
+  order?: Order;
+  onUpdate?: (id: string, status: OrderStatus) => void;
+  value?: OrderStatus;
+  onChange?: (status: OrderStatus) => void;
+}) {
   const [updating, setUpdating] = useState(false);
 
   const handleChange = async (newStatus: OrderStatus) => {
-    if (newStatus === order.status) return;
+    if (onChange) {
+      onChange(newStatus);
+      return;
+    }
+    if (!order || !onUpdate || newStatus === order.status) return;
     setUpdating(true);
     const supabase = createClient();
     const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", order.id);
@@ -73,6 +91,8 @@ function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string
     else toast.error("Error al actualizar");
     setUpdating(false);
   };
+
+  const currentValue = value ?? order?.status ?? "pending";
 
   return (
     <div className="relative max-w-xs mt-1">
@@ -84,7 +104,7 @@ function StatusSelect({ order, onUpdate }: { order: Order; onUpdate: (id: string
       ) : (
         <div className="relative">
           <select
-            value={order.status}
+            value={currentValue}
             onChange={(e) => handleChange(e.target.value as OrderStatus)}
             className="w-full appearance-none pl-3 pr-9 py-2.5 rounded-xl bg-cream border border-border focus:border-gold text-charcoal font-body text-sm outline-none transition-colors cursor-pointer"
           >
@@ -167,6 +187,43 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Edit modal states
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editStatus, setEditStatus] = useState<OrderStatus>("pending");
+  const [editTracking, setEditTracking] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const handleSaveEdit = async () => {
+    if (!editingOrder) return;
+    setSavingEdit(true);
+    const supabase = createClient();
+    const trackingVal = editTracking.trim() || null;
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: editStatus, tracking_number: trackingVal })
+        .eq("id", editingOrder.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === editingOrder.id
+            ? { ...o, status: editStatus, tracking_number: trackingVal }
+            : o
+        )
+      );
+      toast.success("Orden actualizada");
+      setEditingOrder(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al actualizar la orden");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   const fetchOrders = useCallback(async () => {
     const supabase = createClient();
@@ -266,6 +323,47 @@ export default function AdminOrdersPage() {
                     );
                   })()}
                   <p className="font-display text-base text-charcoal font-semibold">{formatCOP(order.total)}</p>
+                  
+                  {/* Acciones */}
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
+                      className="w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
+                      title="Ver"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingOrder(order);
+                        setEditStatus(order.status);
+                        setEditTracking(order.tracking_number || "");
+                      }}
+                      className="w-8 h-8 rounded-lg hover:bg-cream-dark flex items-center justify-center text-charcoal-muted hover:text-charcoal transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm(`¿Estás seguro de eliminar la orden #${order.id.slice(0, 8).toUpperCase()}?`)) {
+                          const supabase = createClient();
+                          const { error } = await supabase.from("orders").delete().eq("id", order.id);
+                          if (!error) {
+                            setOrders((prev) => prev.filter((o) => o.id !== order.id));
+                            toast.success("Orden eliminada");
+                          } else {
+                            toast.error("Error al eliminar la orden");
+                          }
+                        }
+                      }}
+                      className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-charcoal-muted hover:text-red-500 transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
                   <ChevronDown className={`w-4 h-4 text-charcoal-muted transition-transform ${expandedId === order.id ? "rotate-180" : ""}`} />
                 </div>
               </div>
@@ -440,6 +538,89 @@ export default function AdminOrdersPage() {
           )}
         </div>
       )}
+
+      {/* Modal Editar Orden */}
+      <AnimatePresence>
+        {editingOrder && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !savingEdit && setEditingOrder(null)}
+              className="fixed inset-0 z-40 bg-charcoal/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-white rounded-3xl shadow-2xl p-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-display text-2xl text-charcoal font-semibold">
+                  Editar Orden #{editingOrder.id.slice(0, 8).toUpperCase()}
+                </h2>
+                <button
+                  onClick={() => setEditingOrder(null)}
+                  disabled={savingEdit}
+                  className="p-2 text-charcoal-muted hover:bg-cream rounded-full disabled:opacity-50"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-5 font-body">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-charcoal-muted mb-2 font-semibold">
+                    Estado de la orden
+                  </label>
+                  <StatusSelect
+                    value={editStatus}
+                    onChange={setEditStatus}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-charcoal-muted mb-2 font-semibold">
+                    Número de guía
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Número de guía / tracking..."
+                    value={editTracking}
+                    onChange={(e) => setEditTracking(e.target.value)}
+                    disabled={savingEdit}
+                    className="w-full bg-cream border border-border rounded-xl px-4 py-3 outline-none focus:border-gold disabled:opacity-50 text-sm font-body text-charcoal shadow-inner"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-border/60">
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={savingEdit}
+                    className="flex-1 px-4 py-3 bg-gold hover:bg-gold/90 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+                  >
+                    {savingEdit ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
+                      </>
+                    ) : (
+                      "Guardar"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setEditingOrder(null)}
+                    disabled={savingEdit}
+                    className="flex-1 px-4 py-3 bg-cream hover:bg-border/40 border border-border text-charcoal rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
