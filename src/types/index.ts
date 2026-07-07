@@ -91,6 +91,9 @@ export interface Order {
   payment_ref?: string;
   notes?: string;
   tracking_number?: string | null;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
   created_at: string;
   // Joins
   address?: Address;

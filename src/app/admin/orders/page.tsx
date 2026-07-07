@@ -307,7 +307,7 @@ export default function AdminOrdersPage() {
                   </div>
                   <div>
                     <p className="font-body text-sm text-charcoal font-medium">
-                      #{order.id.slice(0, 8).toUpperCase()}
+                      #{order.id.slice(0, 8).toUpperCase()} — {order.customer_name || parseNotes(order.notes).name || "Cliente sin nombre"}
                     </p>
                     <p className="font-body text-xs text-charcoal-muted">{formatDate(order.created_at)}</p>
                   </div>
@@ -418,10 +418,14 @@ export default function AdminOrdersPage() {
                     )}
                   </div>
 
-                  {/* Cliente (from notes) */}
+                  {/* Cliente (prioritizing new columns, fallback to notes) */}
                   {(() => {
-                    const { name, email, phone, shipping } = parseNotes((order as any).notes);
-                    const hasContact = name || email || phone;
+                    const notesContact = parseNotes(order.notes);
+                    const name = order.customer_name || notesContact.name || "Cliente sin nombre";
+                    const email = order.customer_email || notesContact.email;
+                    const phone = order.customer_phone || notesContact.phone;
+                    const hasContact = order.customer_name || order.customer_email || order.customer_phone || notesContact.name || notesContact.email || notesContact.phone;
+                    const shipping = notesContact.shipping;
                     return (
                       <>
                         {hasContact && (

@@ -154,9 +154,9 @@ export default function CheckoutPage() {
     }
 
     // Preparar notas si es guest o no guardó la dirección
-    let notes = `Contacto: ${contactInfo.fullName}, ${contactInfo.email}, ${contactInfo.phone}`;
+    let notes = "";
     if (isNewAddress && (!user || !saveNewAddress)) {
-      notes += ` | Envío: ${newAddress.street}, ${newAddress.city}, ${newAddress.state}, ${newAddress.postal_code}`;
+      notes = `Envío: ${newAddress.street}, ${newAddress.city}, ${newAddress.state}, ${newAddress.postal_code}`;
     }
 
     const orderData: Partial<Order> = {
@@ -164,7 +164,10 @@ export default function CheckoutPage() {
       total: total,
       address_id: finalAddressId || undefined,
       payment_method: paymentMethod,
-      notes: notes,
+      notes: notes || undefined,
+      customer_name: contactInfo.fullName,
+      customer_email: contactInfo.email,
+      customer_phone: contactInfo.phone,
     };
     if (user?.id) orderData.user_id = user.id;
 
