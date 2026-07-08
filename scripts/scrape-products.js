@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * scripts/scrape-products.js
  *
  * Scraper de Fragrantica con fallback a datos curados reales.
  * Uso: node scripts/scrape-products.js
  */
+
 
 const axios = require("axios");
 const cheerio = require("cheerio");

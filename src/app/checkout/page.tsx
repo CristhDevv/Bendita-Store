@@ -40,7 +40,6 @@ export default function CheckoutPage() {
   const { trackEvent } = useTracking();
 
   const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   // Paso 1: Información

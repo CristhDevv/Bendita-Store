@@ -1,7 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawerDynamic";
-import { Toaster } from "react-hot-toast";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { OrderChangeNotification } from "@/components/ui/OrderChangeNotification";

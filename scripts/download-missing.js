@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * scripts/download-missing.js
  * Downloads only the 3 missing perfume images.
  */
+
 
 const https = require("https");
 const fs = require("fs");

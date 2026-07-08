@@ -13,7 +13,6 @@ import {
   User,
   Phone,
   Mail,
-  FileText,
   Receipt,
   Pencil,
   X,

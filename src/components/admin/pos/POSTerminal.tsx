@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, ShoppingBag, Trash2, Plus, Minus, User, Sparkles, AlertCircle, ShoppingCart, MessageCircle, Hash, Store } from "lucide-react";
+import { Search, ShoppingBag, Trash2, Plus, Minus, User, Sparkles, ShoppingCart, MessageCircle, Hash, Store } from "lucide-react";
 import { searchProducts, searchUsers, createPosSale } from "@/lib/supabase/pos";
 import { formatPrice } from "@/lib/utils/format";
 import type { Product } from "@/types";
@@ -26,6 +26,7 @@ export function POSTerminal() {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [userQuery, setUserQuery] = useState("");
   const [users, setUsers] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchingUsers, setSearchingUsers] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 

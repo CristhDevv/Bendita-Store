@@ -1,5 +1,5 @@
 import { createClient } from "./client";
-import { Address, Order, OrderItem } from "@/types";
+import { Address, Order } from "@/types";
 
 export async function getUserAddresses(userId: string): Promise<Address[]> {
   const supabase = createClient();

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import type { Product, Category, Brand } from "@/types";
+import type { Product, Brand } from "@/types";
 import toast from "react-hot-toast";
 import NextImage from "next/image";
 

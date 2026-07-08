@@ -17,7 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Order, OrderStatus } from "@/types";
+import type { Order } from "@/types";
 
 // ── Helpers ────────────────────────────────────────────────────
 function formatCOP(n: number) {
@@ -633,7 +633,7 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
                 <p className="font-body text-xs text-charcoal-muted mt-3">
-                  💡 Los términos marcados como "sin resultados" son productos que tus clientes piden pero no encuentran. Considera agregarlos.
+                  💡 Los términos marcados como &quot;sin resultados&quot; son productos que tus clientes piden pero no encuentran. Considera agregarlos.
                 </p>
               </div>
             )}

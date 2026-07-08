@@ -100,7 +100,7 @@ export default function AdminOlfactiveFamiliesPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
       const supabase = createClient();
@@ -252,7 +252,7 @@ export default function AdminOlfactiveFamiliesPage() {
                   </button>
                   {confirmId === fam.id ? (
                     <div className="flex gap-1 items-center">
-                      <button onClick={() => handleDelete(fam.id, fam.name)} disabled={deletingId === fam.id} className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-2.5 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                      <button onClick={() => handleDelete(fam.id)} disabled={deletingId === fam.id} className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-2.5 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
                         {deletingId === fam.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
                       </button>
                       <button onClick={() => setConfirmId(null)} disabled={deletingId === fam.id} className="bg-cream hover:bg-border border border-border rounded-lg px-2.5 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">

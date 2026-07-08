@@ -54,7 +54,7 @@ async function run() {
 
       console.log(`Uploading ${fileName}...`);
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("products")
         .upload(fileName, buffer, {
           contentType: type,

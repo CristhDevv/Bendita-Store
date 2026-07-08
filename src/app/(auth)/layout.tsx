@@ -1,18 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  // Generar posiciones aleatorias para partículas (solo una vez)
-  const particles = Array.from({ length: 30 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    duration: 3 + Math.random() * 4,
-    delay: Math.random() * 2,
-    size: Math.random() > 0.5 ? 2 : 4,
-  }));
+  // Generar posiciones aleatorias para partículas (solo una vez por montaje)
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 30 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        duration: 3 + Math.random() * 4,
+        delay: Math.random() * 2,
+        size: Math.random() > 0.5 ? 2 : 4,
+      })),
+    []
+  );
 
   return (
     <div className="min-h-screen bg-cream flex">

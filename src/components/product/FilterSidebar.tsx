@@ -26,7 +26,7 @@ interface Props {
   onClose: () => void;
 }
 
-function FilterContent({ filters, setGender, setPriceRange, toggleBrand, toggleNote, clearFilters, hasActiveFilters, onClose, isMobile }: Props & { isMobile?: boolean }) {
+function FilterContent({ filters, setGender, setPriceRange, toggleBrand, toggleNote, clearFilters, hasActiveFilters, isMobile }: Omit<Props, "onClose"> & { isMobile?: boolean }) {
   const [showAllBrands, setShowAllBrands] = useState(false);
   const visibleBrands = showAllBrands ? BRANDS : BRANDS.slice(0, 6);
 

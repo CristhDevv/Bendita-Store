@@ -115,7 +115,7 @@ export default function AdminBrandsPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
       const supabase = createClient();
@@ -329,7 +329,7 @@ export default function AdminBrandsPage() {
                         </button>
                         {confirmId === brand.id ? (
                           <div className="flex gap-1 items-center">
-                            <button onClick={() => handleDelete(brand.id, brand.name)} disabled={deletingId === brand.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
+                            <button onClick={() => handleDelete(brand.id)} disabled={deletingId === brand.id} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-1.5 text-xs font-body transition-colors disabled:opacity-50">
                               {deletingId === brand.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmar"}
                             </button>
                             <button onClick={() => setConfirmId(null)} disabled={deletingId === brand.id} className="bg-cream hover:bg-border border border-border rounded-xl px-3 py-1.5 text-charcoal text-xs font-body transition-colors disabled:opacity-50">

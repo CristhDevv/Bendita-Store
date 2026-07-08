@@ -18,7 +18,7 @@ const STORAGE_URL = CONFIG.STORAGE.PUBLIC_URL;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  let product = await getProductBySlugPublic(resolvedParams.slug);
+  const product = await getProductBySlugPublic(resolvedParams.slug);
   if (!product) return { title: "Producto no encontrado | Bendita Store" };
   
   if (!product) return { title: "Producto no encontrado | Bendita Store" };
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  let product = await getProductBySlugPublic(resolvedParams.slug);
+  const product = await getProductBySlugPublic(resolvedParams.slug);
   
   if (!product) notFound();
 

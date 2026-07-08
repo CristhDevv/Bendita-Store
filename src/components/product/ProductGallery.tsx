@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 
 export function ProductGallery({ images }: { images: string[] }) {
   const [active, setActive] = useState(0);

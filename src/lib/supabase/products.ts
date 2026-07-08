@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import type { Product } from "@/types";
 
 export async function getProductBySlugPublic(slug: string): Promise<Product | null> {

@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowRight } from "lucide-react";
@@ -9,7 +8,6 @@ import { CONFIG } from "@/lib/config";
 
 export default function OrderConfirmationPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = use(params);
-  const router = useRouter();
   
   // Scrollear arriba al cargar
   useEffect(() => {

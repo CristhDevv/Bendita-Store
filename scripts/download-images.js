@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * scripts/download-images.js
  * Downloads real perfume bottle images from public sources (Wikimedia Commons).
  * Run: node scripts/download-images.js
  */
+
 
 const https = require("https");
 const http = require("http");
