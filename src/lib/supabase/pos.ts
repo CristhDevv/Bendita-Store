@@ -113,6 +113,8 @@ export async function createPosSale(data: {
       payment_method: data.payment_method,
       notes: data.notes || `Venta POS por canal ${data.channel}`,
       source: "pos",
+      customer_name: data.customer_name || null,
+      customer_phone: data.customer_phone || null,
     };
 
     const orderItems = data.items.map(item => ({
