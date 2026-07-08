@@ -33,7 +33,7 @@ export async function saveAddress(addressData: Partial<Address>): Promise<Addres
 
 export async function createOrderTransaction(
   order: Partial<Order>,
-  items: any[]
+  items: Record<string, unknown>[]
 ): Promise<string | null> {
   const supabase = createClient();
   

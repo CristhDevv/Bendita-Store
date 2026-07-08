@@ -2,7 +2,7 @@ import { createBrowserClient } from "@supabase/ssr";
 
 let supabase: ReturnType<typeof createBrowserClient> | null = null;
 
-export function createClient() {
+export function createClient(): ReturnType<typeof createBrowserClient> | null {
   if (supabase) return supabase;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -10,7 +10,7 @@ export function createClient() {
 
   if (!supabaseUrl.startsWith("http") || !supabaseKey) {
     console.warn("Supabase env vars missing — using dummy client");
-    return null as any;
+    return null;
   }
 
   supabase = createBrowserClient(supabaseUrl, supabaseKey);

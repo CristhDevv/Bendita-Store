@@ -85,7 +85,7 @@ export async function getRelatedProducts(categoryId: string | undefined, exclude
   }
 }
 
-export async function getProducts(filters?: any): Promise<Product[]> {
+export async function getProducts(filters?: { brand?: string }): Promise<Product[]> {
   try {
     const supabase = await createClient({
       global: { fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, next: { revalidate: 3600 } }) }

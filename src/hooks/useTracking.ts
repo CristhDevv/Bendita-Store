@@ -80,7 +80,7 @@ export function useTracking() {
         }
       })();
     },
-    [user?.id]
+    [user]
   );
 
   return { trackEvent };

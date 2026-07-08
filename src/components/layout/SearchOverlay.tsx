@@ -95,7 +95,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     }
 
     searchProducts();
-  }, [debouncedQuery, supabase]);
+  }, [debouncedQuery, supabase, trackEvent]);
 
   return (
     <AnimatePresence>
