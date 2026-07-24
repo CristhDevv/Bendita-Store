@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
-import type { CartItem } from "@/types";
 import { useTracking } from "@/hooks/useTracking";
 
 export function CartDrawer() {
@@ -20,8 +19,7 @@ export function CartDrawer() {
   if (!isMounted) return null;
 
   const total = totalPrice();
-  const shippingCost = total === 0 ? 0 : 15000;
-  const finalTotal = total + shippingCost;
+
 
   return (
     <AnimatePresence>
@@ -208,11 +206,11 @@ export function CartDrawer() {
                     </div>
                     <div className="flex justify-between text-charcoal-muted">
                       <span>Envío</span>
-                      <span>${shippingCost.toLocaleString("es-CO")}</span>
+                      <span>El costo del envío se calcula por aparte</span>
                     </div>
                     <div className="flex justify-between items-center border-t border-border pt-2 mt-1">
                       <span className="text-charcoal text-sm font-medium">Total</span>
-                      <span className="font-bold text-lg text-charcoal">${finalTotal.toLocaleString("es-CO")}</span>
+                      <span className="font-bold text-lg text-charcoal">${total.toLocaleString("es-CO")}</span>
                     </div>
                   </div>
                   {/* Checkout Button */}
