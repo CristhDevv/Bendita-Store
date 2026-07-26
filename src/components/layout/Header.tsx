@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useIsMounted } from "@/hooks/useIsMounted";
 import Link from "next/link";
 import { Search, Heart, ShoppingBag, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
@@ -18,11 +19,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems());
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsMounted();
 
   useEffect(() => {
     const handleScroll = () => {

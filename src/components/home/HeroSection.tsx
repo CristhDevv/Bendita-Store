@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useIsMounted } from "@/hooks/useIsMounted";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -62,12 +63,8 @@ const STATS = [
    HeroSection
 ═══════════════════════════════════════════════════════════════ */
 export function HeroSection({ discountProducts = [] }: { discountProducts?: Product[] }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!mounted || discountProducts.length <= 1) return;

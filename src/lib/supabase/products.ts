@@ -9,7 +9,7 @@ export async function getProductBySlugPublic(slug: string): Promise<Product | nu
     if (!supabaseUrl || !supabaseKey) return null;
 
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/products?slug=eq.${slug}&select=*,brand:brands(*),category:categories(*)&limit=1`,
+      `${supabaseUrl}/rest/v1/products?slug=eq.${slug}&is_active=eq.true&show_in_catalog=eq.true&select=*,brand:brands(*),category:categories(*)&limit=1`,
       {
         headers: {
           apikey: supabaseKey,

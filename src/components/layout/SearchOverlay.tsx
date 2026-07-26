@@ -29,6 +29,17 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [results, setResults] = useState<ProductResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
+    if (!isOpen) {
+      setQuery("");
+      setDebouncedQuery("");
+      setResults([]);
+    }
+  }
+
   const supabase = createClient();
   const { trackEvent } = useTracking();
 
@@ -38,9 +49,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       document.body.style.overflow = "";
-      setQuery("");
-      setDebouncedQuery("");
-      setResults([]);
     }
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);

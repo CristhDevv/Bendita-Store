@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useIsMounted } from "@/hooks/useIsMounted";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +13,7 @@ export function CartDrawer() {
   const { trackEvent } = useTracking();
   
   // Para evitar hydration mismatch, usamos un state mounted
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
+  const isMounted = useIsMounted();
 
   if (!isMounted) return null;
 

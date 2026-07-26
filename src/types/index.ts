@@ -45,6 +45,7 @@ export interface Product {
   cost_price?: number | null;
   is_featured: boolean;
   is_active: boolean;
+  show_in_catalog: boolean;
   created_at: string;
   olfactive_family?: string[];
   // Joins

@@ -14,14 +14,13 @@ import {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => createClient() !== null);
 
   useEffect(() => {
     try {
       const supabase = createClient();
       
       if (!supabase) {
-        setLoading(false);
         return;
       }
 
@@ -38,6 +37,7 @@ export function useAuth() {
       };
     } catch (e) {
       console.warn("Auth unavailable:", e);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- manejo de error de suscripción, no inicialización
       setLoading(false);
     }
   }, []);

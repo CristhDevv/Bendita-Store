@@ -85,7 +85,7 @@ export default function NewProductPage() {
     concentration: "edp" as "parfum" | "edp" | "edt" | "edc" | "splash",
     stock: "" as number | "", 
     olfactive_family: [] as string[],
-    is_featured: false, is_active: true,
+    is_featured: false, is_active: true, show_in_catalog: true,
   });
 
   useEffect(() => {
@@ -314,6 +314,12 @@ export default function NewProductPage() {
                 {form.is_active && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
               </div>
               <span className="font-body text-sm text-charcoal-muted">Activo</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.show_in_catalog ? "bg-charcoal border-charcoal" : "border-border"}`} onClick={() => setForm((f) => ({ ...f, show_in_catalog: !f.show_in_catalog }))}>
+                {form.show_in_catalog && <svg viewBox="0 0 12 9" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4l3.5 3.5L11 1" /></svg>}
+              </div>
+              <span className="font-body text-sm text-charcoal-muted">Mostrar en catálogo público</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.is_featured ? "bg-gold border-gold" : "border-border"}`} onClick={() => setForm((f) => ({ ...f, is_featured: !f.is_featured }))}>

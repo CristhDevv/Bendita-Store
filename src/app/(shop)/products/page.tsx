@@ -21,7 +21,8 @@ async function fetchProductsSSR(): Promise<Product[]> {
     const { data, error } = await supabase
       .from("products")
       .select("*, brand:brands(*), category:categories(*)")
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .eq("show_in_catalog", true);
 
     if (error || !data) return [];
     return data as Product[];
