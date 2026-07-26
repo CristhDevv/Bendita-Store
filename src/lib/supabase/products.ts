@@ -70,6 +70,7 @@ export async function getRelatedProducts(categoryId: string | undefined, exclude
       .select(`*, brand:brands(*)`)
       .neq("id", excludeId)
       .eq("is_active", true)
+      .eq("show_in_catalog", true)
       .limit(6);
 
     if (categoryId) {
@@ -112,7 +113,8 @@ export async function getAllActiveProductSlugs(): Promise<{ slug: string; update
     const { data, error } = await supabase
       .from("products")
       .select("slug, created_at")
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .eq("show_in_catalog", true);
 
     if (error || !data) return [];
     return data.map((p: { slug: string; created_at: string }) => ({
