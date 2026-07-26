@@ -50,18 +50,24 @@ function parseNotes(notes: string | null | undefined) {
   if (!notes) return { name: null, email: null, phone: null, shipping: null };
 
   const contactMatch = notes.match(/^Contacto:\s*(.+?)(?:\s*\|\s*Env[íi]o:\s*(.+))?$/);
-  if (!contactMatch) return { name: null, email: null, phone: null, shipping: null };
+  if (contactMatch) {
+    const contactPart = contactMatch[1].trim();
+    const shippingPart = contactMatch[2]?.trim() || null;
+    // Format: "Full Name, email@example.com, 3001234567"
+    const parts = contactPart.split(", ");
+    const phone = parts.length >= 1 ? parts[parts.length - 1] : null;
+    const email = parts.length >= 2 ? parts[parts.length - 2] : null;
+    const name = parts.length >= 3 ? parts.slice(0, parts.length - 2).join(", ") : null;
+    return { name, email, phone, shipping: shippingPart };
+  }
 
-  const contactPart = contactMatch[1].trim();
-  const shippingPart = contactMatch[2]?.trim() || null;
+  // Formato del checkout actual: notas que empiezan directamente con "Envío: <dirección>"
+  const shippingOnlyMatch = notes.match(/^Env[íi]o:\s*([\s\S]+)$/);
+  if (shippingOnlyMatch) {
+    return { name: null, email: null, phone: null, shipping: shippingOnlyMatch[1].trim() };
+  }
 
-  // Format: "Full Name, email@example.com, 3001234567"
-  const parts = contactPart.split(", ");
-  const phone = parts.length >= 1 ? parts[parts.length - 1] : null;
-  const email = parts.length >= 2 ? parts[parts.length - 2] : null;
-  const name = parts.length >= 3 ? parts.slice(0, parts.length - 2).join(", ") : null;
-
-  return { name, email, phone, shipping: shippingPart };
+  return { name: null, email: null, phone: null, shipping: null };
 }
 
 function StatusSelect({
