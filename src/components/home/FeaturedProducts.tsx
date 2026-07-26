@@ -102,6 +102,7 @@ export function FeaturedProducts() {
           .select("*, brand:brands(*)")
           .eq("is_active", true)
           .eq("is_featured", true)
+          .eq("show_in_catalog", true)
           .limit(4);
         if (!error && data) {
           setProducts(data as Product[]);
