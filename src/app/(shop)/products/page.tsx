@@ -22,7 +22,8 @@ async function fetchProductsSSR(): Promise<Product[]> {
       .from("products")
       .select("*, brand:brands(*), category:categories(*)")
       .eq("is_active", true)
-      .eq("show_in_catalog", true);
+      .eq("show_in_catalog", true)
+      .gt("stock", 0);
 
     if (error || !data) return [];
     return data as Product[];

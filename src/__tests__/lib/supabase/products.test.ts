@@ -101,6 +101,7 @@ describe("getRelatedProducts", () => {
     const chainObj: Record<string, unknown> = {};
     chainObj.eq = vi.fn().mockReturnValue(chainObj);
     chainObj.neq = vi.fn().mockReturnValue(chainObj);
+    chainObj.gt = vi.fn().mockReturnValue(chainObj);
     chainObj.limit = vi.fn().mockResolvedValue({ data: null, error: { message: "DB error" } });
     mockFrom.mockReturnValue({ select: vi.fn().mockReturnValue(chainObj) });
 
@@ -119,6 +120,7 @@ describe("getRelatedProducts", () => {
     const chainObj: Record<string, unknown> = {};
     chainObj.eq = vi.fn().mockReturnValue(chainObj);
     chainObj.neq = vi.fn().mockReturnValue(chainObj);
+    chainObj.gt = vi.fn().mockReturnValue(chainObj);
     chainObj.limit = vi.fn().mockResolvedValue({ data: [], error: null });
     mockFrom.mockReturnValue({ select: vi.fn().mockReturnValue(chainObj) });
 

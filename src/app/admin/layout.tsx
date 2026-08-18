@@ -31,11 +31,13 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
+  const { data } = await supabase
     .from("profiles")
     .select("is_admin")
     .eq("id", user.id)
-    .single<{ is_admin: boolean }>();
+    .single();
+
+  const profile = data as { is_admin: boolean } | null;
 
   if (!profile?.is_admin) {
     redirect("/");

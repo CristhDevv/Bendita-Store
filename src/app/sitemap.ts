@@ -2,6 +2,8 @@ import { MetadataRoute } from "next";
 import { CONFIG } from "@/lib/config";
 import { getAllActiveProductSlugs } from "@/lib/supabase/products";
 
+export const dynamic = "force-dynamic";
+
 const BASE_URL = CONFIG.SITE.URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

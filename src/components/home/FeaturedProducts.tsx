@@ -103,6 +103,7 @@ export function FeaturedProducts() {
           .eq("is_active", true)
           .eq("is_featured", true)
           .eq("show_in_catalog", true)
+          .gt("stock", 0)
           .limit(4);
         if (!error && data) {
           setProducts(data as Product[]);

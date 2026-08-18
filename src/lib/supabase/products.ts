@@ -76,6 +76,7 @@ export async function getRelatedProducts(
       .neq("id", excludeId)
       .eq("is_active", true)
       .eq("show_in_catalog", true)
+      .gt("stock", 0)
       .limit(6);
 
     if (categoryId) {
@@ -107,7 +108,8 @@ export async function getProducts(filters?: {
     let query = supabase
       .from("products")
       .select(`*, brand:brands(*)`)
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .gt("stock", 0);
 
     if (filters?.brand) {
       query = query.eq("brand_id", filters.brand);
@@ -134,7 +136,8 @@ export async function getAllActiveProductSlugs(): Promise<
       .from("products")
       .select("slug, updated_at, created_at")
       .eq("is_active", true)
-      .eq("show_in_catalog", true);
+      .eq("show_in_catalog", true)
+      .gt("stock", 0);
 
     if (error || !data) return [];
 

@@ -84,6 +84,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           .ilike("name", `%${debouncedQuery}%`)
           .eq("is_active", true)
           .eq("show_in_catalog", true)
+          .gt("stock", 0)
           .limit(6);
 
         if (error) throw error;

@@ -23,7 +23,7 @@ async function getDiscountProducts(): Promise<Product[]> {
 
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/products?is_active=eq.true&select=*,brand:brands(*),category:categories(*)`,
+      `${supabaseUrl}/rest/v1/products?is_active=eq.true&stock=gt.0&select=*,brand:brands(*),category:categories(*)`,
       {
         headers: {
           apikey: supabaseKey,

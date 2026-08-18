@@ -118,7 +118,7 @@ export default function CheckoutPage() {
     const result = contactInfoSchema.safeParse(contactInfo);
     if (!result.success) {
       const errors: Record<string, string> = {};
-      result.error.errors.forEach((e) => {
+      result.error.issues.forEach((e) => {
         if (e.path[0]) errors[String(e.path[0])] = e.message;
       });
       setContactErrors(errors);
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
     const result = newAddressSchema.safeParse(newAddress);
     if (!result.success) {
       const errors: Record<string, string> = {};
-      result.error.errors.forEach((e) => {
+      result.error.issues.forEach((e) => {
         if (e.path[0]) errors[String(e.path[0])] = e.message;
       });
       setAddressErrors(errors);
