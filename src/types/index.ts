@@ -58,6 +58,7 @@ export interface Profile {
   full_name?: string;
   phone?: string;
   avatar_url?: string;
+  is_admin?: boolean;
   created_at: string;
 }
 
@@ -136,4 +137,18 @@ export interface CartItem {
   quantity: number;
   selectedMl?: number;
   selectedPrice: number;
+}
+
+// CartStore interface — used for typed Zustand selectors (avoids any casts)
+export interface CartStore {
+  items: CartItem[];
+  isOpen: boolean;
+  addItem: (product: Product, quantity?: number, ml?: number) => void;
+  removeItem: (productId: string, ml?: number) => void;
+  updateQuantity: (productId: string, quantity: number, ml?: number) => void;
+  clearCart: () => void;
+  openCart: () => void;
+  closeCart: () => void;
+  totalItems: () => number;
+  totalPrice: () => number;
 }

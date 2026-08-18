@@ -3,9 +3,12 @@
 import { motion } from "framer-motion";
 
 export function WhatsAppButton() {
+  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  if (!waNumber) return null;
+
   return (
     <motion.a
-      href="https://wa.me/573203567144"
+      href={`https://wa.me/${waNumber}`}
       target="_blank"
       rel="noopener noreferrer"
       initial={{ opacity: 0, scale: 0.5 }}

@@ -1,40 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/types";
 
-export async function getProductBySlugPublic(slug: string): Promise<Product | null> {
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) return null;
-
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/products?slug=eq.${slug}&is_active=eq.true&show_in_catalog=eq.true&select=*,brand:brands(*),category:categories(*)&limit=1`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
-        next: { revalidate: 86400 },
-      }
-    );
-
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data || data.length === 0) return null;
-    return data[0] as Product;
-  } catch {
-    return null;
-  }
-}
-
+/**
+ * getProductBySlug — Fetches a product by slug using the typed Supabase client.
+ *
+ * Previously there were two versions of this function:
+ * - getProductBySlugPublic (raw fetch, duplicated logic)
+ * - getProductBySlug (typed client, server-only)
+ *
+ * They have been consolidated into this single function. The `revalidate`
+ * behaviour can be controlled via the `next` option on the client fetch
+ * override (see usage in product/[slug]/page.tsx).
+ */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     const supabase = await createClient({
-      global: { fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, next: { revalidate: 3600 } }) }
+      global: {
+        fetch: (url: RequestInfo | URL, options?: RequestInit) =>
+          fetch(url, { ...options, next: { revalidate: 86400 } }),
+      },
     });
     if (!supabase) return null;
+
     const { data, error } = await supabase
       .from("products")
       .select(`
@@ -43,10 +30,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         category:categories(*)
       `)
       .eq("slug", slug)
+      .eq("is_active", true)
+      .eq("show_in_catalog", true)
       .single();
 
     if (error || !data) {
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      if (error && error.code !== "PGRST116") {
+        // PGRST116 = "no rows returned" — not an error we need to log
         console.error("Error fetching product by slug:", error);
       }
       return null;
@@ -59,12 +49,27 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
-export async function getRelatedProducts(categoryId: string | undefined, excludeId: string): Promise<Product[]> {
+/**
+ * @deprecated Use getProductBySlug instead.
+ * Kept for backwards compatibility during migration.
+ */
+export const getProductBySlugPublic = getProductBySlug;
+
+export async function getRelatedProducts(
+  categoryId: string | undefined,
+  excludeId: string
+): Promise<Product[]> {
   try {
     const supabase = await createClient({
-      global: { fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, next: { revalidate: 3600 } }) }
+      global: {
+        fetch: (url: RequestInfo | URL, options?: RequestInit) =>
+          fetch(url, { ...options, next: { revalidate: 3600 } }),
+      },
     });
-    
+
+    // Guard: if Supabase is not configured, return empty array
+    if (!supabase) return [];
+
     let query = supabase
       .from("products")
       .select(`*, brand:brands(*)`)
@@ -86,18 +91,29 @@ export async function getRelatedProducts(categoryId: string | undefined, exclude
   }
 }
 
-export async function getProducts(filters?: { brand?: string }): Promise<Product[]> {
+export async function getProducts(filters?: {
+  brand?: string;
+  limit?: number;
+}): Promise<Product[]> {
   try {
     const supabase = await createClient({
-      global: { fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, next: { revalidate: 3600 } }) }
+      global: {
+        fetch: (url: RequestInfo | URL, options?: RequestInit) =>
+          fetch(url, { ...options, next: { revalidate: 3600 } }),
+      },
     });
-    let query = supabase.from("products").select(`*, brand:brands(*)`).eq("is_active", true);
+    if (!supabase) return [];
+
+    let query = supabase
+      .from("products")
+      .select(`*, brand:brands(*)`)
+      .eq("is_active", true);
 
     if (filters?.brand) {
       query = query.eq("brand_id", filters.brand);
     }
 
-    const { data, error } = await query.limit(20);
+    const { data, error } = await query.limit(filters?.limit ?? 20);
     if (error) return [];
     return data as Product[];
   } catch (err) {
@@ -106,24 +122,31 @@ export async function getProducts(filters?: { brand?: string }): Promise<Product
   }
 }
 
-export async function getAllActiveProductSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+export async function getAllActiveProductSlugs(): Promise<
+  { slug: string; updated_at: string }[]
+> {
   try {
     const supabase = await createClient();
     if (!supabase) return [];
+
+    // Select updated_at (not created_at) for accurate sitemap lastModified dates
     const { data, error } = await supabase
       .from("products")
-      .select("slug, created_at")
+      .select("slug, updated_at, created_at")
       .eq("is_active", true)
       .eq("show_in_catalog", true);
 
     if (error || !data) return [];
-    return data.map((p: { slug: string; created_at: string }) => ({
-      slug: p.slug,
-      updated_at: p.created_at
-    }));
+
+    return data.map(
+      (p: { slug: string; updated_at?: string; created_at: string }) => ({
+        slug: p.slug,
+        // Use updated_at if available; fall back to created_at for older rows
+        updated_at: p.updated_at ?? p.created_at,
+      })
+    );
   } catch (err) {
     console.error("Failed in getAllActiveProductSlugs:", err);
     return [];
   }
 }
-

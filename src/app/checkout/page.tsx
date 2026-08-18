@@ -7,15 +7,25 @@ import { Check, ChevronRight, Loader2, MapPin, CreditCard, User } from "lucide-r
 import { useCartStore } from "@/lib/store/cart";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserAddresses, saveAddress, createOrderTransaction } from "@/lib/supabase/checkout";
-import { Address, Order } from "@/types";
+import { notifyNewOrder } from "@/lib/actions/notify";
+import type { Address, Order, CartStore } from "@/types";
 import toast from "react-hot-toast";
 import { useTracking } from "@/hooks/useTracking";
+import { contactInfoSchema, newAddressSchema } from "@/lib/utils/validation";
 
-
-function buildWhatsAppMessage(orderId: string, items: any[], address: { street?: string; city?: string; state?: string }, total: number) {
-  const itemsList = items.map((item) => 
-    `- ${item.product.name} (${item.selectedMl}ml) x${item.quantity} — $${(item.selectedPrice * item.quantity).toLocaleString("es-CO")} COP`
-  ).join('\n');
+// ─── WhatsApp message builder ─────────────────────────────────────────────────
+function buildWhatsAppMessage(
+  orderId: string,
+  items: CartStore["items"],
+  address: { street?: string; city?: string; state?: string },
+  total: number
+) {
+  const itemsList = items
+    .map(
+      (item) =>
+        `- ${item.product.name}${item.selectedMl ? ` (${item.selectedMl}ml)` : ""} x${item.quantity} — $${(item.selectedPrice * item.quantity).toLocaleString("es-CO")} COP`
+    )
+    .join("\n");
 
   return `Hola! Aquí los detalles de mi pedido:
 
@@ -25,22 +35,27 @@ function buildWhatsAppMessage(orderId: string, items: any[], address: { street?:
 ${itemsList}
 
 📍 Dirección de entrega:
-${address.street}, ${address.city}, ${address.state}
+${[address.street, address.city, address.state].filter(Boolean).join(", ")}
 
 💰 Total a pagar: $${total.toLocaleString("es-CO")} COP
 
 Deseo coordinar el pago por transferencia bancaria. ¿A qué cuenta puedo consignar?`;
 }
 
+// ─── Checkout Page ─────────────────────────────────────────────────────────────
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const items = useCartStore((state: any) => state.items);
-  const clearCart = useCartStore((state: any) => state.clearCart);
+  const items = useCartStore((state: CartStore) => state.items);
+  const clearCart = useCartStore((state: CartStore) => state.clearCart);
   const { trackEvent } = useTracking();
 
   const [step, setStep] = useState(1);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+  // Form field errors
+  const [contactErrors, setContactErrors] = useState<Record<string, string>>({});
+  const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
 
   // Paso 1: Información
   const [contactInfo, setContactInfo] = useState({ fullName: "", email: "", phone: "" });
@@ -59,7 +74,7 @@ export default function CheckoutPage() {
     if (items.length >= 2 && paymentMethod === "cod") {
       setPaymentMethod("transfer");
     }
-  }, [items.length]);
+  }, [items.length, paymentMethod]);
 
   useEffect(() => {
     if (user) {
@@ -76,10 +91,9 @@ export default function CheckoutPage() {
     if (items.length === 0 && !isPlacingOrder) {
       router.push("/products");
     } else if (items.length > 0) {
-      // Fire begin_checkout once on mount
       trackEvent("begin_checkout", {
         item_count: items.length,
-        subtotal: items.reduce((acc: number, item: any) => acc + item.selectedPrice * item.quantity, 0),
+        subtotal: items.reduce((acc, item) => acc + item.selectedPrice * item.quantity, 0),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,22 +110,45 @@ export default function CheckoutPage() {
     }
   };
 
-  const subtotal = items.reduce((acc: number, item: any) => acc + item.selectedPrice * item.quantity, 0);
+  const subtotal = items.reduce((acc, item) => acc + item.selectedPrice * item.quantity, 0);
   const total = subtotal;
+
+  // ─── Validaciones con Zod ─────────────────────────────────────────────
+  const validateContactInfo = (): boolean => {
+    const result = contactInfoSchema.safeParse(contactInfo);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((e) => {
+        if (e.path[0]) errors[String(e.path[0])] = e.message;
+      });
+      setContactErrors(errors);
+      return false;
+    }
+    setContactErrors({});
+    return true;
+  };
+
+  const validateNewAddress = (): boolean => {
+    const result = newAddressSchema.safeParse(newAddress);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((e) => {
+        if (e.path[0]) errors[String(e.path[0])] = e.message;
+      });
+      setAddressErrors(errors);
+      return false;
+    }
+    setAddressErrors({});
+    return true;
+  };
 
   const handleNextStep = async () => {
     if (step === 1) {
-      if (!contactInfo.fullName || !contactInfo.email || !contactInfo.phone) {
-        toast.error("Por favor completa toda tu información de contacto.");
-        return;
-      }
+      if (!validateContactInfo()) return;
       setStep(2);
     } else if (step === 2) {
       if (isNewAddress) {
-        if (!newAddress.street.trim() || !newAddress.city.trim() || !newAddress.state.trim()) {
-          toast.error("Por favor completa todos los campos de la dirección.");
-          return;
-        }
+        if (!validateNewAddress()) return;
       } else {
         if (!selectedAddressId) {
           toast.error("Selecciona una dirección de envío.");
@@ -124,10 +161,7 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     if (isNewAddress) {
-      if (!newAddress.street.trim() || !newAddress.city.trim() || !newAddress.state.trim()) {
-        toast.error("Por favor completa todos los campos de la dirección (calle, ciudad, departamento).");
-        return;
-      }
+      if (!validateNewAddress()) return;
     } else if (!selectedAddressId) {
       toast.error("Por favor selecciona una dirección de envío.");
       return;
@@ -136,7 +170,6 @@ export default function CheckoutPage() {
     setIsPlacingOrder(true);
     let finalAddressId = selectedAddressId;
 
-    // Si es dirección nueva y el usuario quiere guardarla y está logueado
     if (isNewAddress && user) {
       if (saveNewAddress) {
         const saved = await saveAddress({
@@ -152,15 +185,14 @@ export default function CheckoutPage() {
       }
     }
 
-    // Preparar notas si es guest o no guardó la dirección
     let notes = "";
     if (isNewAddress && (!user || !saveNewAddress)) {
-      notes = `Envío: ${newAddress.street}, ${newAddress.city}, ${newAddress.state}, ${newAddress.postal_code}`;
+      notes = `Envío: ${newAddress.street}, ${newAddress.city}, ${newAddress.state}${newAddress.postal_code ? `, ${newAddress.postal_code}` : ""}`;
     }
 
     const orderData: Partial<Order> = {
       status: "pending",
-      total: total,
+      total,
       address_id: finalAddressId || undefined,
       payment_method: paymentMethod,
       notes: notes || undefined,
@@ -170,7 +202,7 @@ export default function CheckoutPage() {
     };
     if (user?.id) orderData.user_id = user.id;
 
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item) => ({
       product_id: item.product.id,
       quantity: item.quantity,
       price: item.selectedPrice,
@@ -181,32 +213,37 @@ export default function CheckoutPage() {
 
     if (orderId) {
       clearCart();
-      
-      fetch('/api/notify-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          customerName: contactInfo.fullName || 'Cliente',
-          total,
-          paymentMethod,
-          items: items.map((item: any) => ({
-            name: `${item.product.name} (${item.selectedMl}ml)`,
-            price: item.selectedPrice,
-            quantity: item.quantity
-          }))
-        })
+
+      // Notificar al admin via Server Action — no bloquea el flujo de usuario
+      notifyNewOrder({
+        orderId,
+        customerName: contactInfo.fullName || "Cliente",
+        total,
+        paymentMethod,
+        items: items.map((item) => ({
+          name: `${item.product.name}${item.selectedMl ? ` (${item.selectedMl}ml)` : ""}`,
+          price: item.selectedPrice,
+          quantity: item.quantity,
+        })),
+      }).catch((err) => {
+        console.error("[checkout] notifyNewOrder failed:", err);
       });
 
       if (paymentMethod === "transfer") {
-        const currentAddress = isNewAddress 
-          ? newAddress 
-          : addresses.find(a => a.id === selectedAddressId) || newAddress;
-          
-        const messageRaw = buildWhatsAppMessage(orderId.toString(), items, currentAddress, total);
-        const encodedMessage = encodeURIComponent(messageRaw);
-        const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "573203567144";
-        window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, "_blank");
+        const currentAddress = isNewAddress
+          ? newAddress
+          : addresses.find((a) => a.id === selectedAddressId) || newAddress;
+
+        const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+        if (waNumber) {
+          const messageRaw = buildWhatsAppMessage(
+            orderId.toString(),
+            items,
+            currentAddress,
+            total
+          );
+          window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(messageRaw)}`, "_blank");
+        }
       }
       router.push(`/order-confirmation/${orderId}`);
     } else {
@@ -220,50 +257,65 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-cream pt-8 pb-8">
       <div className="max-w-6xl mx-auto px-4 lg:px-8">
-        
+
         {/* Stepper visual */}
         <div className="flex items-center justify-center mb-6">
           <div className="flex items-center gap-4">
             <StepIndicator current={step} target={1} icon={<User className="w-5 h-5" />} label="Información" />
-            <div className={`w-16 h-px ${step >= 2 ? 'bg-gold' : 'bg-border'}`} />
+            <div className={`w-16 h-px ${step >= 2 ? "bg-gold" : "bg-border"}`} />
             <StepIndicator current={step} target={2} icon={<MapPin className="w-5 h-5" />} label="Envío" />
-            <div className={`w-16 h-px ${step >= 3 ? 'bg-gold' : 'bg-border'}`} />
+            <div className={`w-16 h-px ${step >= 3 ? "bg-gold" : "bg-border"}`} />
             <StepIndicator current={step} target={3} icon={<CreditCard className="w-5 h-5" />} label="Pago" />
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          
+
           {/* Main Form Area */}
           <div className="flex-1 space-y-4">
-            
+
             {/* Step 1: Información */}
             {step === 1 && (
               <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
                 <h2 className="font-display text-xl text-charcoal mb-4">Información de Contacto</h2>
                 <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Nombre completo"
-                    value={contactInfo.fullName}
-                    onChange={(e) => setContactInfo({...contactInfo, fullName: e.target.value})}
-                    className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Nombre completo"
+                      value={contactInfo.fullName}
+                      onChange={(e) => setContactInfo({ ...contactInfo, fullName: e.target.value })}
+                      className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${contactErrors.fullName ? "border-red-400" : "border-border"}`}
+                    />
+                    {contactErrors.fullName && (
+                      <p className="text-red-500 text-xs mt-1">{contactErrors.fullName}</p>
+                    )}
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="email"
-                      placeholder="Correo electrónico"
-                      value={contactInfo.email}
-                      onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
-                      className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Teléfono"
-                      value={contactInfo.phone}
-                      onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})}
-                      className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                    />
+                    <div>
+                      <input
+                        type="email"
+                        placeholder="Correo electrónico"
+                        value={contactInfo.email}
+                        onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                        className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${contactErrors.email ? "border-red-400" : "border-border"}`}
+                      />
+                      {contactErrors.email && (
+                        <p className="text-red-500 text-xs mt-1">{contactErrors.email}</p>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="tel"
+                        placeholder="Teléfono"
+                        value={contactInfo.phone}
+                        onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                        className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${contactErrors.phone ? "border-red-400" : "border-border"}`}
+                      />
+                      {contactErrors.phone && (
+                        <p className="text-red-500 text-xs mt-1">{contactErrors.phone}</p>
+                      )}
+                    </div>
                   </div>
                   {!user && (
                     <div className="mt-4 p-4 rounded-xl border border-border bg-cream flex justify-between items-center">
@@ -288,14 +340,14 @@ export default function CheckoutPage() {
             {step === 2 && (
               <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
                 <h2 className="font-display text-xl text-charcoal mb-4">Dirección de Envío</h2>
-                
+
                 {user && addresses.length > 0 && (
                   <div className="space-y-3 mb-6">
-                    {addresses.map(addr => (
-                      <div 
+                    {addresses.map((addr) => (
+                      <div
                         key={addr.id}
                         onClick={() => { setSelectedAddressId(addr.id); setIsNewAddress(false); }}
-                        className={`p-4 rounded-xl border cursor-pointer transition-colors ${selectedAddressId === addr.id && !isNewAddress ? 'border-gold bg-cream' : 'border-border bg-white hover:border-gold shadow-sm'}`}
+                        className={`p-4 rounded-xl border cursor-pointer transition-colors ${selectedAddressId === addr.id && !isNewAddress ? "border-gold bg-cream" : "border-border bg-white hover:border-gold shadow-sm"}`}
                       >
                         <div className="flex justify-between">
                           <p className="font-medium text-charcoal">{addr.street}</p>
@@ -312,36 +364,45 @@ export default function CheckoutPage() {
                     {user && addresses.length > 0 && (
                       <h3 className="font-medium text-gold mb-2">Ingresar nueva dirección</h3>
                     )}
-                    <input
-                      type="text"
-                      placeholder="Calle / Carrera / Avenida"
-                      value={newAddress.street}
-                      onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
-                      className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                    />
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Calle / Carrera / Avenida"
+                        value={newAddress.street}
+                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                        className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${addressErrors.street ? "border-red-400" : "border-border"}`}
+                      />
+                      {addressErrors.street && <p className="text-red-500 text-xs mt-1">{addressErrors.street}</p>}
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <input
-                        type="text"
-                        placeholder="Ciudad"
-                        value={newAddress.city}
-                        onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
-                        className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Departamento"
-                        value={newAddress.state}
-                        onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
-                        className="w-full bg-white border border-border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Ciudad"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                          className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${addressErrors.city ? "border-red-400" : "border-border"}`}
+                        />
+                        {addressErrors.city && <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Departamento"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                          className={`w-full bg-white border focus:border-gold rounded-xl px-4 py-3 font-body text-charcoal outline-none shadow-sm ${addressErrors.state ? "border-red-400" : "border-border"}`}
+                        />
+                        {addressErrors.state && <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>}
+                      </div>
                     </div>
                     {user && (
                       <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           checked={saveNewAddress}
                           onChange={(e) => setSaveNewAddress(e.target.checked)}
-                          className="accent-gold w-4 h-4" 
+                          className="accent-gold w-4 h-4"
                         />
                         <span className="text-sm text-charcoal-muted">Guardar esta dirección para el futuro</span>
                       </label>
@@ -362,9 +423,7 @@ export default function CheckoutPage() {
                       <p className="font-medium text-charcoal">Envío estándar</p>
                       <p className="text-sm text-charcoal-muted">2 a 5 días calendario según transportadora</p>
                     </div>
-                    <span className="text-charcoal-muted font-medium text-sm">
-                      A cargo del destinatario
-                    </span>
+                    <span className="text-charcoal-muted font-medium text-sm">A cargo del destinatario</span>
                   </div>
                 </div>
 
@@ -389,26 +448,26 @@ export default function CheckoutPage() {
             {step === 3 && (
               <div className="bg-white rounded-2xl p-4 border border-border shadow-sm">
                 <h2 className="font-display text-xl text-charcoal mb-4">Método de Pago</h2>
-                
+
                 <div className="space-y-4">
-                  <PaymentOption 
-                    id="transfer" 
-                    title="Transferencia Bancaria" 
-                    selected={paymentMethod === "transfer"} 
+                  <PaymentOption
+                    id="transfer"
+                    title="Transferencia Bancaria"
+                    selected={paymentMethod === "transfer"}
                     onSelect={() => setPaymentMethod("transfer")}
                   >
                     <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
                       <p className="text-xs text-charcoal-muted mb-3">Al confirmar el pedido serás redirigido a WhatsApp para coordinar el pago.</p>
-                      <p><strong>Nequi / Bancolombia:</strong> {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "320 356 7144"}</p>
+                      <p><strong>Nequi / Bancolombia:</strong> {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}</p>
                       <p><strong>Titular:</strong> Bendita Store</p>
                       <p className="mt-2 text-xs text-charcoal-muted">Envía el comprobante por WhatsApp y tu pedido será procesado en menos de 24 horas.</p>
                     </div>
                   </PaymentOption>
                   {items.length === 1 && (
-                    <PaymentOption 
-                      id="cod" 
-                      title="Pago en Casa" 
-                      selected={paymentMethod === "cod"} 
+                    <PaymentOption
+                      id="cod"
+                      title="Pago en Casa"
+                      selected={paymentMethod === "cod"}
                       onSelect={() => setPaymentMethod("cod")}
                     >
                       <div className="p-4 bg-cream border border-border rounded-xl text-sm text-charcoal mt-2">
@@ -451,16 +510,16 @@ export default function CheckoutPage() {
                 </div>
               </div>
             )}
-            
+
           </div>
 
           {/* Resumen del Carrito (Sticky) */}
           <div className="lg:w-96">
             <div className="sticky top-28 bg-white rounded-2xl p-6 border border-border shadow-sm">
               <h2 className="font-display text-xl text-charcoal mb-4">Resumen de tu pedido</h2>
-              
+
               <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar mb-4">
-                {items.map((item: any, idx: number) => (
+                {items.map((item, idx) => (
                   <div key={idx} className="flex gap-3">
                     <div className="relative w-16 h-16 bg-cream rounded-lg overflow-hidden shrink-0 border border-border">
                       {item.product.images?.[0] ? (
@@ -474,7 +533,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-charcoal font-semibold text-sm line-clamp-1">{item.product.name}</p>
-                      <p className="text-xs text-charcoal-muted">{item.product.brand?.name} {item.selectedMl ? `| ${item.selectedMl}ml` : ''}</p>
+                      <p className="text-xs text-charcoal-muted">{item.product.brand?.name}{item.selectedMl ? ` | ${item.selectedMl}ml` : ""}</p>
                       <p className="text-gold font-medium text-sm mt-1">
                         ${(item.selectedPrice * item.quantity).toLocaleString("es-CO")}
                       </p>
@@ -482,7 +541,7 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="pt-4 border-t border-border space-y-2 text-sm">
                 <div className="flex justify-between text-charcoal-muted">
                   <span>Subtotal</span>
@@ -495,11 +554,11 @@ export default function CheckoutPage() {
                 {step === 3 && (
                   <div className="flex justify-between text-charcoal-muted">
                     <span>Método de pago</span>
-                    <span className="capitalize">{paymentMethod === 'cod' ? 'Pago en Casa' : 'Transferencia'}</span>
+                    <span className="capitalize">{paymentMethod === "cod" ? "Pago en Casa" : "Transferencia"}</span>
                   </div>
                 )}
               </div>
-              
+
               <div className="pt-4 mt-4 border-t border-border">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-charcoal font-semibold">Total</span>
@@ -515,45 +574,76 @@ export default function CheckoutPage() {
   );
 }
 
-// Helpers
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-function StepIndicator({ current, target, icon, label }: { current: number, target: number, icon: React.ReactNode, label: string }) {
+function StepIndicator({
+  current,
+  target,
+  icon,
+  label,
+}: {
+  current: number;
+  target: number;
+  icon: React.ReactNode;
+  label: string;
+}) {
   const isCompleted = current > target;
   const isActive = current === target;
-  
+
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-        isCompleted ? 'bg-gold text-white' : 
-        isActive ? 'bg-charcoal text-white shadow-md' : 
-        'bg-white border border-border text-charcoal-muted'
-      }`}>
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+          isCompleted
+            ? "bg-gold text-white"
+            : isActive
+            ? "bg-charcoal text-white shadow-md"
+            : "bg-white border border-border text-charcoal-muted"
+        }`}
+      >
         {isCompleted ? <Check className="w-5 h-5" /> : icon}
       </div>
-      <span className={`text-xs font-medium ${isActive || isCompleted ? 'text-charcoal font-semibold' : 'text-charcoal-muted'}`}>
+      <span
+        className={`text-xs font-medium ${
+          isActive || isCompleted ? "text-charcoal font-semibold" : "text-charcoal-muted"
+        }`}
+      >
         {label}
       </span>
     </div>
   );
 }
 
-function PaymentOption({ id, title, selected, onSelect, children }: { id: string, title: string, selected: boolean, onSelect: () => void, children?: React.ReactNode }) {
+function PaymentOption({
+  id,
+  title,
+  selected,
+  onSelect,
+  children,
+}: {
+  id: string;
+  title: string;
+  selected: boolean;
+  onSelect: () => void;
+  children?: React.ReactNode;
+}) {
   return (
-    <div className={`border rounded-xl transition-colors overflow-hidden ${selected ? 'border-gold bg-cream' : 'border-border bg-white shadow-sm'}`}>
-      <div 
-        onClick={onSelect}
-        className="p-4 flex items-center gap-3 cursor-pointer"
-      >
-        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selected ? 'border-gold' : 'border-border'}`}>
+    <div
+      className={`border rounded-xl transition-colors overflow-hidden ${
+        selected ? "border-gold bg-cream" : "border-border bg-white shadow-sm"
+      }`}
+    >
+      <div onClick={onSelect} className="p-4 flex items-center gap-3 cursor-pointer">
+        <div
+          className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+            selected ? "border-gold" : "border-border"
+          }`}
+        >
           {selected && <div className="w-2.5 h-2.5 rounded-full bg-gold" />}
         </div>
         <span className="font-medium text-charcoal">{title}</span>
       </div>
-      {selected && children && (
-        <div className="px-4 pb-4">
-          {children}
-        </div>
-      )}
+      {selected && children && <div className="px-4 pb-4">{children}</div>}
     </div>
   );
 }

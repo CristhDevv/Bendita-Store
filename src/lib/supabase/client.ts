@@ -1,10 +1,13 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-let supabase: ReturnType<typeof createBrowserClient> | null = null;
-
+/**
+ * createClient — Browser Supabase client
+ *
+ * Nota: No se usa singleton para evitar fuga de sesión entre usuarios
+ * en entornos con SSR o caché de módulos (edge runtime).
+ * El SDK de Supabase gestiona internamente la reconexión y el caché del token.
+ */
 export function createClient(): ReturnType<typeof createBrowserClient> | null {
-  if (supabase) return supabase;
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
@@ -13,6 +16,5 @@ export function createClient(): ReturnType<typeof createBrowserClient> | null {
     return null;
   }
 
-  supabase = createBrowserClient(supabaseUrl, supabaseKey);
-  return supabase;
+  return createBrowserClient(supabaseUrl, supabaseKey);
 }

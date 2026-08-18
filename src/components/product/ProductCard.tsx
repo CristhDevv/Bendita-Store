@@ -9,10 +9,13 @@ import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils/format";
 import { useTracking } from "@/hooks/useTracking";
+import { useAuth } from "@/hooks/useAuth";
+import { addToWishlist } from "@/lib/supabase/account";
 
 export function ProductCard({ product }: { product: Product }) {
-  const addItem = useCartStore(s => s.addItem);
+  const addItem = useCartStore((s) => s.addItem);
   const { trackEvent } = useTracking();
+  const { user } = useAuth();
 
   const discountPct = product.compare_price
     ? Math.round((1 - product.price / product.compare_price) * 100)
@@ -33,8 +36,30 @@ export function ProductCard({ product }: { product: Product }) {
     });
   };
 
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Inicia sesión para guardar fragancias en tu wishlist");
+      return;
+    }
+    try {
+      await addToWishlist(user.id, product.id);
+      toast.success("Añadido a tu wishlist", { icon: "❤️" });
+      trackEvent("wishlist_add", {
+        product_id: product.id,
+        product_name: product.name,
+        brand_name: product.brand?.name,
+        price: product.price,
+      });
+    } catch {
+      toast.error("Error al añadir a tu wishlist");
+    }
+  };
+
   return (
-    <Link href={`/product/${product.slug}`} prefetch={true} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
+    // Removed redundant prefetch={true} — it's the default in Next.js production
+    <Link href={`/product/${product.slug}`} className="group flex flex-col gap-3 bg-white p-3 rounded-2xl shadow-sm hover:shadow-md border border-cream-dark transition-all">
       <article>
         {/* Image */}
         <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-cream border border-border">
@@ -47,8 +72,7 @@ export function ProductCard({ product }: { product: Product }) {
           />
 
           {/* Badges */}
-          <div className="absolute top-3 left-3">
-          </div>
+          <div className="absolute top-3 left-3" />
           {discountPct && (
             <div className="absolute top-3 right-3">
               <span className="bg-rose-500/90 text-white text-[10px] font-bold px-2 py-1 rounded-full">
@@ -57,7 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          {/* Hover overlay — wishlist heart only */}
+          {/* Hover overlay — wishlist button (now functional) */}
           <motion.div
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
@@ -65,9 +89,9 @@ export function ProductCard({ product }: { product: Product }) {
             className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center md:pointer-events-auto pointer-events-none"
           >
             <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+              onClick={handleWishlist}
               className="w-10 h-10 rounded-full bg-white shadow-sm border border-border flex items-center justify-center text-charcoal hover:text-gold hover:border-gold transition-colors"
-              aria-label="Wishlist"
+              aria-label="Agregar a wishlist"
             >
               <Heart className="w-4 h-4" />
             </button>
@@ -99,7 +123,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Add to cart — always visible mobile, hover-only desktop */}
+        {/* Add to cart */}
         <button
           onClick={handleAdd}
           className="flex items-center justify-center gap-2 w-full mt-3 py-3 rounded-xl font-body text-sm font-medium bg-charcoal text-white hover:bg-gold transition-all"

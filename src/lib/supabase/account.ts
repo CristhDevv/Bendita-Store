@@ -94,17 +94,42 @@ export async function deleteAddress(addressId: string) {
 
 export async function setDefaultAddress(userId: string, addressId: string) {
   const supabase = createClient();
-  // Unset all defaults
-  await supabase
-    .from("addresses")
-    .update({ is_default: false })
-    .eq("user_id", userId);
-  // Set new default
-  const { error } = await supabase
-    .from("addresses")
-    .update({ is_default: true })
-    .eq("id", addressId);
-  if (error) throw error;
+  if (!supabase) throw new Error("Supabase client not available");
+
+  /**
+   * Atomicity: ideally this should be a single DB transaction via RPC.
+   * The two-step approach below has a TOCTOU window where both steps could
+   * partially fail. If you add the following function to your DB, use that instead:
+   *
+   *   CREATE OR REPLACE FUNCTION set_default_address(p_user_id uuid, p_address_id uuid)
+   *   RETURNS void LANGUAGE plpgsql AS $$
+   *   BEGIN
+   *     UPDATE addresses SET is_default = false WHERE user_id = p_user_id;
+   *     UPDATE addresses SET is_default = true WHERE id = p_address_id AND user_id = p_user_id;
+   *   END; $$;
+   */
+  const { error: rpcError } = await supabase.rpc("set_default_address", {
+    p_user_id: userId,
+    p_address_id: addressId,
+  });
+
+  // If RPC doesn't exist yet, fall back to sequential updates
+  if (rpcError && rpcError.code === "42883") {
+    // 42883 = undefined_function in PostgreSQL
+    const { error: unsetError } = await supabase
+      .from("addresses")
+      .update({ is_default: false })
+      .eq("user_id", userId);
+    if (unsetError) throw unsetError;
+
+    const { error: setError } = await supabase
+      .from("addresses")
+      .update({ is_default: true })
+      .eq("id", addressId);
+    if (setError) throw setError;
+  } else if (rpcError) {
+    throw rpcError;
+  }
 }
 
 // ─── Profile ──────────────────────────────────────────────────
