@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Image */}
         <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-cream border border-border">
           <Image
-            src={product.images?.[0] ?? "/hero-perfume.png"}
+            src={product.images?.[0] ?? "/hero-perfume.webp"}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"

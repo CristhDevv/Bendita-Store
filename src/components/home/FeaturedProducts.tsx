@@ -48,7 +48,7 @@ function ProductCard({ product }: { product: Product }) {
       onMouseEnter={() => router.prefetch(`/product/${product.slug}`)}
     >
       <Link href={`/product/${product.slug}`} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white border border-border shadow-sm">
-        <Image src={product.images?.[0] ?? "/hero-perfume.png"} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 640px) 50vw, 25vw" />
+        <Image src={product.images?.[0] ?? "/hero-perfume.webp"} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 640px) 50vw, 25vw" />
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Badges */}

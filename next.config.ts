@@ -39,10 +39,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ?? "local-dev",
   },
   images: {
-    formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400,
-    deviceSizes: [390, 768, 1024, 1280],
-    imageSizes: [128, 256, 384],
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

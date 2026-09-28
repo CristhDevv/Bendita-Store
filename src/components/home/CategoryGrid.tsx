@@ -95,7 +95,7 @@ export function CategoryGrid() {
               >
                 {/* Background image */}
                 <Image
-                  src="/hero-perfume.png"
+                  src="/hero-perfume.webp"
                   alt={cat.label}
                   fill
                   className="object-cover object-center transition-transform duration-700 group-hover:scale-110"

@@ -287,7 +287,7 @@ export default function InventarioPage() {
                   {/* Image & Quick Actions */}
                   <div className="w-full aspect-video relative rounded-xl overflow-hidden mb-4 bg-cream border border-border flex items-center justify-center shrink-0">
                     {product.images?.[0] ? (
-                      <NextImage src={product.images[0]} alt={product.name} fill className="object-cover" />
+                      <NextImage src={product.images[0]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 300px" className="object-cover" />
                     ) : (
                       <ImageIcon className="w-8 h-8 text-charcoal-muted/30" />
                     )}

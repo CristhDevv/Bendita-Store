@@ -260,7 +260,7 @@ export function HeroSection({ discountProducts = [] }: { discountProducts?: Prod
                         className="absolute inset-0 w-full h-full"
                       >
                         <Image
-                          src={currentProduct.images?.[0] || "/hero-perfume.png"}
+                          src={currentProduct.images?.[0] || "/hero-perfume.webp"}
                           alt={currentProduct.name}
                           fill
                           priority

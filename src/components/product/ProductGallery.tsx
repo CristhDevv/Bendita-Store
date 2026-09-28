@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function ProductGallery({ images }: { images: string[] }) {
   const [active, setActive] = useState(0);
-  const safeImages = images?.length ? images : ["/hero-perfume.png"];
+  const safeImages = images?.length ? images : ["/hero-perfume.webp"];
 
   const next = () => setActive(i => (i + 1) % safeImages.length);
   const prev = () => setActive(i => (i - 1 + safeImages.length) % safeImages.length);

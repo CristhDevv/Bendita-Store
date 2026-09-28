@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "@/components/admin/SearchableSelect";
+import { compressImage } from "@/lib/utils/image-compression";
 import type { Category, Brand, OlfactiveFamily } from "@/types";
 
 const inputClass =
@@ -142,13 +143,16 @@ export default function NewProductPage() {
       const uploadedImageUrls: string[] = [];
       
       for (const item of selectedFiles) {
-        const file = item.file;
-        const fileExt = file.name.split('.').pop();
+        const compressedFile = await compressImage(item.file, { maxWidth: 1200, quality: 0.82 });
+        const fileExt = compressedFile.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
         const { error: uploadError, data } = await supabase.storage
           .from('products')
-          .upload(fileName, file);
+          .upload(fileName, compressedFile, {
+            contentType: compressedFile.type,
+            upsert: false,
+          });
           
         if (uploadError) throw uploadError;
         

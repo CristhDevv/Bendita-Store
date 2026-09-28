@@ -86,7 +86,7 @@ export function CartDrawer() {
                       {/* Image */}
                       <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-cream border border-border shrink-0">
                         <Image
-                          src={item.product.images?.[0] || "/hero-perfume.png"}
+                          src={item.product.images?.[0] || "/hero-perfume.webp"}
                           alt={item.product.name}
                           fill
                           sizes="64px"
