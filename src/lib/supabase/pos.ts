@@ -1,52 +1,30 @@
 "use server";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-function getAnonHeaders() {
-  if (!anonKey) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable");
-  }
-  return {
-    "apikey": anonKey,
-    "Authorization": `Bearer ${anonKey}`,
-    "Content-Type": "application/json",
-  };
-}
-
-function getServiceHeaders() {
-  if (!serviceKey) {
-    throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
-  }
-  return {
-    "apikey": serviceKey,
-    "Authorization": `Bearer ${serviceKey}`,
-    "Content-Type": "application/json",
-  };
-}
+import { createClient } from "./server";
 
 export async function searchProducts(query: string) {
   try {
-    if (!supabaseUrl) return [];
-    
-    let url = `${supabaseUrl}/rest/v1/products?select=id,name,slug,price,wholesale_price,images,stock,ml_options,brand:brands(name)&is_active=eq.true`;
+    const supabase = await createClient();
+    if (!supabase) return [];
+
+    let q = supabase
+      .from("products")
+      .select("id, name, slug, price, wholesale_price, images, stock, ml_options, brand:brands(name)")
+      .eq("is_active", true)
+      .limit(20);
+
     if (query.trim()) {
-      url += `&name=ilike.*${encodeURIComponent(query.trim())}*`;
+      q = q.ilike("name", `%${query.trim()}%`);
     }
-    url += `&limit=20`;
 
-    const res = await fetch(url, {
-      headers: getAnonHeaders(),
-      next: { revalidate: 0 },
-    });
+    const { data, error } = await q;
 
-    if (!res.ok) {
-      console.error("searchProducts error:", await res.text());
+    if (error) {
+      console.error("searchProducts error:", error);
       return [];
     }
 
-    return await res.json();
+    return data || [];
   } catch (error) {
     console.error("Error in searchProducts:", error);
     return [];
@@ -55,26 +33,27 @@ export async function searchProducts(query: string) {
 
 export async function searchUsers(query: string) {
   try {
-    if (!supabaseUrl) return [];
+    const supabase = await createClient();
+    if (!supabase) return [];
 
-    let url = `${supabaseUrl}/rest/v1/profiles_with_email?select=id,full_name,email,phone`;
+    let q = supabase
+      .from("profiles_with_email")
+      .select("id, full_name, email, phone")
+      .limit(20);
+
     if (query.trim()) {
-      const q = encodeURIComponent(query.trim());
-      url += `&or=(full_name.ilike.*${q}*,email.ilike.*${q}*,phone.ilike.*${q}*)`;
+      const term = query.trim();
+      q = q.or(`full_name.ilike.%${term}%,email.ilike.%${term}%,phone.ilike.%${term}%`);
     }
-    url += `&limit=20`;
 
-    const res = await fetch(url, {
-      headers: getServiceHeaders(),
-      next: { revalidate: 0 },
-    });
+    const { data, error } = await q;
 
-    if (!res.ok) {
-      console.error("searchUsers error:", await res.text());
+    if (error) {
+      console.error("searchUsers error:", error);
       return [];
     }
 
-    return await res.json();
+    return data || [];
   } catch (error) {
     console.error("Error in searchUsers:", error);
     return [];
@@ -103,97 +82,45 @@ export async function createPosSale(data: {
   }[];
 }) {
   try {
-    if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+    const supabase = await createClient();
+    if (!supabase) throw new Error("No se pudo conectar con Supabase");
 
-    // 1. Crear la orden vinculada mediante RPC create_order_with_items
-    const orderData = {
-      user_id: data.customer_id || null,
-      status: "delivered",
-      total: data.total,
-      payment_method: data.payment_method,
-      notes: data.notes || `Venta POS por canal ${data.channel}`,
-      source: "pos",
+    const salePayload = {
+      channel: data.channel,
+      customer_id: data.customer_id || null,
       customer_name: data.customer_name || null,
       customer_phone: data.customer_phone || null,
+      payment_method: data.payment_method,
+      subtotal: data.subtotal,
+      discount: data.discount || 0,
+      total: data.total,
+      notes: data.notes || null,
+      created_by: data.created_by || null,
     };
 
-    const orderItems = data.items.map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: item.final_price, // El precio final cobrado por unidad
-      ml: item.ml || null,
-    }));
-
-    const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/create_order_with_items`, {
-      method: "POST",
-      headers: getAnonHeaders(),
-      body: JSON.stringify({
-        p_order: orderData,
-        p_items: orderItems,
-      }),
-    });
-
-    if (!rpcRes.ok) {
-      const errText = await rpcRes.text();
-      throw new Error(`Failed to create order via RPC: ${errText}`);
-    }
-
-    const orderId = await rpcRes.json();
-
-    // 2. Insertar en pos_sales
-    const posSaleRes = await fetch(`${supabaseUrl}/rest/v1/pos_sales`, {
-      method: "POST",
-      headers: {
-        ...getServiceHeaders(),
-        "Prefer": "return=representation",
-      },
-      body: JSON.stringify({
-        channel: data.channel,
-        customer_id: data.customer_id || null,
-        customer_name: data.customer_name || null,
-        customer_phone: data.customer_phone || null,
-        payment_method: data.payment_method,
-        subtotal: data.subtotal,
-        discount: data.discount,
-        total: data.total,
-        notes: data.notes || null,
-        created_by: data.created_by || null,
-        order_id: orderId,
-      }),
-    });
-
-    if (!posSaleRes.ok) {
-      const errText = await posSaleRes.text();
-      throw new Error(`Failed to create POS sale record: ${errText}`);
-    }
-
-    const posSalesResult = await posSaleRes.json();
-    const posSaleId = posSalesResult[0]?.id;
-
-    if (!posSaleId) {
-      throw new Error("No POS sale ID returned from insertion");
-    }
-
-    // 3. Insertar items en pos_sale_items
-    const posSaleItemsData = data.items.map(item => ({
-      pos_sale_id: posSaleId,
+    const itemsPayload = data.items.map((item) => ({
       product_id: item.product_id,
       product_name: item.product_name,
       quantity: item.quantity,
       unit_price: item.unit_price,
-      discount: item.discount,
+      discount: item.discount || 0,
       final_price: item.final_price,
+      ml: item.ml || null,
     }));
 
-    const itemsRes = await fetch(`${supabaseUrl}/rest/v1/pos_sale_items`, {
-      method: "POST",
-      headers: getServiceHeaders(),
-      body: JSON.stringify(posSaleItemsData),
+    const { data: result, error } = await supabase.rpc("create_pos_sale_transaction", {
+      p_sale: salePayload,
+      p_items: itemsPayload,
     });
 
-    if (!itemsRes.ok) {
-      const errText = await itemsRes.text();
-      throw new Error(`Failed to insert POS sale items: ${errText}`);
+    if (error) {
+      console.error("Error executing create_pos_sale_transaction:", error);
+      throw new Error(error.message || "Error al registrar la venta");
+    }
+
+    const posSaleId = (result as { pos_sale_id?: string })?.pos_sale_id;
+    if (!posSaleId) {
+      throw new Error("No se recibió el identificador de la venta registrada");
     }
 
     return posSaleId;
@@ -209,60 +136,66 @@ export async function getPosSales(filters?: {
   channel?: string;
 }) {
   try {
-    if (!supabaseUrl) return [];
+    const supabase = await createClient();
+    if (!supabase) return [];
 
-    let url = `${supabaseUrl}/rest/v1/pos_sales?select=*,items:pos_sale_items(*),order:orders(*)&order=created_at.desc`;
+    let query = supabase
+      .from("pos_sales")
+      .select("*, items:pos_sale_items(*), order:orders(*)")
+      .order("created_at", { ascending: false });
 
     if (filters?.channel) {
-      url += `&channel=eq.${encodeURIComponent(filters.channel)}`;
+      query = query.eq("channel", filters.channel);
     }
     if (filters?.dateFrom) {
-      url += `&created_at=gte.${encodeURIComponent(filters.dateFrom)}`;
+      query = query.gte("created_at", filters.dateFrom);
     }
     if (filters?.dateTo) {
-      url += `&created_at=lte.${encodeURIComponent(filters.dateTo)}`;
+      query = query.lte("created_at", filters.dateTo);
     }
 
-    const res = await fetch(url, {
-      headers: getServiceHeaders(),
-      next: { revalidate: 0 },
-    });
+    const { data, error } = await query;
 
-    if (!res.ok) {
-      console.error("getPosSales error:", await res.text());
+    if (error) {
+      console.error("getPosSales error:", error);
       return [];
     }
 
-    return await res.json();
+    return data || [];
   } catch (error) {
     console.error("Error in getPosSales:", error);
     return [];
   }
 }
 
+interface SaleStatRow {
+  channel: string;
+  payment_method: string;
+  total: number | string;
+}
+
 export async function getPosStats(dateFrom: string, dateTo: string) {
   try {
-    if (!supabaseUrl) return null;
+    const supabase = await createClient();
+    if (!supabase) return null;
 
-    const url = `${supabaseUrl}/rest/v1/pos_sales?select=channel,payment_method,total&created_at=gte.${encodeURIComponent(dateFrom)}&created_at=lte.${encodeURIComponent(dateTo)}`;
+    const { data: sales, error } = await supabase
+      .from("pos_sales")
+      .select("channel, payment_method, total")
+      .gte("created_at", dateFrom)
+      .lte("created_at", dateTo);
 
-    const res = await fetch(url, {
-      headers: getServiceHeaders(),
-      next: { revalidate: 0 },
-    });
-
-    if (!res.ok) {
-      console.error("getPosStats error:", await res.text());
+    if (error) {
+      console.error("getPosStats error:", error);
       return null;
     }
-
-    const sales: { channel: string; payment_method: string; total: number | string }[] = await res.json();
 
     const byChannel: Record<string, number> = {};
     const byPaymentMethod: Record<string, number> = {};
     let grandTotal = 0;
 
-    sales.forEach(sale => {
+    const rows = (sales as unknown as SaleStatRow[]) || [];
+    rows.forEach((sale: SaleStatRow) => {
       const val = Number(sale.total) || 0;
       grandTotal += val;
 
@@ -274,7 +207,7 @@ export async function getPosStats(dateFrom: string, dateTo: string) {
       byChannel,
       byPaymentMethod,
       grandTotal,
-      count: sales.length,
+      count: sales?.length || 0,
     };
   } catch (error) {
     console.error("Error in getPosStats:", error);
@@ -284,52 +217,37 @@ export async function getPosStats(dateFrom: string, dateTo: string) {
 
 export async function deletePosSale(id: string) {
   try {
-    if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+    const supabase = await createClient();
+    if (!supabase) throw new Error("No se pudo conectar con Supabase");
 
     // 1. Obtener el order_id asociado a la venta POS
-    const getSaleRes = await fetch(`${supabaseUrl}/rest/v1/pos_sales?id=eq.${id}&select=order_id`, {
-      headers: getServiceHeaders(),
-      next: { revalidate: 0 },
-    });
+    const { data: saleData } = await supabase
+      .from("pos_sales")
+      .select("order_id")
+      .eq("id", id)
+      .single();
 
-    let orderId: string | null = null;
-    if (getSaleRes.ok) {
-      const salesData = await getSaleRes.json();
-      orderId = salesData[0]?.order_id || null;
+    const orderId = saleData?.order_id;
+
+    // 2. Eliminar pos_sales (los items en pos_sale_items se eliminan por FK ON DELETE CASCADE)
+    const { error: deleteSaleErr } = await supabase
+      .from("pos_sales")
+      .delete()
+      .eq("id", id);
+
+    if (deleteSaleErr) {
+      throw new Error(`Failed to delete POS sale: ${deleteSaleErr.message}`);
     }
 
-    // 2. Eliminar de pos_sale_items primero
-    const deleteItemsRes = await fetch(`${supabaseUrl}/rest/v1/pos_sale_items?pos_sale_id=eq.${id}`, {
-      method: "DELETE",
-      headers: getServiceHeaders(),
-    });
-
-    if (!deleteItemsRes.ok) {
-      const errText = await deleteItemsRes.text();
-      throw new Error(`Failed to delete POS sale items: ${errText}`);
-    }
-
-    // 3. Eliminar de pos_sales
-    const deleteSaleRes = await fetch(`${supabaseUrl}/rest/v1/pos_sales?id=eq.${id}`, {
-      method: "DELETE",
-      headers: getServiceHeaders(),
-    });
-
-    if (!deleteSaleRes.ok) {
-      const errText = await deleteSaleRes.text();
-      throw new Error(`Failed to delete POS sale: ${errText}`);
-    }
-
-    // 4. Eliminar de orders si existe vinculada
+    // 3. Eliminar la orden vinculada si existe
     if (orderId) {
-      const deleteOrderRes = await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${orderId}`, {
-        method: "DELETE",
-        headers: getServiceHeaders(),
-      });
+      const { error: deleteOrderErr } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", orderId);
 
-      if (!deleteOrderRes.ok) {
-        const errText = await deleteOrderRes.text();
-        throw new Error(`Failed to delete linked order: ${errText}`);
+      if (deleteOrderErr) {
+        console.warn(`No se pudo eliminar la orden vinculada: ${deleteOrderErr.message}`);
       }
     }
 
