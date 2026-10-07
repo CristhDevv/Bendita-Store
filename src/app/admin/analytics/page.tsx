@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
           .order("created_at", { ascending: false }),
         supabase
           .from("orders")
-          .select("id, status, total, created_at, payment_method")
+          .select("id, status, total, created_at, updated_at, payment_method")
           .gte("created_at", from),
         supabase
           .from("profiles")
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
 
     // Revenue
     const completedOrders = orders.filter((o) =>
-      ["paid", "processing", "shipped", "delivered"].includes(o.status)
+      ["confirmed", "paid", "processing", "shipped", "delivered"].includes(o.status)
     );
     const totalRevenue = completedOrders.reduce((s, o) => s + (o.total ?? 0), 0);
     const avgTicket = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
@@ -322,6 +322,7 @@ export default function AnalyticsPage() {
 
   const STATUS_LABELS: Record<string, string> = {
     pending: "Pendiente",
+    confirmed: "Confirmado",
     paid: "Pagado",
     processing: "Procesando",
     shipped: "Enviado",
@@ -331,6 +332,7 @@ export default function AnalyticsPage() {
 
   const STATUS_COLORS: Record<string, string> = {
     pending: "bg-amber-400",
+    confirmed: "bg-teal-500",
     paid: "bg-blue-400",
     processing: "bg-purple-400",
     shipped: "bg-cyan-400",

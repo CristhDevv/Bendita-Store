@@ -75,7 +75,7 @@ function SalesChart({ orders }: { orders: Order[] }) {
     next.setDate(next.getDate() + 1);
     const total = orders
       .filter((o) => {
-        const t = new Date(o.created_at);
+        const t = new Date(o.updated_at || o.created_at);
         return t >= day && t < next;
       })
       .reduce((sum, o) => sum + (o.total || 0), 0);
@@ -251,9 +251,9 @@ export default function AdminDashboard() {
             .limit(5),
           supabase
             .from("orders")
-            .select("total, created_at, status")
-            .gte("created_at", sevenDaysAgo.toISOString())
-            .eq("status", "confirmed"),
+            .select("total, created_at, updated_at, status")
+            .or(`created_at.gte.${sevenDaysAgo.toISOString()},updated_at.gte.${sevenDaysAgo.toISOString()}`)
+            .in("status", ["confirmed", "paid", "processing", "shipped", "delivered"]),
         ]);
 
       setStats(statsData as DashboardStats);
@@ -266,17 +266,23 @@ export default function AdminDashboard() {
 
   // Today's sales
   const todaySales = allOrders
-    .filter((o) =>
-      new Date(o.created_at).toDateString() === new Date().toDateString() &&
-      o.status === "confirmed"
-    )
+    .filter((o) => {
+      const orderDate = new Date(o.updated_at || o.created_at);
+      return (
+        orderDate.toDateString() === new Date().toDateString() &&
+        ["confirmed", "paid", "processing", "shipped", "delivered"].includes(o.status)
+      );
+    })
     .reduce((sum, o) => sum + o.total, 0);
 
   const yesterdaySales = allOrders
     .filter((o) => {
       const y = new Date(); y.setDate(y.getDate() - 1);
-      return new Date(o.created_at).toDateString() === y.toDateString() &&
-        o.status === "confirmed";
+      const orderDate = new Date(o.updated_at || o.created_at);
+      return (
+        orderDate.toDateString() === y.toDateString() &&
+        ["confirmed", "paid", "processing", "shipped", "delivered"].includes(o.status)
+      );
     })
     .reduce((sum, o) => sum + o.total, 0);
 

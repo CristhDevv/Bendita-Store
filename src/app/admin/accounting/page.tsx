@@ -72,7 +72,7 @@ function IncomeVsExpenseChart({
     
     const income = orders
       .filter((o) => {
-        const t = new Date(o.created_at);
+        const t = new Date(o.updated_at || o.created_at);
         return t >= day && t < next;
       })
       .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
@@ -249,9 +249,8 @@ export default function AccountingPage() {
       const { data: ordersData } = await supabase
         .from("orders")
         .select("*")
-        .in("status", ["paid", "processing", "shipped", "delivered"])
-        .gte("created_at", `${dateRange.from}T00:00:00Z`)
-        .lte("created_at", `${dateRange.to}T23:59:59Z`);
+        .in("status", ["confirmed", "paid", "processing", "shipped", "delivered"])
+        .or(`and(created_at.gte.${dateRange.from}T00:00:00Z,created_at.lte.${dateRange.to}T23:59:59Z),and(updated_at.gte.${dateRange.from}T00:00:00Z,updated_at.lte.${dateRange.to}T23:59:59Z)`);
         
       setOrders(ordersData || []);
 

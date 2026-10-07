@@ -97,6 +97,7 @@ export interface Order {
   customer_email?: string;
   customer_phone?: string;
   created_at: string;
+  updated_at?: string;
   // Joins
   address?: Address;
   items?: OrderItem[];

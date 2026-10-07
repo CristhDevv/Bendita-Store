@@ -123,18 +123,17 @@ export default function ReportesPage() {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, created_at, notes, payment_method, total")
-        .in("status", ["paid", "processing", "shipped", "delivered"])
-        .gte("created_at", `${dateRange.from}T00:00:00Z`)
-        .lte("created_at", `${dateRange.to}T23:59:59Z`)
+        .select("id, created_at, updated_at, notes, payment_method, total")
+        .in("status", ["confirmed", "paid", "processing", "shipped", "delivered"])
+        .or(`and(created_at.gte.${dateRange.from}T00:00:00Z,created_at.lte.${dateRange.to}T23:59:59Z),and(updated_at.gte.${dateRange.from}T00:00:00Z,updated_at.lte.${dateRange.to}T23:59:59Z)`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
       const headers = ["ID Orden", "Fecha", "Cliente (Notas)", "Método de Pago", "Total COP"];
-      const rows = (data || []).map((o: { id: string; created_at: string; notes: string | null; payment_method: string | null; total: number | null }) => [
+      const rows = (data || []).map((o: { id: string; created_at: string; updated_at?: string; notes: string | null; payment_method: string | null; total: number | null }) => [
         o.id,
-        new Date(o.created_at).toLocaleDateString("es-CO"),
+        new Date(o.updated_at || o.created_at).toLocaleDateString("es-CO"),
         o.notes || "",
         o.payment_method || "",
         String(o.total || 0),
