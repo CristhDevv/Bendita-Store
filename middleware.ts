@@ -2,16 +2,127 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Middleware — Bendita Store
+ * Middleware — Bendita Store (Hardened)
  *
  * Responsabilidades:
- * 1. Refrescar la sesión de Supabase en cada request (patrón oficial @supabase/ssr).
- * 2. Proteger rutas /admin/*: si no hay sesión → redirige a /login.
- *    La verificación de is_admin se hace en admin/layout.tsx (Server Component)
- *    para evitar una query de BD en cada request del middleware.
- * 3. Proteger rutas /account/*: si no hay sesión → redirige a /login.
+ * 1. Filtrado perimetral contra bots de escaneo malicioso (User-Agent).
+ * 2. Bloqueo inmediato de sondas de path traversal y archivos sensibles (.env, .git, etc.).
+ * 3. Rate limiting perimetral para endpoints API (/api/* y /api/notify-order).
+ * 4. Refrescar la sesión de Supabase en cada request (patrón oficial @supabase/ssr).
+ * 5. Proteger rutas /admin/* y /account/*: si no hay sesión → redirige a /login.
  */
+
+// ─── 1. Reglas de Detección de Bots y Scanners Maliciosos ──────────────────────
+const BLOCKED_USER_AGENTS = [
+  /sqlmap/i,
+  /nikto/i,
+  /masscan/i,
+  /acunetix/i,
+  /dirbuster/i,
+  /gobuster/i,
+  /wpscan/i,
+  /nmap/i,
+  /zgrab/i,
+  /censys/i,
+];
+
+// ─── 2. Sondas de Archivos Sensibles y Path Traversal ─────────────────────────
+const SUSPICIOUS_PATH_PATTERNS = [
+  /\/\.env/i,
+  /\/\.git/i,
+  /\/\.aws/i,
+  /\/\.vscode/i,
+  /\/\.ssh/i,
+  /\.php$/i,
+  /\/wp-admin/i,
+  /\/wp-login/i,
+  /\/wp-content/i,
+  /\/cgi-bin/i,
+  /\.\.\//, // Path traversal ../
+  /\/actuator/i,
+  /\/phpmyadmin/i,
+];
+
+// ─── 3. In-Memory Sliding Window Rate Limiter ─────────────────────────────────
+interface RateLimitEntry {
+  count: number;
+  resetTime: number;
+}
+const rateLimitMap = new Map<string, RateLimitEntry>();
+
+function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
+    if (rateLimitMap.size > 2000) {
+      for (const [k, v] of rateLimitMap.entries()) {
+        if (now > v.resetTime) rateLimitMap.delete(k);
+      }
+    }
+    return true;
+  }
+
+  if (entry.count >= limit) {
+    return false;
+  }
+
+  entry.count++;
+  return true;
+}
+
+function getClientIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+  return request.headers.get("x-real-ip") || "127.0.0.1";
+}
+
+// ─── Middleware Handler Principal ─────────────────────────────────────────────
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const userAgent = request.headers.get("user-agent") || "";
+  const clientIp = getClientIp(request);
+
+  // 1. Bloqueo de herramientas automatizadas de escaneo malicioso
+  if (userAgent && BLOCKED_USER_AGENTS.some((pattern) => pattern.test(userAgent))) {
+    return new NextResponse(
+      JSON.stringify({ error: "Access denied by security policy" }),
+      {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // 2. Bloqueo de path traversal y escaneos a rutas sensibles
+  if (SUSPICIOUS_PATH_PATTERNS.some((pattern) => pattern.test(pathname))) {
+    return new NextResponse("Not Found", { status: 404 });
+  }
+
+  // 3. Rate Limiting perimetral para endpoints de API
+  if (pathname.startsWith("/api/")) {
+    const isNotifyOrder = pathname.startsWith("/api/notify-order");
+    const limit = isNotifyOrder ? 10 : 60; // 10 req/min para notificaciones, 60 req/min para APIs generales
+    const windowMs = 60 * 1000;
+    const rateLimitKey = `${clientIp}:${isNotifyOrder ? "notify" : "api"}`;
+
+    if (!checkRateLimit(rateLimitKey, limit, windowMs)) {
+      return new NextResponse(
+        JSON.stringify({ error: "Demasiadas solicitudes. Por favor intente más tarde." }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "60",
+          },
+        }
+      );
+    }
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -39,13 +150,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // IMPORTANTE: No llamar a supabase.auth.getSession() — usar getUser() que
-  // valida contra el servidor y no confía en el token local.
+  // Validar sesión contra el servidor (getUser)
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   // Proteger /admin/* — requiere sesión activa
   if (pathname.startsWith("/admin")) {

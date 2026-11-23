@@ -28,6 +28,7 @@ const ContentSecurityPolicy = `
   frame-ancestors 'none';
   form-action 'self';
   base-uri 'self';
+  upgrade-insecure-requests;
 `
   .replace(/\s{2,}/g, " ")
   .trim();
@@ -72,6 +73,22 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-origin",
           },
         ],
       },

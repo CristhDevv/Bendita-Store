@@ -1,6 +1,7 @@
 "use server";
 
 import { Resend } from "resend";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 /**
  * Server Action: notifyNewOrder
@@ -53,24 +54,28 @@ export async function notifyNewOrder(params: NotifyOrderParams): Promise<void> {
     minimumFractionDigits: 0,
   }).format(total || 0);
 
+  const safeOrderId = escapeHtml(shortOrderId);
+  const safeCustomer = escapeHtml(customerName || "Cliente");
+  const safePaymentMethod = escapeHtml(paymentMethod || "No especificado");
+
   const itemsHtml = items
     .map(
       (item) =>
-        `<li>${item.quantity}x ${item.name} (${new Intl.NumberFormat("es-CO", {
+        `<li>${Number(item.quantity) || 1}x ${escapeHtml(item.name)} (${new Intl.NumberFormat("es-CO", {
           style: "currency",
           currency: "COP",
           minimumFractionDigits: 0,
-        }).format(item.price)})</li>`
+        }).format(Number(item.price) || 0)})</li>`
     )
     .join("");
 
   const htmlContent = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
       <h2>🛍️ ¡Nuevo pedido recibido!</h2>
-      <p><strong>ID de Orden:</strong> #${shortOrderId}</p>
-      <p><strong>Cliente:</strong> ${customerName || "No especificado"}</p>
+      <p><strong>ID de Orden:</strong> #${safeOrderId}</p>
+      <p><strong>Cliente:</strong> ${safeCustomer}</p>
       <p><strong>Total:</strong> ${formattedTotal}</p>
-      <p><strong>Método de pago:</strong> <span style="text-transform: capitalize;">${paymentMethod || "No especificado"}</span></p>
+      <p><strong>Método de pago:</strong> <span style="text-transform: capitalize;">${safePaymentMethod}</span></p>
       
       <h3 style="margin-top: 24px;">Resumen de compra:</h3>
       <ul>${itemsHtml}</ul>
@@ -84,7 +89,7 @@ export async function notifyNewOrder(params: NotifyOrderParams): Promise<void> {
     const { error } = await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
-      subject: `🛍️ Nuevo pedido #${shortOrderId} de ${customerName || "Cliente"}`,
+      subject: `🛍️ Nuevo pedido #${safeOrderId} de ${safeCustomer}`,
       html: htmlContent,
     });
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
 // ─── Mock @supabase/ssr ────────────────────────────────────────────────────────
@@ -14,10 +14,20 @@ vi.mock("@supabase/ssr", () => ({
 const { middleware } = await import("../../middleware");
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-function makeRequest(pathname: string): NextRequest {
+function makeRequest(
+  pathname: string,
+  options?: { headers?: Record<string, string>; ip?: string }
+): NextRequest {
+  const headers: Record<string, string> = {
+    cookie: "",
+    ...(options?.headers || {}),
+  };
+  if (options?.ip) {
+    headers["x-forwarded-for"] = options.ip;
+  }
   return new NextRequest(`http://localhost${pathname}`, {
     method: "GET",
-    headers: { cookie: "" },
+    headers,
   });
 }
 
@@ -109,5 +119,63 @@ describe("Admin/Account Route Protection Middleware", () => {
     // Should not throw — should pass through without redirect
     const response = await middleware(request);
     expect(response).toBeDefined();
+  });
+});
+
+describe("Security Perimeter Hardening in Middleware", () => {
+  it("blocks malicious scanner user-agents with 403 Forbidden", async () => {
+    const maliciousAgents = [
+      "sqlmap/1.5.2#stable",
+      "Mozilla/5.0 (compatible; Nikto/2.1.6)",
+      "masscan/1.0",
+      "Acunetix Web Vulnerability Scanner",
+      "gobuster/3.1.0",
+      "Wget/1.20 (wpscan)",
+    ];
+
+    for (const agent of maliciousAgents) {
+      const request = makeRequest("/", {
+        headers: { "user-agent": agent },
+      });
+      const response = await middleware(request);
+      expect(response.status, `User-Agent '${agent}' should be blocked`).toBe(403);
+    }
+  });
+
+  it("blocks sensitive path scans and path traversal attempts with 404 Not Found", async () => {
+    const suspiciousPaths = [
+      "/.env",
+      "/.env.local",
+      "/.git/config",
+      "/.aws/credentials",
+      "/wp-admin/install.php",
+      "/index.php",
+      "/actuator/health",
+      "/phpmyadmin",
+    ];
+
+    for (const path of suspiciousPaths) {
+      const request = makeRequest(path);
+      const response = await middleware(request);
+      expect(response.status, `Path '${path}' should be rejected`).toBe(404);
+    }
+  });
+
+  it("enforces rate limits on sensitive /api/notify-order endpoint", async () => {
+    const ip = "192.168.100.50";
+    let lastResponse;
+
+    // Send 10 requests (allowed threshold)
+    for (let i = 0; i < 10; i++) {
+      const request = makeRequest("/api/notify-order", { ip });
+      lastResponse = await middleware(request);
+      expect(lastResponse.status).not.toBe(429);
+    }
+
+    // 11th request should exceed the limit and receive 429
+    const exceededRequest = makeRequest("/api/notify-order", { ip });
+    const blockedResponse = await middleware(exceededRequest);
+    expect(blockedResponse.status).toBe(429);
+    expect(blockedResponse.headers.get("retry-after")).toBe("60");
   });
 });

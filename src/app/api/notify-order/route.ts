@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 /**
  * POST /api/notify-order
@@ -40,22 +41,25 @@ export async function POST(req: Request) {
     }
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-    const shortOrderId = orderId.slice(0, 8).toUpperCase();
+    const shortOrderId = String(orderId).slice(0, 8).toUpperCase();
+    const safeOrderId = escapeHtml(shortOrderId);
+    const safeCustomer = escapeHtml(customerName || "Cliente");
+    const safePaymentMethod = escapeHtml(paymentMethod || "No especificado");
     const formattedTotal = new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
       minimumFractionDigits: 0,
-    }).format(total || 0);
+    }).format(Number(total) || 0);
 
     const itemsHtml = Array.isArray(items)
       ? items
           .map(
             (item) =>
-              `<li>${item.quantity}x ${item.name} (${new Intl.NumberFormat("es-CO", {
+              `<li>${Number(item.quantity) || 1}x ${escapeHtml(item.name)} (${new Intl.NumberFormat("es-CO", {
                 style: "currency",
                 currency: "COP",
                 minimumFractionDigits: 0,
-              }).format(item.price)})</li>`
+              }).format(Number(item.price) || 0)})</li>`
           )
           .join("")
       : "<li>No hay items registrados en el evento</li>";
@@ -63,10 +67,10 @@ export async function POST(req: Request) {
     const htmlContent = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>🛍️ ¡Nuevo pedido recibido!</h2>
-        <p><strong>ID de Orden:</strong> #${shortOrderId}</p>
-        <p><strong>Cliente:</strong> ${customerName || "No especificado"}</p>
+        <p><strong>ID de Orden:</strong> #${safeOrderId}</p>
+        <p><strong>Cliente:</strong> ${safeCustomer}</p>
         <p><strong>Total:</strong> ${formattedTotal}</p>
-        <p><strong>Método de pago:</strong> <span style="text-transform: capitalize;">${paymentMethod || "No especificado"}</span></p>
+        <p><strong>Método de pago:</strong> <span style="text-transform: capitalize;">${safePaymentMethod}</span></p>
         
         <h3 style="margin-top: 24px;">Resumen de compra:</h3>
         <ul>${itemsHtml}</ul>
@@ -79,7 +83,7 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
-      subject: `🛍️ Nuevo pedido #${shortOrderId} de ${customerName || "Cliente"}`,
+      subject: `🛍️ Nuevo pedido #${safeOrderId} de ${safeCustomer}`,
       html: htmlContent,
     });
 
