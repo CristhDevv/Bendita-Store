@@ -14,28 +14,25 @@ El proceso de hardening implementó defensas perimetrales, validaciones de entra
 
 ## 2. Matriz de Riesgos Residuales
 
-| ID | Riesgo Residual | Severidad | Acción Requerida | Responsable |
+| ID | Riesgo Residual | Severidad | Estado | Responsable |
 | :--- | :--- | :--- | :--- | :--- |
-| **RR-01** | Aplicación efectiva de la migración RLS en la base de datos de producción | **ALTA** | Ejecutar el archivo de migración en el SQL Editor de Supabase | Administrador BD |
-| **RR-02** | Rotación de Clave API de Gemini expuesta en proyecto satélite `misapuntesu` | **ALTA** | Revocar en Google AI Studio y migrar a variable de backend | Desarrollador |
-| **RR-03** | Exposición de `cost_price` en consulta `products` vía API anon | **MEDIA** | Crear vista pública o restringir columna a nivel PostgreSQL | Administrador BD |
-| **RR-04** | Rate Limiting distribuido en múltiples nodos Serverless de Vercel | **BAJA** | Conectar `@upstash/ratelimit` con Redis para sincronización global | DevSecOps |
-| **RR-05** | Activación de Autenticación de Dos Factores (MFA / 2FA) para Administradores | **MEDIA** | Forzar TOTP en Supabase Auth para usuarios con `is_admin = true` | CISO / Admin |
+| **RR-01** | Aplicación efectiva de la migración RLS en la base de datos de producción | **ALTA** | **MITIGADO Y VERIFICADO** | Ejecutado vía Management API |
+| **RR-02** | Rotación de Clave API de Gemini expuesta en proyecto satélite `misapuntesu` | **ALTA** | Pendiente | Desarrollador |
+| **RR-03** | Exposición de `cost_price` en consulta `products` vía API anon | **MEDIA** | Pendiente | Administrador BD |
+| **RR-04** | Rate Limiting distribuido en múltiples nodos Serverless de Vercel | **BAJA** | Pendiente | DevSecOps |
+| **RR-05** | Activación de Autenticación de Dos Factores (MFA / 2FA) para Administradores | **MEDIA** | Pendiente | CISO / Admin |
 
 ---
 
 ## 3. Detalle Técnico de los Riesgos y Plan de Acción
 
-### RR-01: Aplicación de la Migración RLS en Producción Supabase (ALTA)
-- **Descripción:**
-  Se ha generado el script SQL completo en:
-  `c:\Users\USER\Desktop\workspace\benditastore\supabase\migrations\20261123150000_harden_rls_and_pos_sales.sql`
-  Dado que la base de datos de producción es un entorno vivo con ventas activas y las herramientas de CLI requieren el token de gestión de Supabase o acceso manual al panel, esta migración debe aplicarse en la consola oficial.
-- **Acción Inmediata Requerida:**
-  1. Abrir el panel de control de Supabase: `https://supabase.com/dashboard/project/vtnmuphfaxjiziknchnk`.
-  2. Ir al apartado **SQL Editor**.
-  3. Pegar y ejecutar el contenido de `20261123150000_harden_rls_and_pos_sales.sql`.
-  4. Verificar que las tablas `supplies`, `production_lots`, etc., tengan habilitado el switch de RLS.
+### RR-01: Aplicación de la Migración RLS en Producción Supabase (ESTADO: COMPLETADO)
+- **Ejecución y Verificación:**
+  La migración `20261123150000_harden_rls_and_pos_sales.sql` fue ejecutada de forma remota y autorizada contra el proyecto `vtnmuphfaxjiziknchnk` de Supabase a través de la Management API (código HTTP 201).
+- **Resultados de Verificación en Vivo:**
+  - `supplies`: RLS activo, consultas anónimas retornan 0 registros y los intentos de escritura son rechazados con error PostgreSQL `42501 (violates row-level security policy)`.
+  - `supply_categories`, `production_lots`, `production_lot_items`, `production_lot_item_supplies`, `expenses`, `inventory_logs`: RLS activo y blindado contra accesos públicos.
+  - `create_pos_sale_transaction`: Invocaciones anónimas o sin credenciales de administrador son rechazadas inmediatamente con excepción `P0001 (Acceso denegado: llamada no autenticada)`.
 
 ---
 

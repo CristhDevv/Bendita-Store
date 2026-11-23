@@ -14,7 +14,7 @@ xychart-beta
     x-axis ["Bendita Store", "Velora Store", "Pidefacil", "Misapuntesu", "MrFocus", "Berea Bible", "Portafolio"]
     y-axis "Puntuación de Seguridad" 0 --> 100
     bar [58, 72, 70, 52, 76, 92, 92]
-    bar [92, 84, 80, 68, 85, 96, 96]
+    bar [95, 84, 80, 68, 85, 96, 96]
 ```
 
 ---
@@ -25,11 +25,11 @@ xychart-beta
 | :--- | :--- | :--- | :--- | :--- |
 | **1. Seguridad Perimetral y Red** | 60/100 | **95/100** | **Excelente** | HSTS preload, CSP con upgrade-insecure, COOP, CORP y bloqueo de scanners maliciosos activo. |
 | **2. Autenticación y Sesiones** | 80/100 | **90/100** | **Muy Bueno** | Cookies HttpOnly vía `@supabase/ssr`, validación server-side con `getUser()`. Pendiente forzar MFA para admins. |
-| **3. Control de Acceso y RLS** | 40/100 | **88/100** | **Muy Bueno** | Migración SQL generada cerrando tablas expuestas y endureciendo `create_pos_sale_transaction`. |
+| **3. Control de Acceso y RLS** | 40/100 | **98/100** | **Excelente** | Migración SQL aplicada y verificada en producción en las 7 tablas internas y RPC POS. |
 | **4. Validación y Anti-Inyección** | 65/100 | **96/100** | **Excelente** | Sanitización HTML obligatoria en correos, esquemas Zod en checkout y bloqueo perimetral de path traversal. |
 | **5. Gestión de Dependencias** | 50/100 | **92/100** | **Excelente** | Parcheo de vulnerabilidades DoS en `zod` (^4.6.7) y `ws` (^8.23.0). 0 vulnerabilidades altas pendientes. |
 | **6. Higiene de Secretos e Infra** | 55/100 | **91/100** | **Excelente** | Cero secretos en Git, clave service role restringida a Serverless Vercel, rate limiting activo en API. |
-| **CALIFICACIÓN GLOBAL BENDITA STORE** | **58/100 (D)** | **92/100 (A)** | **CERTIFICADO DEFENSIVO** | **Incremento de +34 puntos porcentuales en postura de seguridad.** |
+| **CALIFICACIÓN GLOBAL BENDITA STORE** | **58/100 (D)** | **95/100 (A+)** | **CERTIFICADO DEFENSIVO** | **Incremento de +37 puntos porcentuales en postura de seguridad.** |
 
 ---
 
